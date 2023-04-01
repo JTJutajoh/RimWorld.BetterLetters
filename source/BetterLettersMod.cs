@@ -29,6 +29,15 @@ namespace BetterLetters
 
             DFLog.Debug("Harmony patches patching...");
 
+            Patch_Vanilla();
+            // Do any mod-specific patching (Vanilla Expanded...)
+        }
+
+        /// <summary>
+        /// Contains all of the patches that should be run no matter what, regardless of what other mods are loaded
+        /// </summary>
+        static void Patch_Vanilla()
+        {
             // Patch the vanilla choice getters
             var patchClass = typeof(RemoveLetter_Patches);
 
