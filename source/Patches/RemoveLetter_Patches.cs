@@ -16,35 +16,22 @@ namespace BetterLetters
     [HarmonyPatch]
     class RemoveLetter_Patches
     {
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(Verse.ChoiceLetter), "Option_Close", MethodType.Getter)]
-        static bool Option_Close(ref DiaOption __result)
+        static void Option_Close(ref DiaOption __result)
         {
-            __result = new DiaOption("Close".Translate())
-            {
-                resolveTree = true
-            };
-            return false; // Skip original method
+            __result.action = null;
         }
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(Verse.ChoiceLetter), "Option_JumpToLocation", MethodType.Getter)]
-        static bool Option_JumpToLocation(ref DiaOption __result, ChoiceLetter __instance)
+        static void Option_JumpToLocation(ref DiaOption __result, ChoiceLetter __instance)
         {
             GlobalTargetInfo target = __instance.lookTargets.TryGetPrimaryTarget();
-            DiaOption diaOption = new DiaOption("JumpToLocation".Translate());
-            diaOption.action = delegate ()
+            __result.action = delegate ()
             {
                 CameraJumper.TryJumpAndSelect(target, CameraJumper.MovementMode.Pan);
             };
-            diaOption.resolveTree = true;
-            if (!CameraJumper.CanJump(target))
-            {
-                diaOption.Disable(null);
-            }
-            __result = diaOption;
-
-            return false; // Skip original method
         }
 
         [HarmonyPrefix]
@@ -55,25 +42,16 @@ namespace BetterLetters
             postpone = true;
         }
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(Verse.DeathLetter), "Option_ReadMore")]
-        static bool Option_ReadMore(ref DiaOption __result, DeathLetter __instance)
+        static void Option_ReadMore(ref DiaOption __result, DeathLetter __instance)
         {
             GlobalTargetInfo target = __instance.lookTargets.TryGetPrimaryTarget();
-            DiaOption diaOption = new DiaOption("ReadMore".Translate());
-            diaOption.action = delegate ()
+            __result.action = delegate ()
             {
                 CameraJumper.TryJumpAndSelect(target, CameraJumper.MovementMode.Pan);
                 InspectPaneUtility.OpenTab(typeof(ITab_Pawn_Log));
             };
-            diaOption.resolveTree = true;
-            if (!target.IsValid)
-            {
-                diaOption.Disable(null);
-            }
-            __result = diaOption;
-
-            return false; // Skip original method
         }
     }
 }
