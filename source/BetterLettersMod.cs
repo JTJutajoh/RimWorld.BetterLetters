@@ -11,7 +11,7 @@ namespace BetterLetters
 {
     class BetterLettersMod : Verse.Mod
     {
-        public const string modID = "Dark.MarkLetterUnread";
+        public const string modID = "Dark.BetterLetters";
 
         public BetterLettersMod(ModContentPack content) : base(content)
         {
@@ -31,14 +31,27 @@ namespace BetterLetters
 
             // Patch the vanilla choice getters
             var patchClass = typeof(RemoveLetter_Patches);
-            var type = typeof(Verse.ChoiceLetter);
 
+            var type = typeof(Verse.ChoiceLetter);
             PostfixPatchGetter(type, patchClass, "Option_Close");
             PostfixPatchGetter(type, patchClass, "Option_JumpToLocation");
-            PrefixPatchGetter(type, patchClass, "Option_ViewInQuestsTab");
+            PrefixPatchMethod(type, patchClass, "Option_ViewInQuestsTab");
 
             type = typeof(Verse.DeathLetter);
             PostfixPatchGetter(type, patchClass, "Option_ReadMore");
+
+            // Patch new quest letters which don't show a dialog
+            patchClass = typeof(NewQuestLetterOpen_Patch);
+
+            type = typeof(Verse.NewQuestLetter);
+            TranspilePatchMethod(type, patchClass, "OpenLetter");
+
+            // Patch in a new Dismiss choice to letters
+            patchClass = typeof(ChoiceLetterOpenLetter_Patch);
+
+            type = typeof(Verse.ChoiceLetter);
+            //TranspilePatchMethod(type, patchClass, "OpenLetter");
+            //TODO: Resume working on the above transpiler
         }
 
         static MethodInfo GetGetter(Type t, string propName)
@@ -63,17 +76,21 @@ namespace BetterLetters
             var patch = GetPatch(patchClass, propName);
             harmony.Patch(original, postfix: patch);
         }
-        /// <summary>
-        /// Automatically gets the appropriate methods and applies a prefix patch to a property getter
-        /// </summary>
-        /// <param name="t">The type to patch the property of</param>
-        /// <param name="patchClass">A class containing patches with matching names to the desired properties</param>
-        /// <param name="propName">The property to patch. Must match the method name in the patchClass.</param>
-        static void PrefixPatchGetter(Type t, Type patchClass, string propName)
+
+        static void PrefixPatchMethod(Type t, Type patchClass, string methodName)
         {
-            var original = GetGetter(t, propName);
-            var patch = GetPatch(patchClass, propName);
-            harmony.Patch(original, prefix: patch);
+            harmony.Patch(
+                t.GetMethod(methodName, AccessTools.all),
+                prefix: GetPatch(patchClass, methodName)
+                );
+        }
+
+        static void TranspilePatchMethod(Type t, Type patchClass, string methodName)
+        {
+            harmony.Patch(
+                t.GetMethod(methodName, AccessTools.all),
+                transpiler: GetPatch(patchClass, methodName)
+                );
         }
     }
 }

@@ -55,6 +55,8 @@
   <ItemGroup>
     <Compile Include="BetterLettersMod.cs" />
     <Compile Include="DFLog.cs" />
+    <Compile Include="Patches\ChoiceLetterOpenLetter_Patch.cs" />
+    <Compile Include="Patches\NewQuestLetterOpen_Patch.cs" />
     <Compile Include="Patches\RemoveLetter_Patches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
