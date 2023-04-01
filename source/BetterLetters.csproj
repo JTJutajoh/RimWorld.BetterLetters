@@ -7,8 +7,8 @@
     <ProjectGuid>{0A91E48F-8E5D-46F1-98AC-A9FAD52DFA00}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MarkLetterUnread</RootNamespace>
-    <AssemblyName>MarkLetterUnread</AssemblyName>
+    <RootNamespace>BetterLetters</RootNamespace>
+    <AssemblyName>BetterLetters</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\packages\Lib.Harmony.2.2.2\lib\net472\0Harmony.dll</HintPath>
+      <HintPath>..\..\packages\Lib.Harmony.2.2.2\lib\net472\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
@@ -53,8 +53,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="BetterLettersMod.cs" />
+    <Compile Include="DFLog.cs" />
+    <Compile Include="Patches\RemoveLetter_Patches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>rmdir "$(SolutionDir)$(ProjectName)/About" /s /q
+rmdir "$(SolutionDir)$(ProjectName)/Assemblies" /s /q
+robocopy "$(SolutionDir)$(ProjectName)/source" "$(SolutionDir)$(ProjectName)/" /E /XD "bin" "obj" "Properties" "Source Images"  /XF "*.csproj*" "*.pdb" "*.psd" "*.cs" "packages.config" "LICENSE.md" "README.md" || SET ERRORLEVEL=0
+robocopy "$(SolutionDir)$(ProjectName)/" "C:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/$(ProjectName)/" /MIR /XD "source" ".git" /XF ".git*"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
