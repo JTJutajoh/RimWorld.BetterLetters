@@ -56,10 +56,10 @@ namespace BetterLetters
             TranspilePatchMethod(type, patchClass, "OpenLetter");
 
             // Patch in a new Dismiss choice to letters
-            patchClass = typeof(ChoiceLetterOpenLetter_Patch);
+            patchClass = typeof(OpenLetter_Patch);
 
-            type = typeof(Verse.ChoiceLetter);
-            TranspilePatchMethod(type, patchClass, "OpenLetter");
+            TranspilePatchMethod(typeof(Verse.ChoiceLetter), patchClass, "OpenLetter");
+            TranspilePatchMethod(typeof(Verse.DeathLetter), patchClass, "OpenLetter");
         }
 
         static MethodInfo GetGetter(Type t, string propName)
