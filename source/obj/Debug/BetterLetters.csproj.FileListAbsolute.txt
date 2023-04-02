@@ -9,3 +9,5 @@ E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\Assemblies\BetterLette
 E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\Debug\BetterLetters.csproj.CoreCompileInputs.cache
 E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\Debug\BetterLetters.dll
 E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\Debug\BetterLetters.pdb
+E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\1.4\Assemblies\BetterLetters.dll
+E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\1.4\Assemblies\BetterLetters.pdb

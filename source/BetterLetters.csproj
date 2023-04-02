@@ -17,18 +17,27 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>Assemblies\</OutputPath>
+    <OutputPath>1.4\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '1.4|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>1.4\Assemblies\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.3|AnyCPU'">
+    <OutputPath>1.3\Assemblies\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -62,9 +71,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>rmdir "$(SolutionDir)$(ProjectName)/About" /s /q
-rmdir "$(SolutionDir)$(ProjectName)/Assemblies" /s /q
-robocopy "$(SolutionDir)$(ProjectName)/source" "$(SolutionDir)$(ProjectName)/" /E /XD "bin" "obj" "Properties" "Source Images"  /XF "*.csproj*" "*.pdb" "*.psd" "*.cs" "packages.config" "LICENSE.md" "README.md" || SET ERRORLEVEL=0
-robocopy "$(SolutionDir)$(ProjectName)/" "C:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/$(ProjectName)/" /MIR /XD "source" ".git" /XF ".git*"</PostBuildEvent>
+    <PostBuildEvent>pwsh.exe $(SolutionDir)\Complete-Build.ps1 -SolutionDir $(SolutionDir) -ProjectName $(ProjectName)</PostBuildEvent>
   </PropertyGroup>
 </Project>

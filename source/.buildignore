@@ -1,0 +1,9 @@
+bin/
+obj/
+Properties\
+Patches/
+*.pdb
+*.csproj
+*.csproj.user
+*.cs
+*.psd
