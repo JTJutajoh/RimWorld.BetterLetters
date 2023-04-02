@@ -26,7 +26,12 @@ namespace BetterLetters
         }
 
         static MethodInfo anchorMethod = typeof(List<DiaOption>).GetMethod(nameof(List<DiaOption>.AddRange));
-
+        /// <summary>
+        /// General-purpose transpiler that can be applied to all vanilla implementations of Letter.OpenLetter
+        /// Intercepts the list of choices sent to the dialog and adds a "Dismiss" option to the end of the list
+        /// This transpiler should be applicable to any sub-class of Letter as long as it uses the same basic logic for adding options to the dialog.
+        /// Specifically, as long as they call AddRange() on a List<DiaOption> (Like vanilla always does), then this transpiler should work.
+        /// </summary>
         public static IEnumerable<CodeInstruction> OpenLetter(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
@@ -37,7 +42,7 @@ namespace BetterLetters
                     // Just executed:
                     // IL_0012: callvirt instance class [mscorlib]System.Collections.Generic.IEnumerable`1<class Verse.DiaOption> Verse.ChoiceLetter::get_Choices()
 
-                    // A reference to the ChoiceLetter.Choices Property is on the stack, about to be passed to AddRange.
+                    // A reference to the Letter.Choices Property is on the stack, about to be passed to AddRange.
                     // This transpiler intercepts it and adds an option to it before it gets sent to AddRange.
                     yield return new CodeInstruction(OpCodes.Ldarg_0);                      // Load a "this" reference onto the stack
                     yield return CodeInstruction.Call(typeof(OpenLetter_Patch), nameof(AddDismissChoice));
