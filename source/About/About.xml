@@ -6,7 +6,7 @@
 	<supportedVersions>
     <li>1.4</li>
   </supportedVersions>
-  <description>UI mod that adds another option to all Letter dialogs that closes the dialog without removing the Letter notification so you don't lose track of it.</description>
+  <description>Quality of Life UI mod designed to make it easier to keep track of Letters (notifications).</description>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>
