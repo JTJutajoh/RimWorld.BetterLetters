@@ -59,8 +59,7 @@ namespace BetterLetters
             patchClass = typeof(ChoiceLetterOpenLetter_Patch);
 
             type = typeof(Verse.ChoiceLetter);
-            //TranspilePatchMethod(type, patchClass, "OpenLetter");
-            //TODO: Resume working on the above transpiler
+            TranspilePatchMethod(type, patchClass, "OpenLetter");
         }
 
         static MethodInfo GetGetter(Type t, string propName)
