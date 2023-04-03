@@ -60,6 +60,29 @@ namespace BetterLetters
 
             TranspilePatchMethod(typeof(Verse.ChoiceLetter), patchClass, "OpenLetter");
             TranspilePatchMethod(typeof(Verse.DeathLetter), patchClass, "OpenLetter");
+
+            // Patch Archive to add newly-pinned letters back to the LetterStack
+            patchClass = typeof(ArchivePin_Patch);
+
+            type = typeof(RimWorld.Archive);
+            PostfixPatchMethod(type, patchClass, "Pin");
+
+            // Patch Letter buttons to draw the pin button and alter right click behavior
+            patchClass = typeof(LetterCanDismissWithRightClick_Patch);
+
+            type = typeof(Letter);
+            PostfixPatchGetter(type, patchClass, "CanDismissWithRightClick");
+
+            patchClass = typeof(LetterDrawingPatches);
+
+            type = typeof(Letter);
+            TranspilePatchMethod(type, patchClass, "CheckForMouseOverTextAt");
+            // Patching this one manually since we have multiple patches on the same method
+            harmony.Patch(
+                type.GetMethod("DrawButtonAt", AccessTools.all),
+                postfix: GetPatch(patchClass, "DrawButtonAt_Postfix"),
+                transpiler: GetPatch(patchClass, "DrawButtonAt_Transpiler")
+                );
         }
 
         static MethodInfo GetGetter(Type t, string propName)
@@ -69,7 +92,7 @@ namespace BetterLetters
 
         static HarmonyMethod GetPatch(Type t, string methodName)
         {
-            return new HarmonyMethod(t.GetMethod(methodName));
+            return new HarmonyMethod(t.GetMethod(methodName,AccessTools.all));
         }
 
         /// <summary>
@@ -90,6 +113,14 @@ namespace BetterLetters
             harmony.Patch(
                 t.GetMethod(methodName, AccessTools.all),
                 prefix: GetPatch(patchClass, methodName)
+                );
+        }
+
+        static void PostfixPatchMethod(Type t, Type patchClass, string methodName)
+        {
+            harmony.Patch(
+                t.GetMethod(methodName, AccessTools.all),
+                postfix: GetPatch(patchClass, methodName)
                 );
         }
 
