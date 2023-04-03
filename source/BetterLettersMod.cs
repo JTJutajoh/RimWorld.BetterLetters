@@ -38,51 +38,55 @@ namespace BetterLetters
         /// </summary>
         static void Patch_Vanilla()
         {
-            // Patch the vanilla choice getters
-            var patchClass = typeof(RemoveLetter_Patches);
+            // The type that the target method belongs to
+            Type type;
+            // The class that the patches belong to
+            Type patchClass;
 
-            var type = typeof(Verse.ChoiceLetter);
-            PostfixPatchGetter(type, patchClass, "Option_Close");
-            PostfixPatchGetter(type, patchClass, "Option_JumpToLocation");
-            PrefixPatchMethod(type, patchClass, "Option_ViewInQuestsTab");
+            // Patch the vanilla choice getters
+            patchClass = typeof(RemoveLetter_Patches);
+            type = typeof(Verse.ChoiceLetter);
+            PostfixGetter(type, patchClass, "Option_Close");
+            PostfixGetter(type, patchClass, "Option_JumpToLocation");
+            PrefixMethod(type, patchClass, "Option_ViewInQuestsTab");
 
             type = typeof(Verse.DeathLetter);
-            PostfixPatchGetter(type, patchClass, "Option_ReadMore");
+            PostfixGetter(type, patchClass, "Option_ReadMore");
 
             // Patch new quest letters which don't show a dialog
             patchClass = typeof(NewQuestLetterOpen_Patch);
-
             type = typeof(Verse.NewQuestLetter);
-            TranspilePatchMethod(type, patchClass, "OpenLetter");
+            TranspileMethod(type, patchClass, "OpenLetter");
 
-            // Patch in a new Dismiss choice to letters
+            // Patch in a new Dismiss and Pin choices to letters
             patchClass = typeof(OpenLetter_Patch);
-
-            TranspilePatchMethod(typeof(Verse.ChoiceLetter), patchClass, "OpenLetter");
-            TranspilePatchMethod(typeof(Verse.DeathLetter), patchClass, "OpenLetter");
+            TranspileMethod(typeof(Verse.ChoiceLetter), patchClass, "OpenLetter");
+            TranspileMethod(typeof(Verse.DeathLetter), patchClass, "OpenLetter");
 
             // Patch Archive to add newly-pinned letters back to the LetterStack
             patchClass = typeof(ArchivePin_Patch);
-
             type = typeof(RimWorld.Archive);
-            PostfixPatchMethod(type, patchClass, "Pin");
+            PostfixMethod(type, patchClass, "Pin");
 
             // Patch Letter buttons to draw the pin button and alter right click behavior
             patchClass = typeof(LetterCanDismissWithRightClick_Patch);
-
             type = typeof(Letter);
-            PostfixPatchGetter(type, patchClass, "CanDismissWithRightClick");
+            PostfixGetter(type, patchClass, "CanDismissWithRightClick");
 
             patchClass = typeof(LetterDrawingPatches);
-
             type = typeof(Letter);
-            TranspilePatchMethod(type, patchClass, "CheckForMouseOverTextAt");
+            TranspileMethod(type, patchClass, "CheckForMouseOverTextAt");
             // Patching this one manually since we have multiple patches on the same method
             harmony.Patch(
                 type.GetMethod("DrawButtonAt", AccessTools.all),
                 postfix: GetPatch(patchClass, "DrawButtonAt_Postfix"),
                 transpiler: GetPatch(patchClass, "DrawButtonAt_Transpiler")
                 );
+
+            // Patch Dialog_NodeTree to add pin button
+            patchClass = typeof(DialogDrawNode_Patch);
+            type = typeof(Dialog_NodeTree);
+            TranspileMethod(type, patchClass, "DrawNode");
         }
 
         static MethodInfo GetGetter(Type t, string propName)
@@ -101,14 +105,14 @@ namespace BetterLetters
         /// <param name="t">The type to patch the property of</param>
         /// <param name="patchClass">A class containing patches with matching names to the desired properties</param>
         /// <param name="propName">The property to patch. Must match the method name in the patchClass.</param>
-        static void PostfixPatchGetter(Type t, Type patchClass, string propName)
+        static void PostfixGetter(Type t, Type patchClass, string propName)
         {
             var original = GetGetter(t, propName);
             var patch = GetPatch(patchClass, propName);
             harmony.Patch(original, postfix: patch);
         }
 
-        static void PrefixPatchMethod(Type t, Type patchClass, string methodName)
+        static void PrefixMethod(Type t, Type patchClass, string methodName)
         {
             harmony.Patch(
                 t.GetMethod(methodName, AccessTools.all),
@@ -116,7 +120,7 @@ namespace BetterLetters
                 );
         }
 
-        static void PostfixPatchMethod(Type t, Type patchClass, string methodName)
+        static void PostfixMethod(Type t, Type patchClass, string methodName)
         {
             harmony.Patch(
                 t.GetMethod(methodName, AccessTools.all),
@@ -124,7 +128,7 @@ namespace BetterLetters
                 );
         }
 
-        static void TranspilePatchMethod(Type t, Type patchClass, string methodName)
+        static void TranspileMethod(Type t, Type patchClass, string methodName)
         {
             harmony.Patch(
                 t.GetMethod(methodName, AccessTools.all),

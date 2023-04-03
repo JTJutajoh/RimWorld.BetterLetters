@@ -69,6 +69,7 @@
     <Compile Include="BetterLettersMod.cs" />
     <Compile Include="DFLog.cs" />
     <Compile Include="Patches\ArchivePin_Patch.cs" />
+    <Compile Include="Patches\DialogDrawNode_Patch.cs" />
     <Compile Include="Patches\LetterCanDismissWithRightClick_Patch.cs" />
     <Compile Include="Patches\LetterDrawingPatches.cs" />
     <Compile Include="Patches\OpenLetter_Patch.cs" />
