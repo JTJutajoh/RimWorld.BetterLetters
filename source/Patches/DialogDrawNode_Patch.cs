@@ -47,7 +47,7 @@ namespace BetterLetters
                 return;
 
             float size = 20f;
-            Rect pinButtonRect = new Rect(rect.xMax-size, rect.yMin, size, size);
+            Rect pinButtonRect = new Rect(rect.xMax-size, rect.yMax-size, size, size);
 
             // Draw pin button
             // Code adapted from vanilla MainTabWindow_History.DoArchivableRow

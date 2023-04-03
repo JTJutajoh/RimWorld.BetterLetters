@@ -15,6 +15,7 @@ namespace BetterLetters
         {
             if (archivable is Letter letter)
             {
+                //TODO: Put in some sort of whitelist/blacklist here to exclude certain letters from this behavior (Like growth moments)
                 LetterStack letterStack = Find.LetterStack;
                 if (!letterStack.LettersListForReading.Contains(letter))
                 {

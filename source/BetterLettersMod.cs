@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using Verse;
+using RimWorld;
 using HarmonyLib;
 
 namespace BetterLetters
@@ -62,6 +63,13 @@ namespace BetterLetters
             patchClass = typeof(OpenLetter_Patch);
             TranspileMethod(typeof(Verse.ChoiceLetter), patchClass, "OpenLetter");
             TranspileMethod(typeof(Verse.DeathLetter), patchClass, "OpenLetter");
+
+            // Patch to clear any old letter reference when a dialog is opened
+            patchClass = typeof(Dialog_NodeTreeConstructor);
+            type = typeof(Dialog_NodeTree);
+            harmony.Patch(type.GetConstructor(new Type[] { typeof(DiaNode), typeof(bool), typeof(bool), typeof(string) }),
+                postfix: GetPatch(patchClass, "ConstructorPostfix")
+                );
 
             // Patch Archive to add newly-pinned letters back to the LetterStack
             patchClass = typeof(ArchivePin_Patch);

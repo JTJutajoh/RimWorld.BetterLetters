@@ -56,7 +56,8 @@ namespace BetterLetters
             };
         }
 
-        static MethodInfo anchorMethod = typeof(List<DiaOption>).GetMethod(nameof(List<DiaOption>.AddRange));
+        static MethodInfo anchorMethod_AddRange = typeof(List<DiaOption>).GetMethod(nameof(List<DiaOption>.AddRange));
+        static MethodInfo anchorMethod_AddToStack = typeof(WindowStack).GetMethod(nameof(WindowStack.Add));
         /// <summary>
         /// General-purpose transpiler that can be applied to all vanilla implementations of Letter.OpenLetter
         /// Intercepts the list of choices sent to the dialog and adds a "Dismiss" option to the end of the list
@@ -67,11 +68,9 @@ namespace BetterLetters
         {
             var codes = new List<CodeInstruction>(instructions);
 
-            yield return new CodeInstruction(OpCodes.Ldarg_0);                      // Load a "this" reference onto the stack
-            yield return CodeInstruction.Call(typeof(OpenLetter_Patch), nameof(SaveLetterReference));
             for (int i = 0; i < codes.Count; i++)
             {
-                if (codes[i].Calls(anchorMethod))
+                if (codes[i].Calls(anchorMethod_AddRange))
                 {
                     // Just executed:
                     // IL_0012: callvirt instance class [mscorlib]System.Collections.Generic.IEnumerable`1<class Verse.DiaOption> Verse.ChoiceLetter::get_Choices()
@@ -83,6 +82,13 @@ namespace BetterLetters
 
                     // About to execute:
                     // IL_0017: callvirt instance void class [mscorlib]System.Collections.Generic.List`1<class Verse.DiaOption>::AddRange(class [mscorlib]System.Collections.Generic.IEnumerable`1<!0>)
+                }
+                if (codes[i].Calls(anchorMethod_AddToStack))
+                {
+                    // Save a reference to the current letter
+                    // Do this last so that the constructor for the dialog (which just ran) can clear the reference
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);                      // Load a "this" reference onto the stack
+                    yield return CodeInstruction.Call(typeof(OpenLetter_Patch), nameof(SaveLetterReference));
                 }
                 yield return codes[i];
             }
