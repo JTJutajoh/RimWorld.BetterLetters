@@ -13,27 +13,25 @@ using HarmonyLib;
 
 namespace BetterLetters
 {
+    [StaticConstructorOnStartup]
     class DialogDrawNode_Patch
     {
         private static readonly Texture2D PinTex = ContentFinder<Texture2D>.Get("UI/Icons/Pin");
         private static readonly Texture2D PinOutlineTex = ContentFinder<Texture2D>.Get("UI/Icons/Pin-Outline");
-        private static readonly Color PinOutlineColor = new Color(0.25f, 0.25f, 0.25f, 1f);
+        private static readonly Color PinOutlineColor = new Color(0.5f, 0.5f, 0.5f, 1f);
+
+        // Reference set by OpenLetter patches
+        public static Letter curLetter = null;
 
         static MethodInfo anchorMethod_EndGroup = typeof(Widgets).GetMethod(nameof(Widgets.EndGroup));
-        static DiaOption_Pin pinOptionFound = null;
         public static IEnumerable<CodeInstruction> DrawNode(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
 
-            // Manually prefix the method
-            yield return new CodeInstruction(OpCodes.Ldarg_0);
-            yield return CodeInstruction.LoadField(typeof(Dialog_NodeTree), "curNode");
-            yield return CodeInstruction.Call(typeof(DialogDrawNode_Patch), nameof(FindPinOption));
-
             for (int i = 0; i < codes.Count; i++)
             {
                 
-                if (pinOptionFound != null && codes[i].Calls(anchorMethod_EndGroup))
+                if (codes[i].Calls(anchorMethod_EndGroup))
                 {
                     // Just before the UI group is ended, inject our own code
                     yield return new CodeInstruction(OpCodes.Ldarg_1);
@@ -43,26 +41,44 @@ namespace BetterLetters
             }
         }
 
-        // Looks through the list of options on a dialog and if it finds one of type DiaOption_Pin:
-        // 1) Removes it
-        // 2) Sets the pinOptionFound so that the transpiler knows to draw the pin button
-        public static void FindPinOption(DiaNode curNode)
-        {
-            var options = new List<DiaOption>(curNode.options);
-            pinOptionFound = null;
-            foreach (var item in options)
-            {
-                if (item is DiaOption_Pin pinOption)
-                {
-                    pinOptionFound = pinOption;
-                    curNode.options.Remove(item);
-                }
-            }
-        }
-
         static void DrawPinButton(Rect rect)
         {
+            if (curLetter == null) 
+                return;
 
+            float size = 20f;
+            Rect pinButtonRect = new Rect(rect.xMax-size, rect.yMin, size, size);
+
+            // Draw pin button
+            // Code adapted from vanilla MainTabWindow_History.DoArchivableRow
+            float pinAlpha = (Find.Archive.IsPinned(curLetter) ? 1f : ((!Mouse.IsOver(pinButtonRect)) ? 0f : 0.65f));
+            Rect position = new Rect(pinButtonRect.x + (pinButtonRect.width - 22f) / 2f, pinButtonRect.y + (pinButtonRect.height - 22f) / 2f, 22f, 22f).Rounded();
+            if (pinAlpha > 0f)
+            {
+                GUI.color = new Color(1f, 1f, 1f, pinAlpha);
+                GUI.DrawTexture(pinButtonRect, PinTex);
+            }
+            else
+            {
+                GUI.color = PinOutlineColor;
+                GUI.DrawTexture(pinButtonRect, PinOutlineTex);
+            }
+
+
+            TooltipHandler.TipRegionByKey(pinButtonRect, "PinArchivableTip", 200);
+            if (Widgets.ButtonInvisible(pinButtonRect))
+            {
+                if (Find.Archive.IsPinned(curLetter))
+                {
+                    Find.Archive.Unpin(curLetter);
+                    SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
+                }
+                else
+                {
+                    Find.Archive.Pin(curLetter);
+                    SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
+                }
+            }
         }
     }
 }

@@ -11,3 +11,4 @@ E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\Debug\BetterLetter
 E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\Debug\BetterLetters.pdb
 E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\1.4\Assemblies\BetterLetters.dll
 E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\1.4\Assemblies\BetterLetters.pdb
+E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\Debug\BetterLetters.csproj.AssemblyReference.cache

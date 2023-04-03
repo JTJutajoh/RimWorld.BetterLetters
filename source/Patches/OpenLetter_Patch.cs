@@ -66,6 +66,9 @@ namespace BetterLetters
         public static IEnumerable<CodeInstruction> OpenLetter(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
+
+            yield return new CodeInstruction(OpCodes.Ldarg_0);                      // Load a "this" reference onto the stack
+            yield return CodeInstruction.Call(typeof(OpenLetter_Patch), nameof(SaveLetterReference));
             for (int i = 0; i < codes.Count; i++)
             {
                 if (codes[i].Calls(anchorMethod))
@@ -85,13 +88,16 @@ namespace BetterLetters
             }
         }
 
+        static void SaveLetterReference(Letter __instance)
+        {
+            DialogDrawNode_Patch.curLetter = __instance;
+        }
+
         static IEnumerable<DiaOption> AddChoices(IEnumerable<DiaOption> options, Letter __instance)
         {
             foreach (var cur in options)
                 yield return cur;
             foreach (var cur in AddDismissChoice(__instance))
-                yield return cur;
-            foreach (var cur in AddPinChoice(__instance))
                 yield return cur;
         }
 
@@ -101,11 +107,6 @@ namespace BetterLetters
             {
                 yield return Option_Dismiss(__instance);
             }
-        }
-
-        static IEnumerable<DiaOption> AddPinChoice(Letter __instance)
-        {
-            yield return Option_Pin(__instance);
         }
     }
 }
