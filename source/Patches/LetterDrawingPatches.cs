@@ -24,9 +24,10 @@ namespace BetterLetters
         // Patch for drawing the pin button
         public static void DrawButtonAt_Postfix(Letter __instance, float topY)
         {
-            //TODO: Clean up the way this rect is generated
-            float num = (float)UI.screenWidth - 38f - 12f + 16f;
-            Rect pinButtonRect = new Rect(num, topY, 38f, 30f);
+            float width = 38f;
+            float xPos = (float)UI.screenWidth - width + 4f;
+            Rect pinButtonRect = new Rect(xPos, topY, width, 30f);
+
             // Draw pin button
             // Code adapted from vanilla MainTabWindow_History.DoArchivableRow
             float pinAlpha = (Find.Archive.IsPinned(__instance) ? 1f : ((!Mouse.IsOver(pinButtonRect)) ? 0f : 0.65f));
@@ -129,9 +130,29 @@ namespace BetterLetters
         {
             if (Find.Archive.IsPinned(__instance) && Event.current.type == EventType.MouseDown && Event.current.button == 1 && Mouse.IsOver(rect))
             {
-                DFLog.Debug("Right clicked a pinned Letter");
-                //TODO: Create the float menu when right clicking a pinned letter
-                SoundDefOf.Click.PlayOneShotOnCamera();
+                List<FloatMenuOption> floatMenuOptions = new List<FloatMenuOption>();
+                floatMenuOptions.Add(new FloatMenuOption(
+                    "OpenLetter".Translate(),
+                    delegate { __instance.OpenLetter(); }
+                    ));
+                floatMenuOptions.Add(new FloatMenuOption(
+                    "DismissButStayPinned".Translate(),
+                    delegate { Find.LetterStack.RemoveLetter(__instance); }
+                    ));
+                floatMenuOptions.Add(new FloatMenuOption(
+                    "Unpin".Translate(),
+                    delegate { Find.Archive.Unpin(__instance); }
+                    ));
+                floatMenuOptions.Add(new FloatMenuOption(
+                    "UnpinAndDismiss".Translate(),
+                    delegate { 
+                        Find.Archive.Unpin(__instance);
+                        Find.LetterStack.RemoveLetter(__instance); 
+                    }
+                    ));
+
+                Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
+                SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
                 Event.current.Use();
             }
         }

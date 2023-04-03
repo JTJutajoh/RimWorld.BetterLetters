@@ -2,4 +2,8 @@
 
 <LanguageData>
   <Dismiss>Dismiss</Dismiss>
+  <OpenLetter>Open</OpenLetter>
+  <Unpin>Unpin</Unpin>
+  <UnpinAndDismiss>Unpin and Dismiss</UnpinAndDismiss>
+  <DismissButStayPinned>Dismiss (Keep pinned in Archive)</DismissButStayPinned>
 </LanguageData>
