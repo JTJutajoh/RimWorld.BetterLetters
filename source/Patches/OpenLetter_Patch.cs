@@ -58,7 +58,10 @@ namespace BetterLetters
         {
             foreach (var cur in options)
                 yield return cur;
-            yield return Option_Dismiss(__instance);
+            if (Find.LetterStack.LettersListForReading.Contains(__instance))
+            {
+                yield return Option_Dismiss(__instance);
+            }
         }
     }
 }
