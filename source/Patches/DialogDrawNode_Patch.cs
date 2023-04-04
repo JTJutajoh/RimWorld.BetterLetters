@@ -30,7 +30,6 @@ namespace BetterLetters
 
             for (int i = 0; i < codes.Count; i++)
             {
-                
                 if (codes[i].Calls(anchorMethod_EndGroup))
                 {
                     // Just before the UI group is ended, inject our own code

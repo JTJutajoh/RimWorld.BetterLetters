@@ -71,6 +71,11 @@ namespace BetterLetters
                 postfix: GetPatch(patchClass, "ConstructorPostfix")
                 );
 
+            // Patch to move the faction info in letters slightly up so it doesn't block the pin button
+            patchClass = typeof(DialogFactionInfoNudge);
+            type = typeof(Dialog_NodeTreeWithFactionInfo);
+            TranspileMethod(type, patchClass, "DoWindowContents");
+
             // Patch Archive to add newly-pinned letters back to the LetterStack
             patchClass = typeof(ArchivePin_Patch);
             type = typeof(RimWorld.Archive);
