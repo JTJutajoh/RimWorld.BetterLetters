@@ -26,3 +26,6 @@ Utilizing this relatively unknown feature of vanilla RimWorld means that this mo
 
 ## Translations
 *None currently. If you translate this mod to another language, please let me know and I will add a link to it here, or add the translation to the base mod itself.*
+
+## Source code
+[GitHub repository](https://github.com/JTJutajoh/RimWorld.BetterLetters)
