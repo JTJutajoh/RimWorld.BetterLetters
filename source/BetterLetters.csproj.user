@@ -18,4 +18,14 @@
     <StartProgram>C:\Program Files %28x86%29\Steam\steamapps\common\RimWorld\RimWorldWin64.exe</StartProgram>
     <StartArguments>-quicktest -popupwindow</StartArguments>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.2|AnyCPU'">
+    <StartProgram>C:\Program Files %28x86%29\Steam\steamapps\common\RimWorld\RimWorldWin64.exe</StartProgram>
+    <StartArguments>-quicktest -popupwindow</StartArguments>
+    <StartAction>Program</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.1|AnyCPU'">
+    <StartProgram>C:\Program Files %28x86%29\Steam\steamapps\common\RimWorld\RimWorldWin64.exe</StartProgram>
+    <StartArguments>-quicktest -popupwindow</StartArguments>
+    <StartAction>Program</StartAction>
+  </PropertyGroup>
 </Project>

@@ -22,8 +22,11 @@ namespace BetterLetters
 
         // Reference set by OpenLetter patches
         public static Letter curLetter = null;
-
+#if (v1_2 || v1_1)
+        static MethodInfo anchorMethod_EndGroup = typeof(GUI).GetMethod(nameof(GUI.EndGroup));
+#else
         static MethodInfo anchorMethod_EndGroup = typeof(Widgets).GetMethod(nameof(Widgets.EndGroup));
+#endif
         public static IEnumerable<CodeInstruction> DrawNode(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);

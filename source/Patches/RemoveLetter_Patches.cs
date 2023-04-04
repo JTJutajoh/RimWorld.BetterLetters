@@ -25,7 +25,11 @@ namespace BetterLetters
             GlobalTargetInfo target = __instance.lookTargets.TryGetPrimaryTarget();
             __result.action = delegate ()
             {
+#if v1_4
                 CameraJumper.TryJumpAndSelect(target, CameraJumper.MovementMode.Pan);
+#elif v1_3
+                CameraJumper.TryJumpAndSelect(target);
+#endif
             };
         }
 
@@ -40,7 +44,11 @@ namespace BetterLetters
             GlobalTargetInfo target = __instance.lookTargets.TryGetPrimaryTarget();
             __result.action = delegate ()
             {
+#if v1_4
                 CameraJumper.TryJumpAndSelect(target, CameraJumper.MovementMode.Pan);
+#elif v1_3
+                CameraJumper.TryJumpAndSelect(target);
+#endif
                 InspectPaneUtility.OpenTab(typeof(ITab_Pawn_Log));
             };
         }

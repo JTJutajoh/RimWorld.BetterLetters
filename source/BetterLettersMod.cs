@@ -28,6 +28,7 @@ namespace BetterLetters
         {
             harmony = new Harmony(BetterLettersMod.modID);
 
+            Log.Message("Loading");
             DFLog.Message("Running Harmony patches...");
 
             Patch_Vanilla();

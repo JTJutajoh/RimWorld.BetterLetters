@@ -37,7 +37,12 @@ namespace BetterLetters
                 GUI.color = new Color(1f, 1f, 1f, pinAlpha);
                 GUI.DrawTexture(position, PinTex);
             }
+#if (v1_2 || v1_1)
+
+            else if (Mouse.IsOver(pinButtonRect.ExpandedBy(20f)))
+#else
             else if (Mouse.IsOver(pinButtonRect.ExpandedBy(100f, 4f)))
+#endif
             {
                 GUI.color = PinOutlineColor;
                 GUI.DrawTexture(position, PinOutlineTex);

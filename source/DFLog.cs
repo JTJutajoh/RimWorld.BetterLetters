@@ -38,10 +38,12 @@ namespace BetterLetters
             Log.Warning(Prefix + text);
         }
 
+#if v1_4
         public static void WarningOnce(string text, int key)
         {
             Log.WarningOnce(Prefix + text, key);
         }
+#endif
 
         public static void Message(string text)
         {
