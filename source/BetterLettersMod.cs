@@ -28,10 +28,12 @@ namespace BetterLetters
         {
             harmony = new Harmony(BetterLettersMod.modID);
 
-            DFLog.Debug("Harmony patches patching...");
+            DFLog.Message("Running Harmony patches...");
 
             Patch_Vanilla();
             // Do any mod-specific patching (Vanilla Expanded...)
+
+            DFLog.Message("Harmony patching complete");
         }
 
         /// <summary>
