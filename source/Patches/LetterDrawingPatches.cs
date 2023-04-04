@@ -44,7 +44,7 @@ namespace BetterLetters
             }
 
 
-            TooltipHandler.TipRegionByKey(pinButtonRect, "PinArchivableTip", 200);
+            TooltipHandler.TipRegionByKey(pinButtonRect, "PinTip", 200);
             if (Widgets.ButtonInvisible(pinButtonRect))
             {
                 if (Find.Archive.IsPinned(__instance))
@@ -131,14 +131,7 @@ namespace BetterLetters
             if (Find.Archive.IsPinned(__instance) && Event.current.type == EventType.MouseDown && Event.current.button == 1 && Mouse.IsOver(rect))
             {
                 List<FloatMenuOption> floatMenuOptions = new List<FloatMenuOption>();
-                floatMenuOptions.Add(new FloatMenuOption(
-                    "OpenLetter".Translate(),
-                    delegate { __instance.OpenLetter(); }
-                    ));
-                floatMenuOptions.Add(new FloatMenuOption(
-                    "DismissButStayPinned".Translate(),
-                    delegate { Find.LetterStack.RemoveLetter(__instance); }
-                    ));
+                // Unpin option is first in the list so it's under the player's mouse after they right click, meaning you can still do the vanilla behavior of spamming right click to remove all letters
                 floatMenuOptions.Add(new FloatMenuOption(
                     "Unpin".Translate(),
                     delegate { Find.Archive.Unpin(__instance); }
@@ -149,6 +142,14 @@ namespace BetterLetters
                         Find.Archive.Unpin(__instance);
                         Find.LetterStack.RemoveLetter(__instance); 
                     }
+                    ));
+                floatMenuOptions.Add(new FloatMenuOption(
+                    "DismissButStayPinned".Translate(),
+                    delegate { Find.LetterStack.RemoveLetter(__instance); }
+                    ));
+                floatMenuOptions.Add(new FloatMenuOption(
+                    "OpenLetter".Translate(),
+                    delegate { __instance.OpenLetter(); }
                     ));
 
                 Find.WindowStack.Add(new FloatMenu(floatMenuOptions));

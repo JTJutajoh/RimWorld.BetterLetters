@@ -65,7 +65,7 @@ namespace BetterLetters
             }
 
 
-            TooltipHandler.TipRegionByKey(pinButtonRect, "PinArchivableTip", 200);
+            TooltipHandler.TipRegionByKey(pinButtonRect, "PinTipFromDialog", 200);
             if (Widgets.ButtonInvisible(pinButtonRect))
             {
                 if (Find.Archive.IsPinned(curLetter))

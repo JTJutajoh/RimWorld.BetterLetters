@@ -12,15 +12,6 @@ using System.Reflection.Emit;
 
 namespace BetterLetters
 {
-    // Marker class that doesn't do anything on its own but is used to pass the special Pin option. Another patch will cast for this sub class and behave differently if it's found
-    class DiaOption_Pin : DiaOption
-    {
-        public DiaOption_Pin()
-        {
-            text = "PinArchivableTip".Translate();
-        }
-    }
-
     class OpenLetter_Patch
     {
         protected static DiaOption Option_Dismiss(Letter __instance)
@@ -32,27 +23,6 @@ namespace BetterLetters
                     Find.LetterStack.RemoveLetter(__instance);
                 },
                 resolveTree = true
-            };
-        }
-
-        protected static DiaOption_Pin Option_Pin(Letter __instance)
-        {
-            return new DiaOption_Pin()
-            {
-                action = delegate ()
-                {
-                    if (Find.Archive.IsPinned(__instance))
-                    {
-                        Find.Archive.Unpin(__instance);
-                        SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
-                    }
-                    else
-                    {
-                        Find.Archive.Pin(__instance);
-                        SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
-                    }
-                },
-                resolveTree = false
             };
         }
 
