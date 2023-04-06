@@ -14,7 +14,7 @@ namespace BetterLetters
     {
         public static void CanDismissWithRightClick(ref bool __result, Letter __instance)
         {
-            __result = !Find.Archive.IsPinned(__instance);
+            __result = !__instance.IsPinned();
         }
     }
 }

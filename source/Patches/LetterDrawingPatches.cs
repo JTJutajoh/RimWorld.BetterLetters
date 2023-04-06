@@ -16,7 +16,9 @@ namespace BetterLetters
     [StaticConstructorOnStartup]
     class LetterDrawingPatches
     {
-        const float xOffset = 6f;
+        const float xOffset = 0f;
+        const float pinXOffset = 23.5f;
+        const float pinnedLetterInflateAmount = 4f;
         private static readonly Texture2D PinTex = ContentFinder<Texture2D>.Get("UI/Icons/Pin");
         private static readonly Texture2D PinOutlineTex = ContentFinder<Texture2D>.Get("UI/Icons/Pin-Outline");
         private static readonly Color PinOutlineColor = new Color(0.75f, 0.65f, 0.65f, 1f);
@@ -27,9 +29,9 @@ namespace BetterLetters
             if (!__instance.IsPinned())
                 return;
 
-            float size = 16f;
+            float size = 14f;
             float xPos = (float)UI.screenWidth - size - xOffset;
-            Rect pinButtonRect = new Rect(xPos, topY-6f, size, size);
+            Rect pinButtonRect = new Rect(xPos-pinXOffset, topY-6f, size, size);
 
             Rect position = pinButtonRect.Rounded();
             GUI.DrawTexture(position, PinTex);
@@ -57,13 +59,15 @@ namespace BetterLetters
             }
         }
 
-        static MethodInfo anchorMethod = typeof(Widgets).GetMethod(nameof(Widgets.ButtonInvisible));
+        static MethodInfo anchorMethod_ButtonInvisible = typeof(Widgets).GetMethod(nameof(Widgets.ButtonInvisible));
+        static ConstructorInfo rectConstructor = typeof(Rect).GetConstructor(new[] { typeof(float), typeof(float), typeof(float), typeof(float) });
         // Patch for moving the texture, label, and altering right-click behavior
         public static IEnumerable<CodeInstruction> DrawButtonAt_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
 
             bool xAltered = false;
+            bool inflated = false;
             for (int i = 0; i < codes.Count; i++)
             {
                 // Enlarging the rect and shifting to the left
@@ -85,8 +89,19 @@ namespace BetterLetters
                     yield return new CodeInstruction(OpCodes.Add);
                 }
 
+                // Altering the Letter icon Rect
+                if (!inflated && codes[i].opcode == OpCodes.Call && codes[i].operand == rectConstructor)
+                {
+                    inflated = true;
+                    yield return codes[i];
+                    yield return new CodeInstruction(OpCodes.Ldarg_0); // Load a "this" reference
+                    yield return new CodeInstruction(OpCodes.Ldloca_S, 1);
+                    yield return CodeInstruction.Call(typeof(LetterDrawingPatches), nameof(InflateIfPinned));
+                    continue;
+                }
+
                 // Altering right-click behavior
-                if (codes[i].Calls(anchorMethod))
+                if (codes[i].Calls(anchorMethod_ButtonInvisible))
                 {
                     // IL_0312: ldloc.2
                     // IL_0313: ldc.i4.1
@@ -95,15 +110,23 @@ namespace BetterLetters
 
                     yield return new CodeInstruction(OpCodes.Ldarg_0); // Load a "this" reference
                     yield return new CodeInstruction(OpCodes.Ldloc_1); // Load a reference to "rect" local variable
-                    yield return CodeInstruction.Call(typeof(LetterDrawingPatches), nameof(CheckForRightClick));
+                    yield return CodeInstruction.Call(typeof(LetterDrawingPatches), nameof(DoPinnedFloatMenu));
                 }
                 yield return codes[i];
             }
         }
 
-        static void CheckForRightClick(Letter __instance, Rect rect)
+        static void InflateIfPinned(Letter __instance, ref Rect rect)
         {
-            if (Find.Archive.IsPinned(__instance) && Event.current.type == EventType.MouseDown && Event.current.button == 1 && Mouse.IsOver(rect))
+            if (__instance.IsPinned())
+            {
+                rect = rect.ExpandedBy(pinnedLetterInflateAmount);
+            }
+        }
+
+        static void DoPinnedFloatMenu(Letter __instance, Rect rect)
+        {
+            if (__instance.IsPinned() && Event.current.type == EventType.MouseDown && Event.current.button == 1 && Mouse.IsOver(rect))
             {
                 List<FloatMenuOption> floatMenuOptions = new List<FloatMenuOption>();
                 // Unpin option is first in the list so it's under the player's mouse after they right click, meaning you can still do the vanilla behavior of spamming right click to remove all letters
@@ -122,10 +145,10 @@ namespace BetterLetters
                     "DismissButStayPinned".Translate(),
                     delegate { Find.LetterStack.RemoveLetter(__instance); }
                     ));
-                floatMenuOptions.Add(new FloatMenuOption(
-                    "OpenLetter".Translate(),
-                    delegate { __instance.OpenLetter(); }
-                    ));
+                //floatMenuOptions.Add(new FloatMenuOption(
+                //    "OpenLetter".Translate(),
+                //    delegate { __instance.OpenLetter(); }
+                //    ));
 
                 Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
                 SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
