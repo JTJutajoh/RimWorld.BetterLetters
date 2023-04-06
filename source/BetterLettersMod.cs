@@ -29,7 +29,7 @@ namespace BetterLetters
             harmony = new Harmony(BetterLettersMod.modID);
 
 #if DEBUG
-            Harmony.DEBUG = true;
+            Harmony.DEBUG = false;
 #endif
 
             Log.Message("Loading");
