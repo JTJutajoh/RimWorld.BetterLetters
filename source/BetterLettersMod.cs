@@ -97,7 +97,6 @@ namespace BetterLetters
             // Patch Dialog_NodeTree to add pin button
             patchClass = typeof(DialogDrawNode_Patch);
             type = typeof(Dialog_NodeTree);
-            TranspileMethod(type, patchClass, "DrawNode");
             PostfixMethod(typeof(Dialog_NodeTree), patchClass, "DoWindowContents");
         }
 
