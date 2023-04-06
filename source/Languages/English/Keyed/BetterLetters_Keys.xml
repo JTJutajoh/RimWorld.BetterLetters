@@ -2,18 +2,8 @@
 
 <LanguageData>
   <Dismiss>Dismiss</Dismiss>
-  <OpenLetter>Open</OpenLetter>
   <Pin>Pin</Pin>
   <Unpin>Unpin</Unpin>
   <UnpinAndDismiss>Unpin and Dismiss</UnpinAndDismiss>
   <DismissButStayPinned>Dismiss (Keep pinned in Archive)</DismissButStayPinned>
-  <PinTip>Pin or unpin this letter.
-  
-Pinned letters cannot be removed from the letter stack by right clicking.</PinTip>
-  <PinTipFromDialog>Pin or unpin this letter.
-
-Pinned letters cannot be removed from the letter stack by right clicking.
-
-If this letter was previously archived, it will be added back to the letter stack when it is pinned.
-  </PinTipFromDialog>
 </LanguageData>
