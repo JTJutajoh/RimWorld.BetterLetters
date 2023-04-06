@@ -98,6 +98,14 @@ namespace BetterLetters
             patchClass = typeof(DialogDrawNode_Patch);
             type = typeof(Dialog_NodeTree);
             PostfixMethod(typeof(Dialog_NodeTree), patchClass, "DoWindowContents");
+
+            // Patch to sort pinned letters always on the bottom
+            patchClass = typeof(LetterStackReceiveLetter_Patch);
+            type = typeof(LetterStack);
+            harmony.Patch(
+                type.GetMethod("ReceiveLetter", new [] {typeof(Letter), typeof(string)}),
+                postfix: GetPatch(patchClass, "ReceiveLetter")
+                );
         }
 
         static MethodInfo GetGetter(Type t, string propName)

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Verse;
 using RimWorld;
 using HarmonyLib;
+using System.Reflection;
 
 namespace BetterLetters
 {
@@ -19,11 +20,21 @@ namespace BetterLetters
         public static void Pin(this Letter letter)
         {
             Find.Archive.Pin(letter);
+            SortLetterStackByPinned();
         }
 
         public static void Unpin(this Letter letter)
         {
             Find.Archive.Unpin(letter);
+        }
+
+        static FieldInfo lettersField = typeof(LetterStack).GetField("letters", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static void SortLetterStackByPinned()
+        {
+            List<Letter> letters = (List<Letter>)lettersField.GetValue(Find.LetterStack);
+            letters = letters.OrderBy(obj => obj.IsPinned()).ToList();
+            lettersField.SetValue(Find.LetterStack, letters);
         }
     }
 }

@@ -87,6 +87,7 @@
     <Compile Include="BetterLettersMod.cs" />
     <Compile Include="DFLog.cs" />
     <Compile Include="LetterUtils.cs" />
+    <Compile Include="Patches\LetterStackReceiveLetter_Patch.cs" />
     <Compile Include="Patches\ArchivePin_Patch.cs" />
     <Compile Include="Patches\DialogDrawNode_Patch.cs" />
     <Compile Include="Patches\Dialog_NodeTreeConstructor.cs" />
