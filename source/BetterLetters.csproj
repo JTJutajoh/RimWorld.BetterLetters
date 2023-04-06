@@ -40,7 +40,7 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.2|AnyCPU'">
-    <OutputPath>bin\1.2\</OutputPath>
+    <OutputPath>1.2\Assemblies\</OutputPath>
     <DefineConstants>TRACE;v1_2</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
