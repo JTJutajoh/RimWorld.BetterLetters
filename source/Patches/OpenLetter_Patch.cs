@@ -59,8 +59,8 @@ namespace BetterLetters
 
         protected static DiaOption Option_Pin(Letter __instance)
         {
-            var option = new DiaOption("Pin".Translate());
-            option.clickSound = SoundDefOf.Checkbox_TurnedOn;
+            var option = new DiaOption(__instance.IsPinned() ? "Unpin".Translate() : "Pin".Translate());
+            option.clickSound = __instance.IsPinned() ? SoundDefOf.Checkbox_TurnedOff : SoundDefOf.Checkbox_TurnedOn;
             option.action = delegate
             {
                 if (__instance.IsPinned())
@@ -82,9 +82,9 @@ namespace BetterLetters
 
         static IEnumerable<DiaOption> AddChoices(IEnumerable<DiaOption> options, Letter __instance)
         {
+            yield return Option_Pin(__instance);
             foreach (var cur in options)
                 yield return cur;
-            yield return Option_Pin(__instance);
         }
     }
 }

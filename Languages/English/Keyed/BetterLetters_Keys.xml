@@ -3,6 +3,7 @@
 <LanguageData>
   <Dismiss>Dismiss</Dismiss>
   <OpenLetter>Open</OpenLetter>
+  <Pin>Pin</Pin>
   <Unpin>Unpin</Unpin>
   <UnpinAndDismiss>Unpin and Dismiss</UnpinAndDismiss>
   <DismissButStayPinned>Dismiss (Keep pinned in Archive)</DismissButStayPinned>

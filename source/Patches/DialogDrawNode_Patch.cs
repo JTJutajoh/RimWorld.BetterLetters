@@ -33,13 +33,13 @@ namespace BetterLetters
 
             for (int i = 0; i < codes.Count; i++)
             {
-                if (codes[i].Calls(anchorMethod_EndGroup))
+                yield return codes[i];
+                if (false && codes[i].Calls(anchorMethod_EndGroup)) //TODO: Probably remove this
                 {
                     // Just before the UI group is ended, inject our own code
                     yield return new CodeInstruction(OpCodes.Ldarg_1);
                     yield return CodeInstruction.Call(typeof(DialogDrawNode_Patch), nameof(DrawPinButton));
                 }
-                yield return codes[i];
             }
         }
 
@@ -48,13 +48,16 @@ namespace BetterLetters
             if (curLetter == null) 
                 return;
 
-            float size = 20f;
-            Rect pinButtonRect = new Rect(rect.xMax-size, rect.yMax-size, size, size);
+
+            float size = 32f;
+
+            Widgets.BeginGroup(rect);
+
+            Rect pinButtonRect = new Rect(rect.xMax-size, rect.yMin, size, size);
 
             // Draw pin button
             // Code adapted from vanilla MainTabWindow_History.DoArchivableRow
             float pinAlpha = (Find.Archive.IsPinned(curLetter) ? 1f : ((!Mouse.IsOver(pinButtonRect)) ? 0f : 0.65f));
-            Rect position = new Rect(pinButtonRect.x + (pinButtonRect.width - 22f) / 2f, pinButtonRect.y + (pinButtonRect.height - 22f) / 2f, 22f, 22f).Rounded();
             if (pinAlpha > 0f)
             {
                 GUI.color = new Color(1f, 1f, 1f, pinAlpha);
@@ -80,6 +83,17 @@ namespace BetterLetters
                     Find.Archive.Pin(curLetter);
                     SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
                 }
+            }
+            Widgets.EndGroup();
+        }
+
+        static void DoWindowContents(Dialog_NodeTree __instance)
+        {
+            float size = 32f;
+            if (curLetter.IsPinned())
+            {
+                Rect rect = new Rect((__instance.InitialSize.x - size)-8f, (-size / 2)-12f, size, size);
+                Graphics.DrawTexture(rect, PinTex);
             }
         }
     }
