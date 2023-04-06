@@ -15,9 +15,12 @@ namespace BetterLetters
     
     class RemoveLetter_Patches
     {
-        public static void Option_Close(ref DiaOption __result)
+        public static void Option_Close(ref DiaOption __result, Letter __instance)
         {
-            __result.action = null;
+            __result.action = delegate
+            {
+                DismissIfNotPinned(__instance);
+            };
         }
         
         public static void Option_JumpToLocation(ref DiaOption __result, ChoiceLetter __instance)
@@ -25,18 +28,13 @@ namespace BetterLetters
             GlobalTargetInfo target = __instance.lookTargets.TryGetPrimaryTarget();
             __result.action = delegate ()
             {
+                DismissIfNotPinned(__instance);
 #if v1_4
                 CameraJumper.TryJumpAndSelect(target, CameraJumper.MovementMode.Pan);
 #elif v1_3
                 CameraJumper.TryJumpAndSelect(target);
 #endif
             };
-        }
-
-        public static void Option_ViewInQuestsTab(ref bool postpone)
-        {
-            // The vanilla method already has the ability to do what we want if the "postpone" parameter is true. So just set it to always be true.
-            postpone = true;
         }
 
         public static void Option_ReadMore(ref DiaOption __result, DeathLetter __instance)
@@ -44,6 +42,7 @@ namespace BetterLetters
             GlobalTargetInfo target = __instance.lookTargets.TryGetPrimaryTarget();
             __result.action = delegate ()
             {
+                DismissIfNotPinned(__instance);
 #if v1_4
                 CameraJumper.TryJumpAndSelect(target, CameraJumper.MovementMode.Pan);
 #elif v1_3
@@ -51,6 +50,22 @@ namespace BetterLetters
 #endif
                 InspectPaneUtility.OpenTab(typeof(ITab_Pawn_Log));
             };
+        }
+
+        // Utility function called by letter choices to alter behavior of all buttons to factor in the pinned state of the letter
+        static void DismissIfNotPinned(Letter letter)
+        {
+            if (!letter.IsPinned())
+                Find.LetterStack.RemoveLetter(letter);
+        }
+
+        // Slightly different from the other methods since this one uses a normal method in vanilla rather than a Property getter
+        public static void Option_ViewInQuestsTab(ref bool postpone, Letter __instance)
+        {
+            if (!__instance.IsPinned())
+                return;
+            // The vanilla method already has the ability to do what we want if the "postpone" parameter is true. So just set it to always be true.
+            postpone = true;
         }
     }
 }

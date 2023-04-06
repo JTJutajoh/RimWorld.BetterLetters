@@ -62,7 +62,7 @@ namespace BetterLetters
             type = typeof(Verse.NewQuestLetter);
             TranspileMethod(type, patchClass, "OpenLetter");
 
-            // Patch in a new Dismiss and Pin choices to letters
+            // Patch to track the current Letter since the Dialog doesn't know what Letter it is displaying info for (if any)
             patchClass = typeof(OpenLetter_Patch);
             TranspileMethod(typeof(Verse.ChoiceLetter), patchClass, "OpenLetter");
             TranspileMethod(typeof(Verse.DeathLetter), patchClass, "OpenLetter");
