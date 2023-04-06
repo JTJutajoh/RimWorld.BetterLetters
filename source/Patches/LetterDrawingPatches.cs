@@ -16,53 +16,23 @@ namespace BetterLetters
     [StaticConstructorOnStartup]
     class LetterDrawingPatches
     {
-        const float xOffset = 30f;
+        const float xOffset = 6f;
         private static readonly Texture2D PinTex = ContentFinder<Texture2D>.Get("UI/Icons/Pin");
         private static readonly Texture2D PinOutlineTex = ContentFinder<Texture2D>.Get("UI/Icons/Pin-Outline");
         private static readonly Color PinOutlineColor = new Color(0.75f, 0.65f, 0.65f, 1f);
 
-        // Patch for drawing the pin button
+        // Patch for drawing the pin button itself
         public static void DrawButtonAt_Postfix(Letter __instance, float topY)
         {
-            float width = 38f;
-            float xPos = (float)UI.screenWidth - width + 4f;
-            Rect pinButtonRect = new Rect(xPos, topY, width, 30f);
+            if (!__instance.IsPinned())
+                return;
 
-            // Draw pin button
-            // Code adapted from vanilla MainTabWindow_History.DoArchivableRow
-            float pinAlpha = (Find.Archive.IsPinned(__instance) ? 1f : ((!Mouse.IsOver(pinButtonRect)) ? 0f : 0.65f));
-            Rect position = new Rect(pinButtonRect.x + (pinButtonRect.width - 22f) / 2f, pinButtonRect.y + (pinButtonRect.height - 22f) / 2f, 22f, 22f).Rounded();
-            if (pinAlpha > 0f)
-            {
-                GUI.color = new Color(1f, 1f, 1f, pinAlpha);
-                GUI.DrawTexture(position, PinTex);
-            }
-#if (v1_2 || v1_1)
+            float size = 16f;
+            float xPos = (float)UI.screenWidth - size - xOffset;
+            Rect pinButtonRect = new Rect(xPos, topY-6f, size, size);
 
-            else if (Mouse.IsOver(pinButtonRect.ExpandedBy(20f)))
-#else
-            else if (Mouse.IsOver(pinButtonRect.ExpandedBy(100f, 4f)))
-#endif
-            {
-                GUI.color = PinOutlineColor;
-                GUI.DrawTexture(position, PinOutlineTex);
-            }
-
-
-            TooltipHandler.TipRegionByKey(pinButtonRect, "PinTip", 200);
-            if (Widgets.ButtonInvisible(pinButtonRect))
-            {
-                if (Find.Archive.IsPinned(__instance))
-                {
-                    Find.Archive.Unpin(__instance);
-                    SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
-                }
-                else
-                {
-                    Find.Archive.Pin(__instance);
-                    SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
-                }
-            }
+            Rect position = pinButtonRect.Rounded();
+            GUI.DrawTexture(position, PinTex);
         }
 
         // Patch for moving the tooltip hitbox
