@@ -28,6 +28,10 @@ namespace BetterLetters
         {
             harmony = new Harmony(BetterLettersMod.modID);
 
+#if DEBUG
+            Harmony.DEBUG = false;
+#endif
+
             Log.Message("Loading");
             DFLog.Message("Running Harmony patches...");
 
@@ -62,7 +66,7 @@ namespace BetterLetters
             type = typeof(Verse.NewQuestLetter);
             TranspileMethod(type, patchClass, "OpenLetter");
 
-            // Patch in a new Dismiss and Pin choices to letters
+            // Patch to track the current Letter since the Dialog doesn't know what Letter it is displaying info for (if any)
             patchClass = typeof(OpenLetter_Patch);
             TranspileMethod(typeof(Verse.ChoiceLetter), patchClass, "OpenLetter");
             TranspileMethod(typeof(Verse.DeathLetter), patchClass, "OpenLetter");
@@ -73,11 +77,6 @@ namespace BetterLetters
             harmony.Patch(type.GetConstructor(new Type[] { typeof(DiaNode), typeof(bool), typeof(bool), typeof(string) }),
                 postfix: GetPatch(patchClass, "ConstructorPostfix")
                 );
-
-            // Patch to move the faction info in letters slightly up so it doesn't block the pin button
-            patchClass = typeof(DialogFactionInfoNudge);
-            type = typeof(Dialog_NodeTreeWithFactionInfo);
-            TranspileMethod(type, patchClass, "DoWindowContents");
 
             // Patch Archive to add newly-pinned letters back to the LetterStack
             patchClass = typeof(ArchivePin_Patch);
@@ -102,7 +101,15 @@ namespace BetterLetters
             // Patch Dialog_NodeTree to add pin button
             patchClass = typeof(DialogDrawNode_Patch);
             type = typeof(Dialog_NodeTree);
-            TranspileMethod(type, patchClass, "DrawNode");
+            PostfixMethod(typeof(Dialog_NodeTree), patchClass, "DoWindowContents");
+
+            // Patch to sort pinned letters always on the bottom
+            patchClass = typeof(LetterStackReceiveLetter_Patch);
+            type = typeof(LetterStack);
+            harmony.Patch(
+                type.GetMethod("ReceiveLetter", new [] {typeof(Letter), typeof(string)}),
+                postfix: GetPatch(patchClass, "ReceiveLetter")
+                );
         }
 
         static MethodInfo GetGetter(Type t, string propName)

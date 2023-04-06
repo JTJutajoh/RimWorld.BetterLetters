@@ -14,18 +14,6 @@ namespace BetterLetters
 {
     class OpenLetter_Patch
     {
-        protected static DiaOption Option_Dismiss(Letter __instance)
-        {
-            return new DiaOption("Dismiss".Translate())
-            {
-                action = delegate ()
-                {
-                    Find.LetterStack.RemoveLetter(__instance);
-                },
-                resolveTree = true
-            };
-        }
-
         static MethodInfo anchorMethod_AddRange = typeof(List<DiaOption>).GetMethod(nameof(List<DiaOption>.AddRange));
         static MethodInfo anchorMethod_AddToStack = typeof(WindowStack).GetMethod(nameof(WindowStack.Add));
         /// <summary>
@@ -69,20 +57,34 @@ namespace BetterLetters
             DialogDrawNode_Patch.curLetter = __instance;
         }
 
-        static IEnumerable<DiaOption> AddChoices(IEnumerable<DiaOption> options, Letter __instance)
+        protected static DiaOption Option_Pin(Letter __instance)
         {
-            foreach (var cur in options)
-                yield return cur;
-            foreach (var cur in AddDismissChoice(__instance))
-                yield return cur;
+            var option = new DiaOption(__instance.IsPinned() ? "Unpin".Translate() : "Pin".Translate());
+            option.clickSound = __instance.IsPinned() ? SoundDefOf.Checkbox_TurnedOff : SoundDefOf.Checkbox_TurnedOn;
+            option.action = delegate
+            {
+                if (__instance.IsPinned())
+                {
+                    __instance.Unpin();
+                    option.SetText("Pin".Translate());
+                    option.clickSound = SoundDefOf.Checkbox_TurnedOn;
+                }
+                else
+                {
+                    __instance.Pin();
+                    option.SetText("Unpin".Translate());
+                    option.clickSound = SoundDefOf.Checkbox_TurnedOff;
+                }
+            };
+
+            return option;
         }
 
-        static IEnumerable<DiaOption> AddDismissChoice(Letter __instance)
+        static IEnumerable<DiaOption> AddChoices(IEnumerable<DiaOption> options, Letter __instance)
         {
-            if (Find.LetterStack.LettersListForReading.Contains(__instance))
-            {
-                yield return Option_Dismiss(__instance);
-            }
+            yield return Option_Pin(__instance);
+            foreach (var cur in options)
+                yield return cur;
         }
     }
 }
