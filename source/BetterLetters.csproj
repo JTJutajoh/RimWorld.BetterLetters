@@ -99,6 +99,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>pwsh.exe $(SolutionDir)\Complete-Build.ps1 -SolutionDir $(SolutionDir) -ProjectName $(ProjectName)</PostBuildEvent>
+    <PostBuildEvent>pwsh.exe $(SolutionDir)Complete-Build.ps1 -SolutionDir $(SolutionDir) -ProjectName $(ProjectName)</PostBuildEvent>
   </PropertyGroup>
 </Project>

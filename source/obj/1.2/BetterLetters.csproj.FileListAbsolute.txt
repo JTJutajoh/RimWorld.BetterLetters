@@ -3,3 +3,6 @@ E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\1.2\Assemblies\BetterL
 E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\1.2\Assemblies\BetterLetters.pdb
 E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\1.2\BetterLetters.dll
 E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\1.2\BetterLetters.pdb
+E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\bin\1.2\BetterLetters.dll
+E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\bin\1.2\BetterLetters.pdb
+E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\1.2\BetterLetters.csproj.AssemblyReference.cache
