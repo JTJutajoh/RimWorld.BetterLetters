@@ -32,7 +32,6 @@ namespace BetterLetters
             Harmony.DEBUG = false;
 #endif
 
-            Log.Message("Loading");
             DFLog.Message("Running Harmony patches...");
 
             Patch_Vanilla();
