@@ -2,6 +2,7 @@ bin/
 obj/
 Properties\
 Patches/
+Screenshots/
 *.pdb
 *.csproj
 *.csproj.user

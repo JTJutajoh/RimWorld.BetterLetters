@@ -20,6 +20,7 @@ namespace BetterLetters
                 {
                     letterStack.ReceiveLetter(letter);
                 }
+                LetterUtils.SortLetterStackByPinned();
             }
         }
     }
