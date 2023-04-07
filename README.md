@@ -1,7 +1,10 @@
 # BetterLetters
-Quality of Life UI mod designed to make it easier to keep track of Letters (the notification boxes on the right of the screen). 
-Stop losing track of important events because you opened the notification for them!
+**Stop losing track of important events because you opened the notification for them!**
+  
+Quality of Life UI mod designed to make it easier to keep track of Letters
 
+Letters are the notification boxes on the right of the screen. These:
+![Letter](https://imgur.com/dgh2X8o.png)
 
 
 ![Preview](https://github.com/JTJutajoh/RimWorld.BetterLetters/blob/master/About/Preview.png?raw=true)
