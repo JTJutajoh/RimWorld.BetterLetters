@@ -19,7 +19,12 @@ namespace BetterLetters
 
         public static void Pin(this Letter letter)
         {
-            Find.Archive.Pin(letter);
+            Archive archive = Find.Archive;
+            if (!archive.Contains(letter))
+            {
+                archive.Add(letter);
+            }
+            archive.Pin(letter);
             SortLetterStackByPinned();
         }
 
