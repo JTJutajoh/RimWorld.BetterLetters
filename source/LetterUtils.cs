@@ -31,6 +31,7 @@ namespace BetterLetters
         public static void Unpin(this Letter letter)
         {
             Find.Archive.Unpin(letter);
+            SortLetterStackByPinned();
         }
 
         static FieldInfo lettersField = typeof(LetterStack).GetField("letters", BindingFlags.NonPublic | BindingFlags.Instance);

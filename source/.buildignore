@@ -7,3 +7,4 @@ Patches/
 *.csproj.user
 *.cs
 *.psd
+*.gif
