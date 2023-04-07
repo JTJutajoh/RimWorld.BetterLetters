@@ -12,6 +12,9 @@ Stop losing track of important events because you opened the notification for th
  - Pinned letters stay at the bottom of the list, before new unpinned letters
  - Pinning a letter from the Message Archive brings it back to the Letter Stack
 
+![Gif example of pinning from the Letter dialog window](https://github.com/JTJutajoh/RimWorld.BetterLetters/blob/master/source/About/DialogPin.gif?raw=true)
+![Gif example of pinning from the Letter Stack](https://github.com/JTJutajoh/RimWorld.BetterLetters/blob/master/source/About/LetterStackPin.gif?raw=true)
+
 ## How it works
 The Message Archive in vanilla RimWorld (the book button on the bottom bar) already has a button to pin messages. In vanilla, all this button does is prevent the message from being deleted after it goes beyond the end of the list. This mod extends that functionality to the Letter Stack (The list of notifications on the right side of the screen). Pinning a message from the Message Archive will add the letter back to the stack. Pinned letters cannot be removed from the stack by a simple right click, instead opening a context menu. Most importantly, pinned letters are not removed from the letter stack when they are closed like they do in vanilla. 
 Utilizing this relatively unknown feature of vanilla RimWorld means that *this mod does not need to add anything to your save file*, so it is **completely safe to add to or remove from an ongoing save.**
