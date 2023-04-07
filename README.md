@@ -20,7 +20,7 @@ Utilizing this relatively unknown feature of vanilla RimWorld means that *this m
 ## Compatibility
 - **Safe to add/remove in an ongoing save**
 - Supports RimWorld versions 1.1, 1.2, 1.3, and 1.4. Versions earlier than 1.4 are untested and may be slightly buggy
-- Mods that add custom types of Letters *might* be missing the Dismiss and Pin buttons. Please report any you find.
+- Mods that add custom types of Letters *might* be missing the Pin button. Please report any you find.
 - UI mods that alter the way Letters are drawn might conflict. Please let me know if you discover any such incompatibilities.
 - *No other known incompatibilities.*
 
