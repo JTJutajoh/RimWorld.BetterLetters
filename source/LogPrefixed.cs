@@ -12,42 +12,45 @@ namespace BetterLetters
     /// Mostly just a wrapper for Verse.Log
     /// </summary>
     [StaticConstructorOnStartup]
-    static class DFLog
+    static class LogPrefixed
     {
-        static string Prefix { get => "[" + BetterLettersMod.modID + "] "; }
+        static string Prefix { get => "[" + BetterLettersMod.Instance.Content.PackageIdPlayerFacing + "] "; }
+        static string PrefixColor => "cyan";
 
-        static DFLog()
+        static string PrefixedMessage(string message) => $"<color={PrefixColor}>{Prefix}</color> {message}";
+
+        static LogPrefixed()
         {
 #if DEBUG
-            Error("DEBUG DEFINED! You forgot to build in a Release config!");
+            Error("DEBUG LOGSPAM ENABLED!");
 #endif
         }
 
         public static void Error(string text)
         {
-            Log.Error(Prefix + text);
+            Log.Error(PrefixedMessage(text));
         }
 
         public static void ErrorOnce(string text, int key)
         {
-            Log.ErrorOnce(Prefix + text, key);
+            Log.ErrorOnce(PrefixedMessage(text), key);
         }
 
         public static void Warning(string text)
         {
-            Log.Warning(Prefix + text);
+            Log.Warning(PrefixedMessage(text));
         }
 
 #if v1_4
         public static void WarningOnce(string text, int key)
         {
-            Log.WarningOnce(Prefix + text, key);
+            Log.WarningOnce(PrefixedMessage(text), key);
         }
 #endif
 
         public static void Message(string text)
         {
-            Log.Message(Prefix + text);
+            Log.Message(PrefixedMessage(text));
         }
 
         /// <summary>
@@ -59,9 +62,9 @@ namespace BetterLetters
         {
 #if DEBUG
             if (warning)
-                Warning(text);
+                Warning(PrefixedMessage(text));
             else
-                Message(text);
+                Message(PrefixedMessage(text));
 #endif
             return;
         }

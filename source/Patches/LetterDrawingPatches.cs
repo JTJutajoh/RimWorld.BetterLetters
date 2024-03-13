@@ -34,18 +34,18 @@ namespace BetterLetters
             Rect pinButtonRect = new Rect(xPos-pinXOffset, topY-6f, size, size);
 
             // Animate the icon moving with the letter, just copied from vanilla code
-            float num2 = Time.time - ___arrivalTime;
-            if (num2 < 1f)
+            float lerp = Time.time - ___arrivalTime;
+            if (lerp < 1f)
             {
-                pinButtonRect.y -= (1f - num2) * 200f;
-                GUI.color = new Color(1,1,1,num2 / 1f);
+                pinButtonRect.y -= (1f - lerp) * 200f;
+                GUI.color = new Color(1,1,1,lerp / 1f);
             }
             // Animate the icon with the letter bounce, again copied from vanilla
             Rect letterRect = new Rect((float)UI.screenWidth - 38f - 12f, topY, 38f, 30f);
-            if (!Mouse.IsOver(letterRect) && ___def.bounce && num2 > 15f && num2 % 5f < 1f)
+            if (!Mouse.IsOver(letterRect) && ___def.bounce && lerp > 15f && lerp % 5f < 1f)
             {
                 float num3 = (float)UI.screenWidth * 0.06f;
-                float num4 = 2f * (num2 % 1f) - 1f;
+                float num4 = 2f * (lerp % 1f) - 1f;
                 float num5 = num3 * (1f - num4 * num4);
                 pinButtonRect.x -= num5;
             }

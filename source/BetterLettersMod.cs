@@ -12,11 +12,12 @@ namespace BetterLetters
 {
     class BetterLettersMod : Verse.Mod
     {
-        public const string modID = "Dark.BetterLetters";
+        private static BetterLettersMod instance;
+        public static BetterLettersMod Instance => instance;
 
         public BetterLettersMod(ModContentPack content) : base(content)
         {
-            // sorry, nothing
+            BetterLettersMod.instance = this;
         }
     }
 
@@ -26,18 +27,18 @@ namespace BetterLetters
         static Harmony harmony;
         static LoadHarmony()
         {
-            harmony = new Harmony(BetterLettersMod.modID);
+            harmony = new Harmony(BetterLettersMod.Instance.Content.PackageId);
 
 #if DEBUG
             Harmony.DEBUG = false;
 #endif
 
-            DFLog.Message("Running Harmony patches...");
+            LogPrefixed.Message("Running Harmony patches...");
 
             Patch_Vanilla();
             // Do any mod-specific patching (Vanilla Expanded...)
 
-            DFLog.Message("Harmony patching complete");
+            LogPrefixed.Message("Harmony patching complete");
         }
 
         /// <summary>
