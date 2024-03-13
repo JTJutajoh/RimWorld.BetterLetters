@@ -106,19 +106,35 @@ namespace BetterLetters
             // Patch to sort pinned letters always on the bottom
             patchClass = typeof(LetterStackReceiveLetter_Patch);
             type = typeof(LetterStack);
+
+#if v1_4 || v1_3 || v1_2 || v1_1
+
             harmony.Patch(
                 type.GetMethod("ReceiveLetter", new [] {typeof(Letter), typeof(string)}),
                 postfix: GetPatch(patchClass, "ReceiveLetter")
                 );
+#endif
+#if v1_5
+            harmony.Patch(
+                type.GetMethod("ReceiveLetter", new [] {typeof(Letter), typeof(string), typeof(int), typeof(bool)}),
+                postfix: GetPatch(patchClass, "ReceiveLetter")
+                );
+#endif
         }
 
         static MethodInfo GetGetter(Type t, string propName)
         {
+#if DEBUG
+            LogPrefixed.Message($"Patching {propName} property getter");
+#endif
             return t.GetProperty(propName, AccessTools.all).GetGetMethod(true);
         }
 
         static HarmonyMethod GetPatch(Type t, string methodName)
         {
+#if DEBUG
+            LogPrefixed.Message($"Patching {methodName} method");
+#endif
             return new HarmonyMethod(t.GetMethod(methodName,AccessTools.all));
         }
 
