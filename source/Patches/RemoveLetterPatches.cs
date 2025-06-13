@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HarmonyLib;
-using Verse;
-using RimWorld;
+﻿using RimWorld;
 using RimWorld.Planet;
+using Verse;
 
-namespace BetterLetters
+namespace BetterLetters.Patches
 {
     // A set of patches to disable the vanilla call to Find.LetterStack.RemoveLetter(this) in the vanilla Letter choices.
     // This is done by simply replacing the getter methods that return those Letter choices, with the only change being the omission of the above call.
-    
-    class RemoveLetter_Patches
+
+    internal class RemoveLetterPatches
     {
         public static void Option_Close(ref DiaOption __result, Letter __instance)
         {
@@ -29,7 +23,7 @@ namespace BetterLetters
             __result.action = delegate ()
             {
                 DismissIfNotPinned(__instance);
-#if v1_4
+#if v1_4 || v1_5 || v1_6
                 CameraJumper.TryJumpAndSelect(target, CameraJumper.MovementMode.Pan);
 #elif v1_3
                 CameraJumper.TryJumpAndSelect(target);
@@ -39,11 +33,11 @@ namespace BetterLetters
 
         public static void Option_ReadMore(ref DiaOption __result, DeathLetter __instance)
         {
-            GlobalTargetInfo target = __instance.lookTargets.TryGetPrimaryTarget();
+            var target = __instance.lookTargets.TryGetPrimaryTarget();
             __result.action = delegate ()
             {
                 DismissIfNotPinned(__instance);
-#if v1_4
+#if v1_4 || v1_5 || v1_6
                 CameraJumper.TryJumpAndSelect(target, CameraJumper.MovementMode.Pan);
 #elif v1_3
                 CameraJumper.TryJumpAndSelect(target);
@@ -53,7 +47,7 @@ namespace BetterLetters
         }
 
         // Utility function called by letter choices to alter behavior of all buttons to factor in the pinned state of the letter
-        static void DismissIfNotPinned(Letter letter)
+        private static void DismissIfNotPinned(Letter letter)
         {
             if (!letter.IsPinned())
                 Find.LetterStack.RemoveLetter(letter);

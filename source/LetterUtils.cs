@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace BetterLetters
 {
-    static class LetterUtils
+    internal static class LetterUtils
     {
         public static bool IsPinned(this Letter letter)
         {
@@ -34,13 +34,13 @@ namespace BetterLetters
             SortLetterStackByPinned();
         }
 
-        static FieldInfo lettersField = typeof(LetterStack).GetField("letters", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo? LettersField = typeof(LetterStack).GetField("letters", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public static void SortLetterStackByPinned()
         {
-            List<Letter> letters = (List<Letter>)lettersField.GetValue(Find.LetterStack);
+            var letters = (List<Letter>)(LettersField?.GetValue(Find.LetterStack) ?? new List<Letter>());
             letters = letters.OrderBy(obj => obj.IsPinned()).ToList();
-            lettersField.SetValue(Find.LetterStack, letters);
+            LettersField?.SetValue(Find.LetterStack, letters);
         }
     }
 }

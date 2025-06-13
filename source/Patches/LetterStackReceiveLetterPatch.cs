@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Verse;
-using RimWorld;
-using HarmonyLib;
 
-namespace BetterLetters
+namespace BetterLetters.Patches
 {
-    class LetterStackReceiveLetter_Patch
+    class LetterStackReceiveLetterPatch
     {
+        // Patch that sorts the letters in the letter stack by pinned status
         public static void ReceiveLetter(ref List<Letter> ___letters, Letter let)
         {
             ___letters = ___letters.OrderBy(obj => obj.IsPinned()).ToList();

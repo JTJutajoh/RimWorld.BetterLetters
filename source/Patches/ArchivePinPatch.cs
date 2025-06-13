@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RimWorld;
 using Verse;
-using RimWorld;
 
-namespace BetterLetters
+namespace BetterLetters.Patches
 {
     // Relatively simple patch that adds letters back onto the LetterStack when they are pinned from the archive
-    class ArchivePin_Patch
+    class ArchivePinPatch
     {
         public static void Pin(IArchivable archivable)
         {
