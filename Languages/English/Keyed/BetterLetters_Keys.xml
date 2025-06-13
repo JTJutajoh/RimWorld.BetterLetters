@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-
-<LanguageData>
-  <Dismiss>Dismiss</Dismiss>
-  <Pin>Pin</Pin>
-  <Unpin>Unpin</Unpin>
-  <UnpinAndDismiss>Unpin and Dismiss</UnpinAndDismiss>
-  <DismissButStayPinned>Dismiss (Keep pinned in Archive)</DismissButStayPinned>
-</LanguageData>
