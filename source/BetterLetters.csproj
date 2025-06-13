@@ -11,84 +11,78 @@
     <AssemblyName>BetterLetters</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>1.4\Assemblies\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;v1_4</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '1.4|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <TargetFrameworkProfile />
+    <Nullable>enable</Nullable>
     <Optimize>true</Optimize>
-    <OutputPath>1.4\Assemblies\</OutputPath>
-    <DefineConstants>TRACE;v1_4</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.3|AnyCPU'">
-    <OutputPath>1.3\Assemblies\</OutputPath>
-    <DefineConstants>TRACE;v1_3</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.2|AnyCPU'">
-    <OutputPath>1.2\Assemblies\</OutputPath>
-    <DefineConstants>TRACE;v1_2</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>11.0</LangVersion>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.1|AnyCPU'">
-    <OutputPath>1.1\Assemblies\</OutputPath>
-    <DefineConstants>TRACE;v1_1</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
+    <OutputPath>..\1.1\Assemblies\</OutputPath>
+    <DefineConstants>v1_1</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.2|AnyCPU'">
+    <OutputPath>..\1.2\Assemblies\</OutputPath>
+    <DefineConstants>v1_2</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.3|AnyCPU' ">
+    <OutputPath>..\1.3\Assemblies\</OutputPath>
+    <DefineConstants>v1_3</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.4|AnyCPU'">
+    <OutputPath>..\1.4\Assemblies\</OutputPath>
+    <DefineConstants>v1_4</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.5|AnyCPU'">
-    <OutputPath>1.5\Assemblies\</OutputPath>
-    <DefineConstants>TRACE;v1_5</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
+    <OutputPath>..\1.5\Assemblies\</OutputPath>
+    <DefineConstants>v1_5</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.6|AnyCPU'">
+    <OutputPath>..\1.6\Assemblies\</OutputPath>
+    <DefineConstants>v1_6</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '1.6 Debug|AnyCPU'">
+    <OutputPath>..\1.6\Assemblies\</OutputPath>
+    <DefineConstants>v1_6;DEBUG</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+  </PropertyGroup>
+  <ItemGroup Label="Dependencies">
+    <Reference Include="System">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System.Core">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System.Data">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System.Xml">
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
     <Reference Include="0Harmony">
-      <HintPath>$(HARMONY_DIR_WORKSHOP)\0Harmony.dll</HintPath>
+      <HintPath>$(HarmonyPath)</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(RIMWORLD_DIR_STEAM)\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(RimWorldDir)\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(RIMWORLD_DIR_STEAM)\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(RimWorldDir)\RimWorldWin64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>$(RIMWORLD_DIR_STEAM)\RimWorldWin64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>$(RimWorldDir)\RimWorldWin64_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -96,22 +90,94 @@
     <Compile Include="BetterLettersMod.cs" />
     <Compile Include="LogPrefixed.cs" />
     <Compile Include="LetterUtils.cs" />
-    <Compile Include="Patches\LetterStackReceiveLetter_Patch.cs" />
-    <Compile Include="Patches\ArchivePin_Patch.cs" />
-    <Compile Include="Patches\DialogDrawNode_Patch.cs" />
+    <Compile Include="Patches\LetterStackReceiveLetterPatch.cs" />
+    <Compile Include="Patches\ArchivePinPatch.cs" />
+    <Compile Include="Patches\DialogDrawNodePatch.cs" />
     <Compile Include="Patches\Dialog_NodeTreeConstructor.cs" />
-    <Compile Include="Patches\LetterCanDismissWithRightClick_Patch.cs" />
+    <Compile Include="Patches\LetterCanDismissWithRightClickPatch.cs" />
     <Compile Include="Patches\LetterDrawingPatches.cs" />
-    <Compile Include="Patches\OpenLetter_Patch.cs" />
-    <Compile Include="Patches\NewQuestLetterOpen_Patch.cs" />
-    <Compile Include="Patches\RemoveLetter_Patches.cs" />
+    <Compile Include="Patches\OpenLetterPatch.cs" />
+    <Compile Include="Patches\NewQuestLetterOpenPatch.cs" />
+    <Compile Include="Patches\RemoveLetterPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Install.bat" />
+    <Content Include="About\About.xml" />
+    <Content Include="About\Preview.png" />
+    <Content Include="BetterLetters.csproj.user" />
+    <Content Include="Languages\English\Keyed\BetterLetters_Keys.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="DeployMod" AfterTargets="Build">
+    <Message Text="Deploying mod to $(RimWorldDir)/Mods" Importance="high" />
+
+    <ItemGroup>
+      <PdbFiles Include="$(MSBuildProjectDirectory)\..\**\*.pdb" />
+      <PdbFiles Include="$(RimWorldDir)\Mods\$(ProjectName)\**\*.pdb" />
+    </ItemGroup>
+
+    <Delete Files="@(PdbFiles)" Condition="'$(DebugSymbols)' == 'false'" />
+
+    <ItemGroup>
+      <Assemblies Include="$(MSBuildProjectDirectory)\..\1.*\Assemblies\**\*.dll" />
+      <Assemblies Include="$(MSBuildProjectDirectory)\..\1.*\Assemblies\**\*.pdb"
+                  Condition="'$(DebugSymbols)' == 'true'" />
+    </ItemGroup>
+
+    <Copy
+            SourceFiles="@(Assemblies)"
+            DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\%(RecursiveDir)"
+            SkipUnchangedFiles="true" />
+
+    <ItemGroup>
+      <About Include="$(ProjectDir)\About\About.xml" />
+      <About Include="$(ProjectDir)\About\Preview.png" />
+      <About Include="$(ProjectDir)\About\PublishedFileId.txt" />
+    </ItemGroup>
+
+    <Copy
+            SourceFiles="@(About)"
+            DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\About"
+            SkipUnchangedFiles="true" />
+
+    <ItemGroup>
+      <Textures Include="$(ProjectDir)\Textures\**\*.png" />
+    </ItemGroup>
+
+    <Copy
+            SourceFiles="@(Textures)"
+            DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\Textures\%(RecursiveDir)"
+            SkipUnchangedFiles="true" />
+
+    <ItemGroup>
+      <Languages Include="$(ProjectDir)\Languages\**\*.xml" />
+    </ItemGroup>
+
+    <Copy
+            SourceFiles="@(Languages)"
+            DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\Languages\%(RecursiveDir)"
+            SkipUnchangedFiles="true" />
+
+    <ItemGroup>
+      <Patches Include="$(ProjectDir)\Patches\**\*.xml" />
+    </ItemGroup>
+
+    <Copy
+            SourceFiles="@(Patches)"
+            DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\Patches\%(RecursiveDir)"
+            SkipUnchangedFiles="true" />
+
+    <ItemGroup>
+      <News Include="$(ProjectDir)\News\**\*.xml" />
+    </ItemGroup>
+
+    <Copy
+            SourceFiles="@(News)"
+            DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\News\%(RecursiveDir)"
+            SkipUnchangedFiles="true" />
+  </Target>
   <PropertyGroup>
-    <PostBuildEvent>"$(ProjectDir)Install.bat" $(ConfigurationName) "$(ProjectDir)" "$(ProjectName)" "About Languages Textures 1.1 1.2 1.3 1.4 1.5"</PostBuildEvent>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(RimWorldDir)\RimWorldWin64.exe</StartProgram>
   </PropertyGroup>
 </Project>
