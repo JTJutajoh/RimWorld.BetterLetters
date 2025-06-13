@@ -1,6 +1,0 @@
-E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\1.3\BetterLetters.csproj.CoreCompileInputs.cache
-E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\1.3\Assemblies\BetterLetters.dll
-E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\1.3\Assemblies\BetterLetters.pdb
-E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\1.3\BetterLetters.dll
-E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\1.3\BetterLetters.pdb
-E:\GameDev\Modding\Dark.RimWorldMods\BetterLetters\source\obj\1.3\BetterLetters.csproj.AssemblyReference.cache
