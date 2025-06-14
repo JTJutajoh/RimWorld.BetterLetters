@@ -4,12 +4,14 @@ using Verse;
 
 namespace BetterLetters.Patches
 {
-    // A set of patches to disable the vanilla call to Find.LetterStack.RemoveLetter(this) in the vanilla Letter choices.
-    // This is done by simply replacing the getter methods that return those Letter choices, with the only change being the omission of the above call.
+    /// A set of patches to disable the vanilla call to Find.LetterStack.RemoveLetter(this) in the vanilla Letter choices.<br />
+    /// This is done by simply replacing the getter methods that return those Letter choices, with the only change being the omission of the above call.
 
     internal class RemoveLetterPatches
     {
+        // ReSharper disable InconsistentNaming
         public static void Option_Close(ref DiaOption __result, Letter __instance)
+        // ReSharper restore InconsistentNaming
         {
             __result.action = delegate
             {
@@ -17,9 +19,11 @@ namespace BetterLetters.Patches
             };
         }
         
+        // ReSharper disable InconsistentNaming
         public static void Option_JumpToLocation(ref DiaOption __result, ChoiceLetter __instance)
+        // ReSharper restore InconsistentNaming
         {
-            GlobalTargetInfo target = __instance.lookTargets.TryGetPrimaryTarget();
+            var target = __instance.lookTargets.TryGetPrimaryTarget();
             __result.action = delegate ()
             {
                 DismissIfNotPinned(__instance);
@@ -31,7 +35,9 @@ namespace BetterLetters.Patches
             };
         }
 
+        // ReSharper disable InconsistentNaming
         public static void Option_ReadMore(ref DiaOption __result, DeathLetter __instance)
+        // ReSharper restore InconsistentNaming
         {
             var target = __instance.lookTargets.TryGetPrimaryTarget();
             __result.action = delegate ()
@@ -46,15 +52,17 @@ namespace BetterLetters.Patches
             };
         }
 
-        // Utility function called by letter choices to alter behavior of all buttons to factor in the pinned state of the letter
+        /// Utility function called by letter choices to alter behavior of all buttons to factor in the pinned state of the letter
         private static void DismissIfNotPinned(Letter letter)
         {
             if (!letter.IsPinned())
                 Find.LetterStack.RemoveLetter(letter);
         }
 
-        // Slightly different from the other methods since this one uses a normal method in vanilla rather than a Property getter
+        /// Slightly different from the other methods since this one uses a normal method in vanilla rather than a Property getter
+        // ReSharper disable InconsistentNaming
         public static void Option_ViewInQuestsTab(ref bool postpone, Letter __instance)
+        // ReSharper restore InconsistentNaming
         {
             if (!__instance.IsPinned())
                 return;

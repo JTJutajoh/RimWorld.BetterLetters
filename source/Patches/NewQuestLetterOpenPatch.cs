@@ -5,12 +5,12 @@ using Verse;
 
 namespace BetterLetters.Patches
 {
-    class NewQuestLetterOpenPatch
+    internal class NewQuestLetterOpenPatch
     {
         private static readonly MethodInfo? AnchorMethod = typeof(Find).GetProperty("LetterStack")?.GetGetMethod();
-        // Transpiler that skips the line calling Find.LetterStack.RemoveLetter(this);
-        // Keeping letters in the letter stack when opened, instead of the vanilla functionality that automatically
-        // removes them.
+        /// Transpiler that skips the line calling Find.LetterStack.RemoveLetter(this);
+        /// Keeping letters in the letter stack when opened, instead of the vanilla functionality that automatically
+        /// removes them.
         public static IEnumerable<CodeInstruction> OpenLetter(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);

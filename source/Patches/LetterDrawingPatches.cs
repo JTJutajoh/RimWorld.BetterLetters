@@ -20,8 +20,10 @@ namespace BetterLetters.Patches
         private static readonly Texture2D PinOutlineTex = ContentFinder<Texture2D>.Get("UI/Icons/Pin-Outline");
         private static readonly Color PinOutlineColor = new Color(0.75f, 0.65f, 0.65f, 1f);
 
-        // Patch for drawing the pin button itself
+        /// Patch for drawing the pin button itself
+        // ReSharper disable InconsistentNaming
         public static void DrawButtonAt_Postfix(Letter __instance, float topY, float ___arrivalTime, LetterDef ___def)
+        // ReSharper restore InconsistentNaming
         {
             if (!__instance.IsPinned())
                 return;
@@ -52,7 +54,7 @@ namespace BetterLetters.Patches
             GUI.color = Color.white;
         }
 
-        // Patch for moving the tooltip hitbox
+        /// Patch for moving the tooltip hitbox
         public static IEnumerable<CodeInstruction> CheckForMouseOverTextAt(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
@@ -77,7 +79,7 @@ namespace BetterLetters.Patches
         private static readonly MethodInfo? AnchorMethodButtonInvisible = typeof(Widgets).GetMethod(nameof(Widgets.ButtonInvisible));
 
         private static readonly ConstructorInfo? RectConstructor = typeof(Rect).GetConstructor(new[] { typeof(float), typeof(float), typeof(float), typeof(float) });
-        // Patch for moving the texture, label, and altering right-click behavior
+        /// Patch for moving the texture, label, and altering right-click behavior
         public static IEnumerable<CodeInstruction> DrawButtonAt_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
@@ -132,7 +134,9 @@ namespace BetterLetters.Patches
             }
         }
 
+        // ReSharper disable InconsistentNaming
         private static void InflateIfPinned(Letter __instance, ref Rect rect)
+        // ReSharper restore InconsistentNaming
         {
             if (__instance.IsPinned())
             {
@@ -140,9 +144,11 @@ namespace BetterLetters.Patches
             }
         }
 
+        // ReSharper disable InconsistentNaming
         private static void DoPinnedFloatMenu(Letter __instance, Rect rect)
+        // ReSharper restore InconsistentNaming
         {
-            // Checks for right click first and returns early if not
+            // Checks for right-click first and returns early if not
             if (Event.current.type != EventType.MouseDown || Event.current.button != 1 || !Mouse.IsOver(rect)) return;
             
             var floatMenuOptions = new List<FloatMenuOption>();
@@ -150,11 +156,11 @@ namespace BetterLetters.Patches
             {
                 // Unpin option is first in the list so it's under the player's mouse after they right click, meaning you can still do the vanilla behavior of spamming right click to remove all letters
                 floatMenuOptions.Add(new FloatMenuOption(
-                    "Unpin".Translate(),
+                    "BetterLetters_Unpin".Translate(),
                     delegate { Find.Archive.Unpin(__instance); }
                 ));
                 floatMenuOptions.Add(new FloatMenuOption(
-                    "UnpinAndDismiss".Translate(),
+                    "BetterLetters_UnpinAndDismiss".Translate(),
                     delegate
                     {
                         Find.Archive.Unpin(__instance);
@@ -162,7 +168,7 @@ namespace BetterLetters.Patches
                     }
                 ));
                 floatMenuOptions.Add(new FloatMenuOption(
-                    "DismissButStayPinned".Translate(),
+                    "BetterLetters_DismissButStayPinned".Translate(),
                     delegate { Find.LetterStack.RemoveLetter(__instance); }
                 ));
                 //floatMenuOptions.Add(new FloatMenuOption(
@@ -172,7 +178,7 @@ namespace BetterLetters.Patches
             }
             else
             {
-                // Right click functionality for NOT pinned letters would go here in the future    
+                // Right-click functionality for NOT pinned letters would go here in the future    
             }
             Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
             SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();

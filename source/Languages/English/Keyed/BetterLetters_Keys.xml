@@ -1,9 +1,28 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <LanguageData>
-  <Dismiss>Dismiss</Dismiss>
-  <Pin>Pin</Pin>
-  <Unpin>Unpin</Unpin>
-  <UnpinAndDismiss>Unpin and Dismiss</UnpinAndDismiss>
-  <DismissButStayPinned>Dismiss (Keep pinned in Archive)</DismissButStayPinned>
+  <BetterLetters_Dismiss>Dismiss</BetterLetters_Dismiss>
+  <BetterLetters_Pin>Pin</BetterLetters_Pin>
+  <BetterLetters_Snooze>Snooze</BetterLetters_Snooze>
+  <BetterLetters_SnoozeForFloatMenuOption>Snooze for...</BetterLetters_SnoozeForFloatMenuOption>
+  <BetterLetters_SnoozeFor1Hour>Snooze for 1 hour</BetterLetters_SnoozeFor1Hour>
+  <BetterLetters_SnoozeFor1Day>Snooze for 1 day</BetterLetters_SnoozeFor1Day>
+  <BetterLetters_Cancel>Cancel</BetterLetters_Cancel>
+  <BetterLetters_CancelSnooze>Cancel Snooze ({0})</BetterLetters_CancelSnooze>
+  <BetterLetters_IsSnoozed>Snoozed</BetterLetters_IsSnoozed>
+  <BetterLetters_Unpin>Unpin</BetterLetters_Unpin>
+  <BetterLetters_UnpinAndDismiss>Unpin and Dismiss</BetterLetters_UnpinAndDismiss>
+  <BetterLetters_DismissButStayPinned>Dismiss (Keep pinned in Archive)</BetterLetters_DismissButStayPinned>
+  <BetterLetters_DialogFloatMenuButton>Pin/Snooze</BetterLetters_DialogFloatMenuButton>
+  <BetterLetters_SnoozeAdded>Letter snoozed for {0}</BetterLetters_SnoozeAdded>
+  <BetterLetters_SnoozeRemoved>Canceled snooze</BetterLetters_SnoozeRemoved>
+  <BetterLetters_SnoozeExpired>Snooze expired</BetterLetters_SnoozeExpired>
+  <BetterLetters_TooManySnoozes>Too many snoozed letters already! Un-snooze some letters or raise the limit in the mod settings.</BetterLetters_TooManySnoozes>
+  <BetterLetters_SnoozeUntil>Snooze until: {0}</BetterLetters_SnoozeUntil>
+  <BetterLetters_SnoozeFor>Duration: {0}</BetterLetters_SnoozeFor>
+  <BetterLetters_SliderLabel>Days: {0}</BetterLetters_SliderLabel>
+  <BetterLetters_DecDay>-1 D</BetterLetters_DecDay>
+  <BetterLetters_DecHour>-1 H</BetterLetters_DecHour>
+  <BetterLetters_IncDay>+1 D</BetterLetters_IncDay>
+  <BetterLetters_IncHour>+1 H</BetterLetters_IncHour>
 </LanguageData>

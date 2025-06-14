@@ -1,6 +1,6 @@
 ﻿namespace BetterLetters.Patches
 {
-    class Dialog_NodeTreeConstructor
+    internal class Dialog_NodeTreeConstructor
     {
         public static void ConstructorPostfix()
         {

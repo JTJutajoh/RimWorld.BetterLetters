@@ -17,9 +17,14 @@ namespace BetterLetters
             return Find.Archive.IsPinned(letter);
         }
 
+        public static bool IsSnoozed(this Letter letter)
+        {
+            return SnoozeManager.Snoozes.ContainsKey(letter);
+        }
+
         public static void Pin(this Letter letter)
         {
-            Archive archive = Find.Archive;
+            var archive = Find.Archive;
             if (!archive.Contains(letter))
             {
                 archive.Add(letter);

@@ -77,12 +77,12 @@ namespace BetterLetters
                 postfix: GetPatch(patchClass, "ConstructorPostfix")
                 );
 
-            // Patch Archive to add newly-pinned letters back to the LetterStack
+            // Patch Archive to add newly pinned letters back to the LetterStack
             patchClass = typeof(ArchivePinPatch);
             type = typeof(RimWorld.Archive);
             PostfixMethod(type, patchClass, "Pin");
 
-            // Patch Letter buttons to draw the pin button and alter right click behavior
+            // Patch Letter buttons to draw the pin button and alter right-click behavior
             patchClass = typeof(LetterCanDismissWithRightClickPatch);
             type = typeof(Letter);
             PostfixGetter(type, patchClass, "CanDismissWithRightClick");
@@ -120,13 +120,13 @@ namespace BetterLetters
 #endif
         }
 
-        static MethodInfo? GetGetter(Type t, string propName)
+        private static MethodInfo? GetGetter(Type t, string propName)
         {
             LogPrefixed.Trace($"Patching {propName} property getter");
             return t.GetProperty(propName, AccessTools.all)?.GetGetMethod(true) ?? null;
         }
 
-        static HarmonyMethod GetPatch(Type t, string methodName)
+        private static HarmonyMethod GetPatch(Type t, string methodName)
         {
             LogPrefixed.Trace($"Patching {methodName} method");
             return new HarmonyMethod(t.GetMethod(methodName,AccessTools.all));

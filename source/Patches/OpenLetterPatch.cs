@@ -4,6 +4,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using RimWorld;
 using Verse;
+using Verse.Sound;
 
 namespace BetterLetters.Patches
 {
@@ -15,7 +16,7 @@ namespace BetterLetters.Patches
         /// General-purpose transpiler that can be applied to all vanilla implementations of Letter.OpenLetter
         /// Intercepts the list of choices sent to the dialog and adds a "Pin" option to the end of the list
         /// This transpiler should be applicable to any sub-class of Letter as long as it uses the same basic logic for adding options to the dialog.
-        /// Specifically, as long as they call AddRange() on a List<DiaOption> (Like vanilla always does), then this transpiler should work.
+        /// Specifically, as long as they call AddRange() on a List of DiaOption (Like vanilla always does), then this transpiler should work.
         /// </summary>
         public static IEnumerable<CodeInstruction> OpenLetter(IEnumerable<CodeInstruction> instructions)
         {
@@ -41,20 +42,29 @@ namespace BetterLetters.Patches
                     // Save a reference to the current letter
                     // Do this last so that the constructor for the dialog (which just ran) can clear the reference
                     yield return new CodeInstruction(OpCodes.Ldarg_0);                      // Load a "this" reference onto the stack
-                    yield return CodeInstruction.Call(typeof(OpenLetterPatch), nameof(SaveLetterReference));
+                    yield return CodeInstruction.Call(typeof(OpenLetterPatch), nameof(SaveLetterReference)); // Send the reference to the current letter to the dialog patch
                 }
                 yield return codes[i];
             }
         }
 
+        // ReSharper disable once InconsistentNaming
         private static void SaveLetterReference(Letter __instance)
         {
             DialogDrawNodePatch.CurrentLetter = __instance;
         }
 
+        /// <summary>
+        /// Creates the "Pin" button for the dialog and defines the result when you click it, as well as the
+        /// FloatMenu that opens to choose between pin/snooze
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
         private static DiaOption Option_Pin(Letter __instance)
         {
-            var option = new DiaOption(__instance.IsPinned() ? "Unpin".Translate() : "Pin".Translate())
+            var defaultText = "BetterLetters_DialogFloatMenuButton".Translate();
+            var pinnedText = "BetterLetters_Unpin".Translate();
+            
+            var option = new DiaOption(__instance.IsPinned() ? pinnedText : defaultText)
                 {
                     clickSound = __instance.IsPinned() ? SoundDefOf.Checkbox_TurnedOff : SoundDefOf.Checkbox_TurnedOn
                 };
@@ -63,20 +73,72 @@ namespace BetterLetters.Patches
                 if (__instance.IsPinned())
                 {
                     __instance.Unpin();
-                    option.SetText("Pin".Translate());
+                    option.SetText(defaultText);
+                    option.clickSound = SoundDefOf.Checkbox_TurnedOn;
+                }
+                else if (__instance.IsSnoozed())
+                {
+                    SnoozeManager.RemoveSnooze(__instance);
+                    option.SetText(defaultText);
                     option.clickSound = SoundDefOf.Checkbox_TurnedOn;
                 }
                 else
                 {
-                    __instance.Pin();
-                    option.SetText("Unpin".Translate());
-                    option.clickSound = SoundDefOf.Checkbox_TurnedOff;
+                    // Not pinned or snoozed, show a float menu to pin or snooze it
+                    var floatMenuOptions = new List<FloatMenuOption>
+                    {
+                        new FloatMenuOption(
+                            "BetterLetters_Pin".Translate(),
+                            delegate
+                            {
+                                __instance.Pin();
+                                option.SetText(pinnedText);
+                                option.clickSound = SoundDefOf.Checkbox_TurnedOff;
+                            }
+                        ),
+                        new FloatMenuOption(
+                            "BetterLetters_SnoozeFor1Hour".Translate(),
+                            delegate
+                            {
+                                var snooze = SnoozeManager.AddSnooze(__instance, GenDate.TicksPerHour);
+                                option.SetText("BetterLetters_CancelSnooze".Translate(snooze?.Duration.ToStringTicksToPeriodVague(vagueMin: false) ?? ""));
+                                option.clickSound = SoundDefOf.Checkbox_TurnedOff;
+                            }
+                        ),
+                        new FloatMenuOption(
+                            "BetterLetters_SnoozeFor1Day".Translate(),
+                            delegate
+                            {
+                                var snooze = SnoozeManager.AddSnooze(__instance, GenDate.TicksPerDay);
+                                option.SetText("BetterLetters_CancelSnooze".Translate(snooze?.Duration.ToStringTicksToPeriodVague(vagueMin: false) ?? ""));
+                                option.clickSound = SoundDefOf.Checkbox_TurnedOff;
+                            }
+                        ),
+                        new FloatMenuOption(
+                            "BetterLetters_SnoozeForFloatMenuOption".Translate(),
+                            delegate
+                            {
+                                SnoozeManager.ShowSnoozeDialog(__instance, durationString =>
+                                {
+                                    option.SetText("BetterLetters_CancelSnooze".Translate(durationString));
+                                    option.clickSound = SoundDefOf.Checkbox_TurnedOff;
+                                });
+                            }
+                        )
+                    };
+
+                    Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
+                    SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
                 }
             };
 
             return option;
         }
 
+        /// <summary>
+        /// Method that injects the mod's dialog choice(s) before the original list of choices
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
         private static IEnumerable<DiaOption> AddChoices(IEnumerable<DiaOption> options, Letter __instance)
         {
             yield return Option_Pin(__instance);
