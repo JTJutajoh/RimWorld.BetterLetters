@@ -15,7 +15,7 @@ public class Dialog_Snooze : Window
     private Action<int> _onConfirmed;
     private float _durationDays = 0.5f;
     public int DurationTicks => Mathf.RoundToInt(_durationDays * (float)GenDate.TicksPerDay);
-    public static float MaxDuration => 60;
+    private static float MaxDuration => Settings.MaxSnoozeDuration;
 
     public Dialog_Snooze(Action<int> onConfirmedAction)
     {

@@ -85,46 +85,25 @@ namespace BetterLetters.Patches
                 else
                 {
                     // Not pinned or snoozed, show a float menu to pin or snooze it
+                    var updateDiaOptionText = (SnoozeManager.Snooze? snooze) =>
+                    {
+                        if (snooze == null)
+                            option.SetText(pinnedText);
+                        else
+                            option.SetText("BetterLetters_CancelSnooze".Translate(
+                                snooze.Duration.ToStringTicksToPeriodVague(vagueMin: false)));
+                        option.clickSound = SoundDefOf.Checkbox_TurnedOff;
+                    };
                     var floatMenuOptions = new List<FloatMenuOption>
                     {
-                        new FloatMenuOption(
-                            "BetterLetters_Pin".Translate(),
-                            delegate
-                            {
-                                __instance.Pin();
-                                option.SetText(pinnedText);
-                                option.clickSound = SoundDefOf.Checkbox_TurnedOff;
-                            }
-                        ),
-                        new FloatMenuOption(
-                            "BetterLetters_SnoozeFor1Hour".Translate(),
-                            delegate
-                            {
-                                var snooze = SnoozeManager.AddSnooze(__instance, GenDate.TicksPerHour);
-                                option.SetText("BetterLetters_CancelSnooze".Translate(snooze?.Duration.ToStringTicksToPeriodVague(vagueMin: false) ?? ""));
-                                option.clickSound = SoundDefOf.Checkbox_TurnedOff;
-                            }
-                        ),
-                        new FloatMenuOption(
-                            "BetterLetters_SnoozeFor1Day".Translate(),
-                            delegate
-                            {
-                                var snooze = SnoozeManager.AddSnooze(__instance, GenDate.TicksPerDay);
-                                option.SetText("BetterLetters_CancelSnooze".Translate(snooze?.Duration.ToStringTicksToPeriodVague(vagueMin: false) ?? ""));
-                                option.clickSound = SoundDefOf.Checkbox_TurnedOff;
-                            }
-                        ),
-                        new FloatMenuOption(
-                            "BetterLetters_SnoozeForFloatMenuOption".Translate(),
-                            delegate
-                            {
-                                SnoozeManager.ShowSnoozeDialog(__instance, durationString =>
-                                {
-                                    option.SetText("BetterLetters_CancelSnooze".Translate(durationString));
-                                    option.clickSound = SoundDefOf.Checkbox_TurnedOff;
-                                });
-                            }
-                        )
+                        LetterUtils.PinFloatMenuOption(__instance, () =>
+                        {
+                            option.SetText(pinnedText);
+                            option.clickSound = SoundDefOf.Checkbox_TurnedOff;
+                        }),
+                        LetterUtils.Snooze1HrFloatMenuOption(__instance, updateDiaOptionText),
+                        LetterUtils.Snooze1DayFloatMenuOption(__instance, updateDiaOptionText),
+                        LetterUtils.SnoozeDialogFloatMenuOption(__instance, updateDiaOptionText)
                     };
 
                     Find.WindowStack.Add(new FloatMenu(floatMenuOptions));

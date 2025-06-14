@@ -9,6 +9,7 @@ using DarkLog;
 using Verse;
 using RimWorld;
 using HarmonyLib;
+using UnityEngine;
 
 namespace BetterLetters
 {
@@ -18,8 +19,28 @@ namespace BetterLetters
 
         public BetterLettersMod(ModContentPack content) : base(content)
         {
-            LogPrefixed.modInst = this;
             Instance = this;
+            LogPrefixed.modInst = this;
+            
+            GetSettings<Settings>();
+        }
+
+        public override void DoSettingsWindowContents(Rect inRect)
+        {
+            try
+            {
+                base.DoSettingsWindowContents(inRect);
+                GetSettings<Settings>().DoWindowContents(inRect);;
+            }
+            catch (Exception e)
+            {
+                LogPrefixed.Exception(e, "Error drawing mod settings window.", true);
+            }
+        }
+        
+        public override string SettingsCategory()
+        {
+            return "BetterLetters_SettingsCategory".Translate();
         }
     }
 
@@ -32,12 +53,19 @@ namespace BetterLetters
             _harmony = new Harmony(BetterLettersMod.Instance!.Content.PackageId);
 
 #if DEBUG
-            Harmony.DEBUG = false; // For debugging transpilers
+            // Harmony.DEBUG = true; // For debugging transpilers. DO NOT uncomment this unless you need it!
 #endif
 
             LogPrefixed.Message("Running Harmony patches...");
 
-            Patch_Vanilla();
+            try
+            {
+                Patch_Vanilla();
+            }
+            catch (Exception e)
+            {
+                LogPrefixed.Exception(e, "Error patching vanilla. This likely means either the wrong game version or a hard incompatibility with another mod.");
+            }
             // Do any mod-specific patching (Vanilla Expanded...)
 
             LogPrefixed.Message("Harmony patching complete");
@@ -46,7 +74,7 @@ namespace BetterLetters
         /// <summary>
         /// Contains all of the patches that should be run no matter what, regardless of what other mods are loaded
         /// </summary>
-        static void Patch_Vanilla()
+        private static void Patch_Vanilla()
         {
             // The type that the target method belongs to
             var type = typeof(Verse.ChoiceLetter);
@@ -97,7 +125,7 @@ namespace BetterLetters
                 transpiler: GetPatch(patchClass, "DrawButtonAt_Transpiler")
                 );
 
-            // Patch Dialog_NodeTree to add pin button
+            // Patch Dialog_NodeTree to add pin texture
             patchClass = typeof(DialogDrawNodePatch);
             type = typeof(Dialog_NodeTree);
             PostfixMethod(typeof(Dialog_NodeTree), patchClass, "DoWindowContents");
@@ -108,7 +136,7 @@ namespace BetterLetters
 
 #if v1_1 || v1_2 || v1_3 || v1_4
 
-            harmony.Patch(
+            _harmony.Patch(
                 type.GetMethod("ReceiveLetter", new [] {typeof(Letter), typeof(string)}),
                 postfix: GetPatch(patchClass, "ReceiveLetter")
                 );
@@ -122,14 +150,30 @@ namespace BetterLetters
 
         private static MethodInfo? GetGetter(Type t, string propName)
         {
-            LogPrefixed.Trace($"Patching {propName} property getter");
-            return t.GetProperty(propName, AccessTools.all)?.GetGetMethod(true) ?? null;
+            try
+            {
+                LogPrefixed.Trace($"Patching {propName} property getter");
+                return t.GetProperty(propName, AccessTools.all)?.GetGetMethod(true) ?? null;
+            }
+            catch (Exception e)
+            {
+                LogPrefixed.Error($"Error getting getter for property: {t.Name}.{propName}");
+                throw;
+            }
         }
 
         private static HarmonyMethod GetPatch(Type t, string methodName)
         {
-            LogPrefixed.Trace($"Patching {methodName} method");
-            return new HarmonyMethod(t.GetMethod(methodName,AccessTools.all));
+            try
+            {
+                LogPrefixed.Trace($"Patching {methodName} method");
+                return new HarmonyMethod(t.GetMethod(methodName,AccessTools.all));
+            }
+            catch (Exception e)
+            {
+                LogPrefixed.Error($"Error getting patch method: {t.Name}.{methodName}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -140,33 +184,65 @@ namespace BetterLetters
         /// <param name="propName">The property to patch. Must match the method name in the patchClass.</param>
         private static void PostfixGetter(Type t, Type patchClass, string propName)
         {
-            var original = GetGetter(t, propName);
-            var patch = GetPatch(patchClass, propName);
-            _harmony.Patch(original, postfix: patch);
+            try
+            {
+                var original = GetGetter(t, propName);
+                var patch = GetPatch(patchClass, propName);
+                _harmony.Patch(original, postfix: patch);
+            }
+            catch (Exception e)
+            {
+                LogPrefixed.Error($"Error patching property getter: {t.Name}.{propName}");
+                throw;
+            }
         }
 
         private static void PrefixMethod(Type t, Type patchClass, string methodName)
         {
-            _harmony.Patch(
-                t.GetMethod(methodName, AccessTools.all),
-                prefix: GetPatch(patchClass, methodName)
+            try
+            {
+                _harmony.Patch(
+                    t.GetMethod(methodName, AccessTools.all),
+                    prefix: GetPatch(patchClass, methodName)
                 );
+            }
+            catch (Exception e)
+            {
+                LogPrefixed.Error($"Error patching method: {t.Name}.{methodName}");
+                throw;
+            }
         }
 
         private static void PostfixMethod(Type t, Type patchClass, string methodName)
         {
-            _harmony.Patch(
-                t.GetMethod(methodName, AccessTools.all),
-                postfix: GetPatch(patchClass, methodName)
+            try
+            {
+                _harmony.Patch(
+                    t.GetMethod(methodName, AccessTools.all),
+                    postfix: GetPatch(patchClass, methodName)
                 );
+            }
+            catch (Exception e)
+            {
+                LogPrefixed.Error($"Error patching method: {t.Name}.{methodName}");
+                throw;
+            }
         }
 
         private static void TranspileMethod(Type t, Type patchClass, string methodName)
         {
-            _harmony.Patch(
-                t.GetMethod(methodName, AccessTools.all),
-                transpiler: GetPatch(patchClass, methodName)
+            try
+            {
+                _harmony.Patch(
+                    t.GetMethod(methodName, AccessTools.all),
+                    transpiler: GetPatch(patchClass, methodName)
                 );
+            }
+            catch (Exception e)
+            {
+                LogPrefixed.Error($"Error transpiling method: {t.Name}.{methodName}");
+                throw;
+            }
         }
     }
 }

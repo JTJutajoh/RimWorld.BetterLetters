@@ -7,11 +7,21 @@ using Verse;
 using RimWorld;
 using HarmonyLib;
 using System.Reflection;
+using System.Runtime.Remoting.Contexts;
+using UnityEngine;
 
 namespace BetterLetters
 {
     internal static class LetterUtils
     {
+        internal static class Icons
+        {
+            internal static readonly Texture2D DismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
+            internal static readonly Texture2D UnDismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/UnDismiss");
+            internal static readonly Texture2D PinIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Pin");
+            internal static readonly Texture2D SnoozeIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Snooze");
+        }
+        
         public static bool IsPinned(this Letter letter)
         {
             return Find.Archive.IsPinned(letter);
@@ -29,23 +39,124 @@ namespace BetterLetters
             {
                 archive.Add(letter);
             }
+
             archive.Pin(letter);
             SortLetterStackByPinned();
         }
 
-        public static void Unpin(this Letter letter)
+        public static void Unpin(this Letter letter, bool alsoRemove = false)
         {
             Find.Archive.Unpin(letter);
+            if (alsoRemove)
+            {
+                Find.LetterStack.RemoveLetter(letter);
+            }
+
             SortLetterStackByPinned();
         }
 
-        private static readonly FieldInfo? LettersField = typeof(LetterStack).GetField("letters", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo? LettersField =
+            typeof(LetterStack).GetField("letters", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public static void SortLetterStackByPinned()
         {
             var letters = (List<Letter>)(LettersField?.GetValue(Find.LetterStack) ?? new List<Letter>());
             letters = letters.OrderBy(obj => obj.IsPinned()).ToList();
             LettersField?.SetValue(Find.LetterStack, letters);
+        }
+        
+#if !v1_6
+        // These two functions were added in 1.6. I copied them directly from there for legacy version support since they're so useful
+
+        /// <summary>
+        /// Backported from RimWorld 1.6 <see cref="GenUI" />
+        /// </summary>
+        public static Rect MiddlePart(this Rect rect, float pctWidth, float pctHeight)
+        {
+            return new Rect((float) ((double) rect.x + (double) rect.width / 2.0 - (double) rect.width * (double) pctWidth / 2.0), (float) ((double) rect.y + (double) rect.height / 2.0 - (double) rect.height * (double) pctHeight / 2.0), rect.width * pctWidth, rect.height * pctHeight);
+        }
+
+        /// <summary>
+        /// Backported from RimWorld 1.6 <see cref="GenUI" />
+        /// </summary>
+        public static Rect MiddlePartPixels(this Rect rect, float width, float height)
+        {
+            return new Rect((float) ((double) rect.x + (double) rect.width / 2.0 - (double) width / 2.0), (float) ((double) rect.y + (double) rect.height / 2.0 - (double) height / 2.0), width, height);
+        }
+#endif
+
+        /// <summary>
+        /// Catch-all helper function to create float menus related to this mod.<br />
+        /// Used partially to help with multi-version support since not all features are available in all versions.
+        /// </summary>
+        public static FloatMenuOption MakeFloatMenuOption(string label, Action action, Texture2D iconTex,
+            Color iconColor)
+        {
+            FloatMenuOption option = new(label: label, action: action
+#if v1_6
+                , iconTex: iconTex, iconColor: iconColor // Only RimWorld 1.6+ has a constructor that takes icons as parameters
+#endif
+                ); // Legacy versions just ignore the icon parameters
+
+            return option;
+        }
+
+        public static FloatMenuOption PinFloatMenuOption(Letter letter, Action? onPinned = null)
+        {
+            return MakeFloatMenuOption(
+                "BetterLetters_Pin".Translate(),
+                action: () =>
+                {
+                    letter?.Pin();
+                    onPinned?.Invoke();
+                },
+                iconTex: Icons.PinIcon,
+                iconColor: Color.white
+            );
+        }
+
+        public static FloatMenuOption Snooze1HrFloatMenuOption(Letter letter,
+            Action<SnoozeManager.Snooze?>? onClicked = null)
+        {
+            return MakeFloatMenuOption(
+                "BetterLetters_SnoozeFor1Hour".Translate(),
+                action: () =>
+                {
+                    var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerHour, Settings.SnoozePinned);
+                    onClicked?.Invoke(snooze);
+                },
+                iconTex: Icons.SnoozeIcon,
+                iconColor: new Color(0.2f, 0.2f, 0.2f)
+            );
+        }
+
+        public static FloatMenuOption Snooze1DayFloatMenuOption(Letter letter,
+            Action<SnoozeManager.Snooze?>? onClicked = null)
+        {
+            return MakeFloatMenuOption(
+                "BetterLetters_SnoozeFor1Hour".Translate(),
+                action: () =>
+                {
+                    var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerDay, Settings.SnoozePinned);
+                    onClicked?.Invoke(snooze);
+                },
+                iconTex: Icons.SnoozeIcon,
+                iconColor: new Color(0.4f, 0.4f, 0.4f)
+            );
+        }
+
+        public static FloatMenuOption SnoozeDialogFloatMenuOption(Letter letter,
+            Action<SnoozeManager.Snooze?>? onSnoozed = null)
+        {
+            return MakeFloatMenuOption(
+                "BetterLetters_SnoozeForFloatMenuOption".Translate(),
+                action: () =>
+                {
+                    SnoozeManager.ShowSnoozeDialog(letter, onSnoozed);
+                },
+                iconTex: Icons.SnoozeIcon,
+                iconColor: Color.white
+            );
         }
     }
 }

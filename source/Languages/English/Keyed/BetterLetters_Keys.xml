@@ -15,7 +15,7 @@
   <BetterLetters_DismissButStayPinned>Dismiss (Keep pinned in Archive)</BetterLetters_DismissButStayPinned>
   <BetterLetters_DialogFloatMenuButton>Pin/Snooze</BetterLetters_DialogFloatMenuButton>
   <BetterLetters_SnoozeAdded>Letter snoozed for {0}</BetterLetters_SnoozeAdded>
-  <BetterLetters_SnoozeRemoved>Canceled snooze</BetterLetters_SnoozeRemoved>
+  <BetterLetters_SnoozeRemoved>Canceled snooze for Letter: "{0}"</BetterLetters_SnoozeRemoved>
   <BetterLetters_SnoozeExpired>Snooze expired</BetterLetters_SnoozeExpired>
   <BetterLetters_TooManySnoozes>Too many snoozed letters already! Un-snooze some letters or raise the limit in the mod settings.</BetterLetters_TooManySnoozes>
   <BetterLetters_SnoozeUntil>Snooze until: {0}</BetterLetters_SnoozeUntil>
@@ -25,4 +25,33 @@
   <BetterLetters_DecHour>-1 H</BetterLetters_DecHour>
   <BetterLetters_IncDay>+1 D</BetterLetters_IncDay>
   <BetterLetters_IncHour>+1 H</BetterLetters_IncHour>
+  
+  
+  <BetterLetters_SettingsCategory>Better Letters</BetterLetters_SettingsCategory>
+  <BetterLetters_Settings_SnoozeSettings>Snooze settings</BetterLetters_Settings_SnoozeSettings>
+  
+  <BetterLetters_Settings_DisableRightClickPinnedLetters>Disable right click float menu for pinned letters</BetterLetters_Settings_DisableRightClickPinnedLetters>
+  <BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>By default, pinned letters replace the vanilla "Right click to delete" functionality with a context menu that has several options including dismissing. Enable this if you want right click to always unpin pinned letters instead.</BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>
+  <BetterLetters_Settings_PinTexture>Texture style for pinned letter dialogs:</BetterLetters_Settings_PinTexture>
+  <BetterLetters_Settings_PinTexture_Disabled>Disabled</BetterLetters_Settings_PinTexture_Disabled>
+  <BetterLetters_Settings_PinTexture_Round>Simple</BetterLetters_Settings_PinTexture_Round>
+  <BetterLetters_Settings_PinTexture_Alt>Pushpin</BetterLetters_Settings_PinTexture_Alt>
+  <BetterLetters_Settings_TextureInDialogSize>Pinned/snoozed texture size: {0} pixels</BetterLetters_Settings_TextureInDialogSize>
+  <BetterLetters_Settings_TextureInDialogSize_Desc>Size, in pixels, of the texture in the top right of the dialog that opens when you click on a letter.
+Default: {0}</BetterLetters_Settings_TextureInDialogSize_Desc>
+  <BetterLetters_Settings_MaxNumSnoozes>Snoozed letters limit: {0}</BetterLetters_Settings_MaxNumSnoozes>
+  <BetterLetters_Settings_MaxNumSnoozes_Desc>The maximum number of letters that are allowed to be snoozed at a time.
+Large numbers of snoozed letters could negatively impact performance a little bit.
+Default: {0}</BetterLetters_Settings_MaxNumSnoozes_Desc>
+  <BetterLetters_Settings_MaxSnoozeDuration>Max Snooze Duration: {0} days</BetterLetters_Settings_MaxSnoozeDuration>
+  <BetterLetters_Settings_MaxSnoozeDuration_Desc>Determines the longest allowed snooze in the "Snooze for..." dialog. Measured in days.
+Note that letters that are snoozed for a very long time may expire before the snooze finishes.
+Default: {0}</BetterLetters_Settings_MaxSnoozeDuration_Desc>
+  <BetterLetters_Settings_SnoozePinned>Automatically pin snoozed letters</BetterLetters_Settings_SnoozePinned>
+  <BetterLetters_Settings_SnoozePinned_Desc>If enabled, when a snoozed letter finishes its snooze timer, the letter will show up already pinned so you're less likely to miss it.</BetterLetters_Settings_SnoozePinned_Desc>
+  
+  <BetterLetters_Settings_CurrentlySnoozed>Snoozed letters in the current game ({0}/{1}):</BetterLetters_Settings_CurrentlySnoozed>
+  <BetterLetters_Settings_NoSnoozedLetters>None</BetterLetters_Settings_NoSnoozedLetters>
+  <BetterLetters_Settings_Unsnooze>Cancel snooze</BetterLetters_Settings_Unsnooze>
+  <BetterLetters_Settings_Fire>Trigger now</BetterLetters_Settings_Fire>
 </LanguageData>

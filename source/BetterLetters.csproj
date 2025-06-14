@@ -104,6 +104,7 @@
     <Compile Include="Patches\NewQuestLetterOpenPatch.cs" />
     <Compile Include="Patches\RemoveLetterPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="SnoozeManager.cs" />
   </ItemGroup>
   <ItemGroup>

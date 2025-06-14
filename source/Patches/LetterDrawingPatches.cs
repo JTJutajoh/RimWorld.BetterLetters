@@ -150,31 +150,38 @@ namespace BetterLetters.Patches
         {
             // Checks for right-click first and returns early if not
             if (Event.current.type != EventType.MouseDown || Event.current.button != 1 || !Mouse.IsOver(rect)) return;
+
+            if (Settings.DisableRightClickPinnedLetters)
+            {
+                __instance.Unpin();
+                return;
+            }
             
             var floatMenuOptions = new List<FloatMenuOption>();
             if (__instance.IsPinned())
             {
                 // Unpin option is first in the list so it's under the player's mouse after they right click, meaning you can still do the vanilla behavior of spamming right click to remove all letters
-                floatMenuOptions.Add(new FloatMenuOption(
+                floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_Unpin".Translate(),
-                    delegate { Find.Archive.Unpin(__instance); }
+                    () => { __instance.Unpin(false); },
+                    iconTex: LetterUtils.Icons.DismissIcon,
+                    iconColor: Color.white
                 ));
-                floatMenuOptions.Add(new FloatMenuOption(
+                floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_UnpinAndDismiss".Translate(),
-                    delegate
-                    {
-                        Find.Archive.Unpin(__instance);
-                        Find.LetterStack.RemoveLetter(__instance);
-                    }
+                    () => { __instance.Unpin(true); },
+                    iconTex: LetterUtils.Icons.DismissIcon,
+                    iconColor: Color.red
                 ));
-                floatMenuOptions.Add(new FloatMenuOption(
+                floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_DismissButStayPinned".Translate(),
-                    delegate { Find.LetterStack.RemoveLetter(__instance); }
+                    () => { Find.LetterStack.RemoveLetter(__instance); },
+                    iconTex: LetterUtils.Icons.DismissIcon,
+                    iconColor: Color.gray
                 ));
-                //floatMenuOptions.Add(new FloatMenuOption(
-                //    "OpenLetter".Translate(),
-                //    delegate { __instance.OpenLetter(); }
-                //    ));
+                floatMenuOptions.Add(LetterUtils.Snooze1HrFloatMenuOption(__instance));
+                floatMenuOptions.Add(LetterUtils.Snooze1DayFloatMenuOption(__instance));
+                floatMenuOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(__instance));
             }
             else
             {

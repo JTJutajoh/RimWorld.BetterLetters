@@ -11,7 +11,7 @@ public class SnoozeManager : WorldComponent
 {
     public static SnoozeManager? Instance { get; private set; }
 
-    public static int MaxNumSnoozes => 15; //TODO: Move this to a settings screen
+    public static int MaxNumSnoozes => Settings.MaxNumSnoozes;
     public static int NumSnoozes => Snoozes.Count;
     
     public SnoozeManager(World world) : base(world)
@@ -22,6 +22,7 @@ public class SnoozeManager : WorldComponent
     public class Snooze : IExposable
     {
         public bool Finished => _elapsed >= _duration;
+        public int RemainingTicks => _duration - _elapsed;
         
         private int _start;
         private int _duration;
@@ -138,13 +139,13 @@ public class SnoozeManager : WorldComponent
             LogPrefixed.Warning("Tried to remove a null snooze. Skipping.");
             return;
         }
-        Snoozes.Remove(letter);
         Messages.Message(
-            "BetterLetters_SnoozeRemoved".Translate(),
+            "BetterLetters_SnoozeRemoved".Translate(letter?.Label ?? "null"),
             LookTargets.Invalid,
             MessageTypeDefOf.PositiveEvent,
             historical: false
         );
+        Snoozes.Remove(letter);
     }
     
     public override void WorldComponentTick()
@@ -173,12 +174,13 @@ public class SnoozeManager : WorldComponent
     /// <param name="letter">Instance of the letter that will be snoozed</param>
     /// <param name="onSnooze">Optional callback for when the snooze is completed. Passes the duration of the snooze as a string</param>
     /// <returns>True if the letter was snoozed. False if the user canceled.</returns>
-    public static void ShowSnoozeDialog(Letter letter, Action<string>? onSnooze = null)
+    public static void ShowSnoozeDialog(Letter letter, Action<Snooze?>? onSnooze = null)
     {
         var snoozeDialog = new Dialog_Snooze(duration =>
         {
-            AddSnooze(letter, duration);
-            onSnooze?.Invoke(duration.ToStringTicksToPeriodVague(vagueMin: false));
+            var snooze = AddSnooze(letter, duration);
+            // onSnooze?.Invoke(duration.ToStringTicksToPeriodVague(vagueMin: false));
+            onSnooze?.Invoke(snooze);
         });
         Find.WindowStack.Add(snoozeDialog);
     }
