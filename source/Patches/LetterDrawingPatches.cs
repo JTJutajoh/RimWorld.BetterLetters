@@ -10,15 +10,11 @@ using Verse.Sound;
 
 namespace BetterLetters.Patches
 {
-    [StaticConstructorOnStartup]
     internal class LetterDrawingPatches
     {
         private const float XOffset = 0f;
         private const float PinXOffset = 23.5f;
         private const float PinnedLetterInflateAmount = 4f;
-        private static readonly Texture2D PinTex = ContentFinder<Texture2D>.Get("UI/Icons/Pin");
-        private static readonly Texture2D PinOutlineTex = ContentFinder<Texture2D>.Get("UI/Icons/Pin-Outline");
-        private static readonly Color PinOutlineColor = new Color(0.75f, 0.65f, 0.65f, 1f);
 
         /// Patch for drawing the pin button itself
         // ReSharper disable InconsistentNaming
@@ -51,7 +47,7 @@ namespace BetterLetters.Patches
             }
 
             var position = pinButtonRect.Rounded();
-            GUI.DrawTexture(position, PinTex);
+            GUI.DrawTexture(position, LetterUtils.Icons.PinIconLetterStack);
             GUI.color = Color.white;
         }
 
@@ -145,7 +141,7 @@ namespace BetterLetters.Patches
                     yield return new CodeInstruction(OpCodes.Ldarg_0); // Load a "this" reference
                     yield return
                         CodeInstruction.Call(typeof(LetterDrawingPatches),
-                            nameof(OverrideBounceIfPinned)); // Replaces the original LetterDef.bounce getter
+                            nameof(OverrideBounce)); // Replaces the original LetterDef.bounce getter
                     continue; // Skip over the original getter
                 }
 
@@ -156,7 +152,7 @@ namespace BetterLetters.Patches
                     yield return new CodeInstruction(OpCodes.Ldarg_0); // Load a "this" reference
                     yield return
                         CodeInstruction.Call(typeof(LetterDrawingPatches),
-                            nameof(OverrideFlashIfPinned)); //Replaces the original LetterDef.flashInterval getter
+                            nameof(OverrideFlash)); //Replaces the original LetterDef.flashInterval getter
                     continue; // Skip over the original getter
                 }
 
@@ -177,27 +173,24 @@ namespace BetterLetters.Patches
 
         // ReSharper disable InconsistentNaming
         private static bool
-            OverrideBounceIfPinned(LetterDef ___def, // Takes def as an arg simply to consume it from the stack, easier than other IL weirdness
+            OverrideBounce(LetterDef ___def, // Takes def as an arg simply to consume it from the stack, easier than other IL weirdness
                 Letter __instance) 
         // ReSharper restore InconsistentNaming
         {
-            // If pinned, override the bounce field. Otherwise, just return whatever the original field was
+            // If pinned, override the bounce field. Otherwise, just return whatever the original field was (or false if DisableBounceAlways is true)
             return
-                ___def.bounce &&
-                !(Settings.DisableBounceIfPinned && __instance.IsPinned());
+                !Settings.DisableBounceAlways && ___def.bounce && !(Settings.DisableBounceIfPinned && __instance.IsPinned());
         }
 
         // ReSharper disable InconsistentNaming
         private static float
-            OverrideFlashIfPinned(LetterDef ___def, // Takes def as an arg simply to consume it from the stack, easier than other IL weirdness
+            OverrideFlash(LetterDef ___def, // Takes def as an arg simply to consume it from the stack, easier than other IL weirdness
                 Letter __instance) 
         // ReSharper restore InconsistentNaming
         {
-            // If pinned, override with 0 which disables flashing. Otherwise, just return whatever the original field was
+            // If pinned, override with 0 which disables flashing. Otherwise, just return whatever the original field was (or false if DisableFlashAlways is true)
             return
-                !Settings.DisableFlashIfPinned || __instance.IsPinned()
-                    ? 0f
-                    : ___def.flashInterval; 
+                !Settings.DisableFlashAlways && (!Settings.DisableFlashIfPinned || __instance.IsPinned()) ? 0f : ___def.flashInterval; 
         }
 
         // ReSharper disable InconsistentNaming

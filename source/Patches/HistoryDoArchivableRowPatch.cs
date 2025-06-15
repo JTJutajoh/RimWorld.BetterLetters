@@ -73,7 +73,7 @@ internal class HistoryDoArchivableRowPatch
                             GUI.color = new Color(1f, 1f, 1f, 0.5f);
                         }
 
-                        GUI.DrawTexture(rect, LetterUtils.Icons.SnoozeIcon);
+                        GUI.DrawTexture(rect, LetterUtils.Icons.SnoozeFloatMenuIcon);
                         GUI.color = Color.white; // Probably redundant, but just in case
 
                         return true; // Causes the vanilla pin icon to be skipped
@@ -112,9 +112,10 @@ internal class HistoryDoArchivableRowPatch
                     else
                     {
                         var snooze = SnoozeManager.Snoozes[letter];
-                        var remaining = snooze.RemainingTicks.ToStringTicksToPeriodVerbose();
-                        var end = GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + snooze.Duration, QuestUtility.GetLocForDates());
-                        TooltipHandler.TipRegionByKey(rect, "BetterLetters_SnoozeArchiveTooltip", end, remaining);
+                        snooze.DoTipRegion(rect);
+                        // var remaining = snooze.RemainingTicks.ToStringTicksToPeriodVerbose();
+                        // var end = GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + snooze.Duration, QuestUtility.GetLocForDates());
+                        // TooltipHandler.TipRegionByKey(rect, "BetterLetters_SnoozeArchiveTooltip", end, remaining);
                     }
                 });
                 

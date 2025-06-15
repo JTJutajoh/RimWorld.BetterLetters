@@ -19,11 +19,14 @@ internal class Settings : ModSettings
 
     public static bool DisableRightClickPinnedLetters = false;
     public static bool DisableBounceIfPinned = true;
+    public static bool DisableBounceAlways = false;
     public static bool DisableFlashIfPinned = true;
-    public static int TextureInDialogSize = 32;
+    public static bool DisableFlashAlways = false;
+    public static int TextureInDialogSize = 56;
     public static int MaxNumSnoozes = 15;
     public static float MaxSnoozeDuration = 60f;
     public static bool SnoozePinned = true;
+    public static bool DismissedQuestsDismissLetters = true;
 
     public void DoWindowContents(Rect inRect)
     {
@@ -34,13 +37,33 @@ internal class Settings : ModSettings
             ref DisableRightClickPinnedLetters,
             "BetterLetters_Settings_DisableRightClickPinnedLetters_Desc".Translate());
         
-        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableBounceIfPinned".Translate(),
-            ref DisableBounceIfPinned,
-            "BetterLetters_Settings_DisableBounceIfPinned_Desc".Translate());
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_DismissedQuestsDismissLetters".Translate(),
+            ref DismissedQuestsDismissLetters,
+            "BetterLetters_Settings_DismissedQuestsDismissLetters_Desc".Translate());
         
-        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashIfPinned".Translate(),
-            ref DisableFlashIfPinned,
-            "BetterLetters_Settings_DisableFlashIfPinned_Desc".Translate());
+        listingStandard.Gap(4f);
+        
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableBounceAlways".Translate(),
+            ref DisableBounceAlways,
+            "BetterLetters_Settings_DisableBounceAlways_Desc".Translate());
+        if (!DisableBounceAlways)
+        {
+            listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableBounceIfPinned".Translate(),
+                ref DisableBounceIfPinned,
+                "BetterLetters_Settings_DisableBounceIfPinned_Desc".Translate());
+        }
+        
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashAlways".Translate(),
+            ref DisableFlashAlways,
+            "BetterLetters_Settings_DisableFlashAlways_Desc".Translate());
+        if (!DisableFlashAlways)
+        {
+            listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashIfPinned".Translate(),
+                ref DisableFlashIfPinned,
+                "BetterLetters_Settings_DisableFlashIfPinned_Desc".Translate());
+        }
+        
+        listingStandard.Gap(4f);
         
         listingStandard.Label("BetterLetters_Settings_PinTexture".Translate());
         if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Disabled".Translate(),
@@ -71,11 +94,11 @@ internal class Settings : ModSettings
             Texture2D? pinTex = null;
             if (PinTexture == PinTextureMode.Round)
             {
-                pinTex = DialogDrawNodePatch.PinTex;
+                pinTex = LetterUtils.Icons.PinIconRound;
             }
             else if (PinTexture == PinTextureMode.Alt)
             {
-                pinTex = DialogDrawNodePatch.PinTex_Alt;
+                pinTex = LetterUtils.Icons.PinIconAlt;
             }
 
             if (pinTex is not null)
@@ -174,13 +197,16 @@ internal class Settings : ModSettings
     public override void ExposeData()
     {
         Scribe_Values.Look(ref PinTexture, "PinTexture", PinTextureMode.Round);
-        Scribe_Values.Look(ref TextureInDialogSize, "TextureInDialogSize", 32);
+        Scribe_Values.Look(ref TextureInDialogSize, "TextureInDialogSize", 56);
         Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration", 60f);
         Scribe_Values.Look(ref MaxNumSnoozes, "MaxNumSnoozes", 15);
         Scribe_Values.Look(ref DisableRightClickPinnedLetters, "DisableRightClickPinnedLetters", false);
         Scribe_Values.Look(ref DisableBounceIfPinned, "DisableBounceIfPinned", true);
+        Scribe_Values.Look(ref DisableBounceAlways, "DisableBounceAlways", false);
         Scribe_Values.Look(ref DisableFlashIfPinned, "DisableFlashIfPinned", true);
+        Scribe_Values.Look(ref DisableFlashAlways, "DisableFlashAlways", false);
         Scribe_Values.Look(ref SnoozePinned, "SnoozePinned", true);
+        Scribe_Values.Look(ref DismissedQuestsDismissLetters, "DismissedQuestsDismissLetters", true);
 
         base.ExposeData();
     }

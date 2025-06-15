@@ -19,8 +19,17 @@ namespace BetterLetters
         {
             internal static readonly Texture2D DismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
             internal static readonly Texture2D UnDismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/UnDismiss");
-            internal static readonly Texture2D PinIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Pin");
-            internal static readonly Texture2D SnoozeIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Snooze");
+            internal static readonly Texture2D PinFloatMenuIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Pin");
+            internal static readonly Texture2D PinIconRound = ContentFinder<Texture2D>.Get("UI/Icons/PinRound"); 
+            internal static readonly Texture2D PinOutlineRound = ContentFinder<Texture2D>.Get("UI/Icons/PinRoundOutline");
+            internal static readonly Texture2D PinIconAlt = ContentFinder<Texture2D>.Get("UI/Icons/Pin_alt"); 
+            internal static readonly Texture2D PinOutlineAlt = ContentFinder<Texture2D>.Get("UI/Icons/PinOutline_alt");
+            internal static Texture2D PinIcon => Settings.PinTexture == Settings.PinTextureMode.Round ? PinIconRound : PinIconAlt;
+            internal static Texture2D PinOutline => Settings.PinTexture == Settings.PinTextureMode.Round ? PinOutlineRound : PinOutlineAlt;
+            internal static Texture2D PinIconLetterStack => PinIconRound; // Might add a setting to swap this later
+            internal static readonly Texture2D SnoozeFloatMenuIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Snooze");
+            internal static readonly Texture2D SnoozeIcon = ContentFinder<Texture2D>.Get("UI/Icons/Snoozed");
+            internal static readonly Texture2D SnoozeOutline = ContentFinder<Texture2D>.Get("UI/Icons/SnoozedOutline");
         }
 
         private static Archive? _archiveCached = null;
@@ -44,6 +53,7 @@ namespace BetterLetters
             }
 
             Archive.Pin(letter);
+            SnoozeManager.RemoveSnooze(letter);
             SortLetterStackByPinned();
         }
 
@@ -113,7 +123,7 @@ namespace BetterLetters
                     letter?.Pin();
                     onPinned?.Invoke();
                 },
-                iconTex: Icons.PinIcon,
+                iconTex: Icons.PinFloatMenuIcon,
                 iconColor: Color.white
             );
         }
@@ -128,7 +138,7 @@ namespace BetterLetters
                     var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerHour, Settings.SnoozePinned);
                     onClicked?.Invoke(snooze);
                 },
-                iconTex: Icons.SnoozeIcon,
+                iconTex: Icons.SnoozeFloatMenuIcon,
                 iconColor: new Color(0.2f, 0.2f, 0.2f)
             );
         }
@@ -143,7 +153,7 @@ namespace BetterLetters
                     var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerDay, Settings.SnoozePinned);
                     onClicked?.Invoke(snooze);
                 },
-                iconTex: Icons.SnoozeIcon,
+                iconTex: Icons.SnoozeFloatMenuIcon,
                 iconColor: new Color(0.4f, 0.4f, 0.4f)
             );
         }
@@ -157,7 +167,7 @@ namespace BetterLetters
                 {
                     SnoozeManager.ShowSnoozeDialog(letter, onSnoozed);
                 },
-                iconTex: Icons.SnoozeIcon,
+                iconTex: Icons.SnoozeFloatMenuIcon,
                 iconColor: Color.white
             );
         }

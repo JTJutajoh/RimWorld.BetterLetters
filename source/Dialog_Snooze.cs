@@ -50,28 +50,28 @@ public class Dialog_Snooze : Window
                 "BetterLetters_DecDay".Translate()
             ))
         {
-            _durationDays -= 1;
+            _durationDays = Mathf.Max(_durationDays - 1, 0);
         }
         if (Widgets.ButtonTextSubtle(
                 upperRect.MiddlePartPixels(upperRect.width, buttonHeightIncDec).LeftPart(buttonWidthRatio).RightHalf(),
                 "BetterLetters_DecHour".Translate()
             ))
         {
-            _durationDays -= (1f / 24f);
+            _durationDays = Mathf.Max(_durationDays - (1f / 24f), 0);
         }
         if (Widgets.ButtonTextSubtle(
                 upperRect.MiddlePartPixels(upperRect.width, buttonHeightIncDec).RightPart(buttonWidthRatio).LeftHalf(),
                 "BetterLetters_IncHour".Translate()
             ))
         {
-            _durationDays += (1f / 24f);
+            _durationDays = Mathf.Min( _durationDays + (1f / 24f), MaxDuration);
         }
         if (Widgets.ButtonTextSubtle(
                 upperRect.MiddlePartPixels(upperRect.width, buttonHeightIncDec).RightPart(buttonWidthRatio).RightHalf(),
                 "BetterLetters_IncDay".Translate()
             ))
         {
-            _durationDays += 1;
+            _durationDays = Mathf.Min( _durationDays +  1, MaxDuration);
         }
         
         var labelsRect = mainRect.BottomPart(0.3f);

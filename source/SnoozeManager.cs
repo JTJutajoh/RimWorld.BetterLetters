@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DarkLog;
 using RimWorld;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 
 namespace BetterLetters;
@@ -46,6 +47,16 @@ public class SnoozeManager : WorldComponent
             this._start = GenTicks.TicksGame;
             this._elapsed = 0;
             this._pinned = pinned;
+        }
+
+        public void DoTipRegion(Rect rect)
+        {
+            if (this.Letter is null) return;
+            
+            var snooze = SnoozeManager.Snoozes[this.Letter];
+            var remaining = snooze.RemainingTicks.ToStringTicksToPeriodVerbose();
+            var end = GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + snooze.Duration, QuestUtility.GetLocForDates());
+            TooltipHandler.TipRegionByKey(rect, "BetterLetters_SnoozedButtonTooltip", end, remaining);
         }
 
         /// <summary>
@@ -121,6 +132,7 @@ public class SnoozeManager : WorldComponent
             return null;
         }
         Snoozes.Add(letter, new Snooze(letter, durationTicks, pinned));
+        letter.Unpin();
         LogPrefixed.Trace("Added snooze for letter " + letter.ToString());
         Messages.Message(
             "BetterLetters_SnoozeAdded".Translate(durationTicks.ToStringTicksToPeriod()),
@@ -139,13 +151,15 @@ public class SnoozeManager : WorldComponent
             LogPrefixed.Warning("Tried to remove a null snooze. Skipping.");
             return;
         }
-        Messages.Message(
-            "BetterLetters_SnoozeRemoved".Translate(letter?.Label ?? "null"),
-            LookTargets.Invalid,
-            MessageTypeDefOf.PositiveEvent,
-            historical: false
-        );
-        Snoozes.Remove(letter);
+        if (Snoozes.Remove(letter))
+        {
+            Messages.Message(
+                "BetterLetters_SnoozeRemoved".Translate(letter?.Label ?? "null"),
+                LookTargets.Invalid,
+                MessageTypeDefOf.PositiveEvent,
+                historical: false
+            );
+        }
     }
     
     public override void WorldComponentTick()

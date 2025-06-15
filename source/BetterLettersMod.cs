@@ -142,6 +142,13 @@ namespace BetterLetters
             patchClass = typeof(DialogDrawNodePatch);
             type = typeof(Dialog_NodeTree);
             PostfixMethod(typeof(Dialog_NodeTree), patchClass, "DoWindowContents");
+            
+            // Patches to the quest tab
+            patchClass = typeof(QuestsTabPatches);
+            type = typeof(MainTabWindow_Quests);
+            TranspileMethod(type, patchClass, "DoSelectedQuestInfo");
+            PrefixMethod(type, patchClass, "DoCharityIcon");
+            TranspileMethod(type, patchClass, "DoDismissButton");
 
             // Patch to sort pinned letters always on the bottom
             patchClass = typeof(LetterStackReceiveLetterPatch);
@@ -201,7 +208,9 @@ namespace BetterLetters
             try
             {
                 LogPrefixed.Trace($"Patching {methodName} method");
-                return new HarmonyMethod(t.GetMethod(methodName, AccessTools.all));
+                var method = t.GetMethod(methodName, AccessTools.all);
+                var harmonyMethod = new HarmonyMethod(method);
+                return harmonyMethod;
             }
             catch (Exception e)
             {
@@ -267,9 +276,11 @@ namespace BetterLetters
         {
             try
             {
+                var originalMethod = t.GetMethod(methodName, AccessTools.all);
+                var transpilerMethod = GetPatch(patchClass, methodName);
                 _harmony.Patch(
-                    t.GetMethod(methodName, AccessTools.all),
-                    transpiler: GetPatch(patchClass, methodName)
+                    originalMethod,
+                    transpiler: transpilerMethod
                 );
             }
             catch (Exception e)

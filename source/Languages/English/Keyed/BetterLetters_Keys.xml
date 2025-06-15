@@ -25,11 +25,15 @@
   <BetterLetters_DecHour>-1 H</BetterLetters_DecHour>
   <BetterLetters_IncDay>+1 D</BetterLetters_IncDay>
   <BetterLetters_IncHour>+1 H</BetterLetters_IncHour>
-  <BetterLetters_SnoozeArchiveTooltip>Snoozed until {0}.
+  <BetterLetters_SnoozedButtonTooltip>Snoozed until {0}.
 Remaining: {1}
 
-Click to cancel the snooze.
-</BetterLetters_SnoozeArchiveTooltip>
+Click to cancel the snooze.</BetterLetters_SnoozedButtonTooltip>
+  <BetterLetters_PinQuestTooltip>Pin this quest's corresponding Letter to help keep track of it. If it is snoozed, the snooze will be canceled.</BetterLetters_PinQuestTooltip>
+  <BetterLetters_UnPinQuestTooltip>Unpin this quest's corresponding letter. The letter will not be dismissed.</BetterLetters_UnPinQuestTooltip>
+  <BetterLetters_SnoozeQuestTooltip>Snooze this quest until later. If it is pinned it will be unpinned.
+  
+You will receive the "Quest available" letter again when the snooze ends. You will still receive notifications related to this quest, unlike dismissing it.</BetterLetters_SnoozeQuestTooltip>
   
   
   <BetterLetters_SettingsCategory>Better Letters</BetterLetters_SettingsCategory>
@@ -37,10 +41,16 @@ Click to cancel the snooze.
   
   <BetterLetters_Settings_DisableRightClickPinnedLetters>Disable right click float menu for pinned letters</BetterLetters_Settings_DisableRightClickPinnedLetters>
   <BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>By default, pinned letters replace the vanilla "Right click to delete" functionality with a context menu that has several options including dismissing. Enable this if you want right click to always unpin pinned letters instead.</BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>
+  <BetterLetters_Settings_DismissedQuestsDismissLetters>Dismissing quests also dismisses the associated letter</BetterLetters_Settings_DismissedQuestsDismissLetters>
+  <BetterLetters_Settings_DismissedQuestsDismissLetters_Desc>If enabled, clicking the trash can icon on a quest to dismiss it will also automatically hide the "Quest available" letter for it. Note that the letter will stay pinned if you pinned it, but only in the archive.</BetterLetters_Settings_DismissedQuestsDismissLetters_Desc>
   <BetterLetters_Settings_DisableBounceIfPinned>Disable bounce for pinned letters</BetterLetters_Settings_DisableBounceIfPinned>
   <BetterLetters_Settings_DisableBounceIfPinned_Desc>By default some letters (mostly negative ones in vanilla) have a little bounce animation to get your attention. If this option is enabled, pinned letters will sit still no matter what.</BetterLetters_Settings_DisableBounceIfPinned_Desc>
+  <BetterLetters_Settings_DisableBounceAlways>Disable bounce for ALL letters</BetterLetters_Settings_DisableBounceAlways>
+  <BetterLetters_Settings_DisableBounceAlways_Desc>By default some letters (mostly negative ones in vanilla) have a little bounce animation to get your attention. Enabling this option will turn that off for ALL letters.</BetterLetters_Settings_DisableBounceAlways_Desc>
   <BetterLetters_Settings_DisableFlashIfPinned>Disable flash for pinned letters</BetterLetters_Settings_DisableFlashIfPinned>
   <BetterLetters_Settings_DisableFlashIfPinned_Desc>Letters in vanilla flash at you to get your attention. Turn this on to disable flashing for pinned letters so they aren't distracting.</BetterLetters_Settings_DisableFlashIfPinned_Desc>
+  <BetterLetters_Settings_DisableFlashAlways>Disable flash for ALL letters</BetterLetters_Settings_DisableFlashAlways>
+  <BetterLetters_Settings_DisableFlashAlways_Desc>Letters in vanilla flash at you to get your attention. Turn this on to disable that vanilla feature entirely.</BetterLetters_Settings_DisableFlashAlways_Desc>
   <BetterLetters_Settings_PinTexture>Texture style for pinned letter dialogs:</BetterLetters_Settings_PinTexture>
   <BetterLetters_Settings_PinTexture_Disabled>Disabled</BetterLetters_Settings_PinTexture_Disabled>
   <BetterLetters_Settings_PinTexture_Round>Simple</BetterLetters_Settings_PinTexture_Round>
