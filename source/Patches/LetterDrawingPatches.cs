@@ -213,9 +213,9 @@ namespace BetterLetters.Patches
                 return;
             }
 
-            var floatMenuOptions = new List<FloatMenuOption>();
             if (__instance.IsPinned())
             {
+                var floatMenuOptions = new List<FloatMenuOption>();
                 // Unpin option is first in the list so it's under the player's mouse after they right click, meaning you can still do the vanilla behavior of spamming right click to remove all letters
                 floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_Unpin".Translate(),
@@ -238,15 +238,15 @@ namespace BetterLetters.Patches
                 floatMenuOptions.Add(LetterUtils.Snooze1HrFloatMenuOption(__instance));
                 floatMenuOptions.Add(LetterUtils.Snooze1DayFloatMenuOption(__instance));
                 floatMenuOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(__instance));
+                
+                Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
+                SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
+                Event.current.Use();
             }
             else
             {
                 // Right-click functionality for NOT pinned letters would go here in the future    
             }
-
-            Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
-            SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
-            Event.current.Use();
         }
     }
 }
