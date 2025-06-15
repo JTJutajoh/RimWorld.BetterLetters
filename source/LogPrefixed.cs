@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using UnityEngine;
 using Verse;
 
 namespace DarkLog
@@ -18,21 +19,28 @@ namespace DarkLog
     [StaticConstructorOnStartup]
     static class LogPrefixed
     {
-        public static Verse.Mod? modInst;
-        static string PackageId => modInst?.Content.PackageIdPlayerFacing ??
-                                   (Assembly.GetEntryAssembly()?.GetName().Name ?? "");
+        private static Verse.Mod? _modInstance;
 
-        static string _prefixColor = "cyan";
+        private static string PackageId => _modInstance?.Content.PackageIdPlayerFacing ??
+                                           (Assembly.GetEntryAssembly()?.GetName().Name ?? "");
+        private static string PrefixColor { get; set; } = "cyan";
 
-        static string PrefixedMessage(string message) => $"<color={_prefixColor}>[{PackageId}]</color> {message}";
+        private static string PrefixedMessage(string message) => $"<color={PrefixColor}>[{PackageId}]</color> {message}";
 
         static LogPrefixed()
         {
-#if DEBUG
-            Error("DEBUG LOGSPAM ENABLED!");
-#endif
         }
 
+        public static void Initialize(Verse.Mod mod, string prefixColor = "cyan")
+        {
+            _modInstance = mod;
+            prefixColor = prefixColor.ToLower();
+#if DEBUG
+            Error("DEBUG LOGSPAM ENABLED!!!");
+            Warning("This is a debug build of the mod with trace logs included.");
+#endif
+        }
+        
         public static void Error(string text)
         {
             Log.Error(PrefixedMessage(text));
@@ -89,10 +97,13 @@ namespace DarkLog
         /// Sends a debug message, but only if project was built with the DEBUG constant defined.
         /// Use this for logspam.
         /// </summary>
+        /// <param name="text">The message to log</param>
         /// <param name="warning">If true, sends as a yellow warning message for visibility.</param>
         public static void Trace(string text, bool warning = false)
         {
+            // Non-Debug builds have no method body for this
 #if DEBUG
+            text = $"<color='yellow'>[TRACE]</color> {text}";
             if (warning)
                 Warning(text);
             else

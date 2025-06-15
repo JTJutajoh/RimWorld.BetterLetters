@@ -87,6 +87,7 @@
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
       <HintPath>D:\Games\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -94,6 +95,8 @@
     <Compile Include="Dialog_Snooze.cs" />
     <Compile Include="LogPrefixed.cs" />
     <Compile Include="LetterUtils.cs" />
+    <Compile Include="Patches\HistoryDoArchivableRowPatch.cs" />
+    <Compile Include="Patches\LetterCanCullArchivedNowPatch.cs" />
     <Compile Include="Patches\LetterStackReceiveLetterPatch.cs" />
     <Compile Include="Patches\ArchivePinPatch.cs" />
     <Compile Include="Patches\DialogDrawNodePatch.cs" />

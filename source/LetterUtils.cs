@@ -14,6 +14,7 @@ namespace BetterLetters
 {
     internal static class LetterUtils
     {
+        [StaticConstructorOnStartup]
         internal static class Icons
         {
             internal static readonly Texture2D DismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
@@ -21,10 +22,13 @@ namespace BetterLetters
             internal static readonly Texture2D PinIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Pin");
             internal static readonly Texture2D SnoozeIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Snooze");
         }
+
+        private static Archive? _archiveCached = null;
+        private static Archive Archive => _archiveCached ??= Find.Archive;
         
         public static bool IsPinned(this Letter letter)
         {
-            return Find.Archive.IsPinned(letter);
+            return Archive.IsPinned(letter);
         }
 
         public static bool IsSnoozed(this Letter letter)
@@ -34,19 +38,18 @@ namespace BetterLetters
 
         public static void Pin(this Letter letter)
         {
-            var archive = Find.Archive;
-            if (!archive.Contains(letter))
+            if (!Archive.Contains(letter))
             {
-                archive.Add(letter);
+                Archive.Add(letter);
             }
 
-            archive.Pin(letter);
+            Archive.Pin(letter);
             SortLetterStackByPinned();
         }
 
         public static void Unpin(this Letter letter, bool alsoRemove = false)
         {
-            Find.Archive.Unpin(letter);
+            Archive.Unpin(letter);
             if (alsoRemove)
             {
                 Find.LetterStack.RemoveLetter(letter);
@@ -134,7 +137,7 @@ namespace BetterLetters
             Action<SnoozeManager.Snooze?>? onClicked = null)
         {
             return MakeFloatMenuOption(
-                "BetterLetters_SnoozeFor1Hour".Translate(),
+                "BetterLetters_SnoozeFor1Day".Translate(),
                 action: () =>
                 {
                     var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerDay, Settings.SnoozePinned);

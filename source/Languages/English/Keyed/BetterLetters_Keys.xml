@@ -25,6 +25,11 @@
   <BetterLetters_DecHour>-1 H</BetterLetters_DecHour>
   <BetterLetters_IncDay>+1 D</BetterLetters_IncDay>
   <BetterLetters_IncHour>+1 H</BetterLetters_IncHour>
+  <BetterLetters_SnoozeArchiveTooltip>Snoozed until {0}.
+Remaining: {1}
+
+Click to cancel the snooze.
+</BetterLetters_SnoozeArchiveTooltip>
   
   
   <BetterLetters_SettingsCategory>Better Letters</BetterLetters_SettingsCategory>
@@ -32,6 +37,10 @@
   
   <BetterLetters_Settings_DisableRightClickPinnedLetters>Disable right click float menu for pinned letters</BetterLetters_Settings_DisableRightClickPinnedLetters>
   <BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>By default, pinned letters replace the vanilla "Right click to delete" functionality with a context menu that has several options including dismissing. Enable this if you want right click to always unpin pinned letters instead.</BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>
+  <BetterLetters_Settings_DisableBounceIfPinned>Disable bounce for pinned letters</BetterLetters_Settings_DisableBounceIfPinned>
+  <BetterLetters_Settings_DisableBounceIfPinned_Desc>By default some letters (mostly negative ones in vanilla) have a little bounce animation to get your attention. If this option is enabled, pinned letters will sit still no matter what.</BetterLetters_Settings_DisableBounceIfPinned_Desc>
+  <BetterLetters_Settings_DisableFlashIfPinned>Disable flash for pinned letters</BetterLetters_Settings_DisableFlashIfPinned>
+  <BetterLetters_Settings_DisableFlashIfPinned_Desc>Letters in vanilla flash at you to get your attention. Turn this on to disable flashing for pinned letters so they aren't distracting.</BetterLetters_Settings_DisableFlashIfPinned_Desc>
   <BetterLetters_Settings_PinTexture>Texture style for pinned letter dialogs:</BetterLetters_Settings_PinTexture>
   <BetterLetters_Settings_PinTexture_Disabled>Disabled</BetterLetters_Settings_PinTexture_Disabled>
   <BetterLetters_Settings_PinTexture_Round>Simple</BetterLetters_Settings_PinTexture_Round>

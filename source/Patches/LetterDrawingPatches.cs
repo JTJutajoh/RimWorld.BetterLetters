@@ -23,25 +23,26 @@ namespace BetterLetters.Patches
         /// Patch for drawing the pin button itself
         // ReSharper disable InconsistentNaming
         public static void DrawButtonAt_Postfix(Letter __instance, float topY, float ___arrivalTime, LetterDef ___def)
-        // ReSharper restore InconsistentNaming
+            // ReSharper restore InconsistentNaming
         {
             if (!__instance.IsPinned())
                 return;
 
             const float size = 14f;
             var xPos = (float)UI.screenWidth - size - XOffset;
-            var pinButtonRect = new Rect(xPos-PinXOffset, topY-6f, size, size);
+            var pinButtonRect = new Rect(xPos - PinXOffset, topY - 6f, size, size);
 
             // Animate the icon moving with the letter, just copied from vanilla code
             var lerp = Time.time - ___arrivalTime;
             if (lerp < 1f)
             {
                 pinButtonRect.y -= (1f - lerp) * 200f;
-                GUI.color = new Color(1,1,1,lerp / 1f);
+                GUI.color = new Color(1, 1, 1, lerp / 1f);
             }
+
             // Animate the icon with the letter bounce, again copied from vanilla
             var letterRect = new Rect((float)UI.screenWidth - 38f - 12f, topY, 38f, 30f);
-            if (!Mouse.IsOver(letterRect) && ___def.bounce && lerp > 15f && lerp % 5f < 1f)
+            if (!Settings.DisableBounceIfPinned && !Mouse.IsOver(letterRect) && ___def.bounce && lerp > 15f && lerp % 5f < 1f)
             {
                 var num3 = (float)UI.screenWidth * 0.06f;
                 var num4 = 2f * (lerp % 1f) - 1f;
@@ -72,13 +73,17 @@ namespace BetterLetters.Patches
                     xAltered = true;
                     continue;
                 }
+
                 yield return codes[i];
             }
         }
 
-        private static readonly MethodInfo? AnchorMethodButtonInvisible = typeof(Widgets).GetMethod(nameof(Widgets.ButtonInvisible));
+        private static readonly MethodInfo? AnchorMethodButtonInvisible =
+            typeof(Widgets).GetMethod(nameof(Widgets.ButtonInvisible));
 
-        private static readonly ConstructorInfo? RectConstructor = typeof(Rect).GetConstructor(new[] { typeof(float), typeof(float), typeof(float), typeof(float) });
+        private static readonly ConstructorInfo? RectConstructor =
+            typeof(Rect).GetConstructor(new[] { typeof(float), typeof(float), typeof(float), typeof(float) });
+
         /// Patch for moving the texture, label, and altering right-click behavior
         public static IEnumerable<CodeInstruction> DrawButtonAt_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -95,9 +100,10 @@ namespace BetterLetters.Patches
                     yield return new CodeInstruction(OpCodes.Ldc_R4, 38f + XOffset);
 
                     // The literal 38f is loaded again later in the original method for other purposes, so make sure this only runs once
-                    xAltered = true; 
+                    xAltered = true;
                     continue;
                 }
+
                 // Shifting the label to the left
                 // Searching for the first time that the 12th local variable is stored (num7 in ILspy)
                 if (codes[i].opcode == OpCodes.Stloc_S && ((LocalBuilder)codes[i].operand).LocalIndex == 12)
@@ -108,7 +114,8 @@ namespace BetterLetters.Patches
                 }
 
                 // Altering the Letter icon Rect
-                if (!inflated && codes[i].opcode == OpCodes.Call && (ConstructorInfo?)codes[i].operand == RectConstructor)
+                if (!inflated && codes[i].opcode == OpCodes.Call &&
+                    (ConstructorInfo?)codes[i].operand == RectConstructor)
                 {
                     inflated = true;
                     yield return codes[i];
@@ -130,18 +137,67 @@ namespace BetterLetters.Patches
                     yield return new CodeInstruction(OpCodes.Ldloc_1); // Load a reference to "rect" local variable
                     yield return CodeInstruction.Call(typeof(LetterDrawingPatches), nameof(DoPinnedFloatMenu));
                 }
+
+                // Disabling bouncing for pinned letters
+                if (codes[i].opcode == OpCodes.Ldfld &&
+                    (FieldInfo?)codes[i].operand == typeof(LetterDef).GetField("bounce"))
+                {
+                    yield return new CodeInstruction(OpCodes.Ldarg_0); // Load a "this" reference
+                    yield return
+                        CodeInstruction.Call(typeof(LetterDrawingPatches),
+                            nameof(OverrideBounceIfPinned)); // Replaces the original LetterDef.bounce getter
+                    continue; // Skip over the original getter
+                }
+
+                // Disabling flashing for pinned letters
+                if (codes[i].opcode == OpCodes.Ldfld &&
+                    (FieldInfo?)codes[i].operand == typeof(LetterDef).GetField("flashInterval"))
+                {
+                    yield return new CodeInstruction(OpCodes.Ldarg_0); // Load a "this" reference
+                    yield return
+                        CodeInstruction.Call(typeof(LetterDrawingPatches),
+                            nameof(OverrideFlashIfPinned)); //Replaces the original LetterDef.flashInterval getter
+                    continue; // Skip over the original getter
+                }
+
+                // Emitting the original IL instruction
                 yield return codes[i];
             }
         }
 
         // ReSharper disable InconsistentNaming
         private static void InflateIfPinned(Letter __instance, ref Rect rect)
-        // ReSharper restore InconsistentNaming
+            // ReSharper restore InconsistentNaming
         {
             if (__instance.IsPinned())
             {
                 rect = rect.ExpandedBy(PinnedLetterInflateAmount);
             }
+        }
+
+        // ReSharper disable InconsistentNaming
+        private static bool
+            OverrideBounceIfPinned(LetterDef ___def, // Takes def as an arg simply to consume it from the stack, easier than other IL weirdness
+                Letter __instance) 
+        // ReSharper restore InconsistentNaming
+        {
+            // If pinned, override the bounce field. Otherwise, just return whatever the original field was
+            return
+                ___def.bounce &&
+                !(Settings.DisableBounceIfPinned && __instance.IsPinned());
+        }
+
+        // ReSharper disable InconsistentNaming
+        private static float
+            OverrideFlashIfPinned(LetterDef ___def, // Takes def as an arg simply to consume it from the stack, easier than other IL weirdness
+                Letter __instance) 
+        // ReSharper restore InconsistentNaming
+        {
+            // If pinned, override with 0 which disables flashing. Otherwise, just return whatever the original field was
+            return
+                !Settings.DisableFlashIfPinned || __instance.IsPinned()
+                    ? 0f
+                    : ___def.flashInterval; 
         }
 
         // ReSharper disable InconsistentNaming
@@ -156,7 +212,7 @@ namespace BetterLetters.Patches
                 __instance.Unpin();
                 return;
             }
-            
+
             var floatMenuOptions = new List<FloatMenuOption>();
             if (__instance.IsPinned())
             {
@@ -187,6 +243,7 @@ namespace BetterLetters.Patches
             {
                 // Right-click functionality for NOT pinned letters would go here in the future    
             }
+
             Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
             SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
             Event.current.Use();

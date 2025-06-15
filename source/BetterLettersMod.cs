@@ -20,7 +20,7 @@ namespace BetterLetters
         public BetterLettersMod(ModContentPack content) : base(content)
         {
             Instance = this;
-            LogPrefixed.modInst = this;
+            LogPrefixed.Initialize(this, "cyan");
             
             GetSettings<Settings>();
         }
@@ -53,7 +53,7 @@ namespace BetterLetters
             _harmony = new Harmony(BetterLettersMod.Instance!.Content.PackageId);
 
 #if DEBUG
-            // Harmony.DEBUG = true; // For debugging transpilers. DO NOT uncomment this unless you need it!
+            Harmony.DEBUG = true; // For debugging transpilers. DO NOT uncomment this unless you need it!
 #endif
 
             LogPrefixed.Message("Running Harmony patches...");
@@ -124,6 +124,17 @@ namespace BetterLetters
                 postfix: GetPatch(patchClass, "DrawButtonAt_Postfix"),
                 transpiler: GetPatch(patchClass, "DrawButtonAt_Transpiler")
                 );
+            
+            //TODO: Figure out how to patch this since it's an INTERFACE method
+            // // Patch letters to not allow culling if they are snoozed
+            // patchClass = typeof(LetterCanCullArchivedNowPatch);
+            // type = typeof(Letter);
+            // PostfixGetter(type, patchClass, "CanCullArchivedNow");
+            
+            // Patch the History window to show snoozed icon for snoozed letters
+            patchClass = typeof(HistoryDoArchivableRowPatch);
+            type = typeof(MainTabWindow_History);
+            TranspileMethod(type, patchClass, "DoArchivableRow");
 
             // Patch Dialog_NodeTree to add pin texture
             patchClass = typeof(DialogDrawNodePatch);

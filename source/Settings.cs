@@ -18,6 +18,8 @@ internal class Settings : ModSettings
     public static PinTextureMode PinTexture = PinTextureMode.Round;
 
     public static bool DisableRightClickPinnedLetters = false;
+    public static bool DisableBounceIfPinned = true;
+    public static bool DisableFlashIfPinned = true;
     public static int TextureInDialogSize = 32;
     public static int MaxNumSnoozes = 15;
     public static float MaxSnoozeDuration = 60f;
@@ -31,6 +33,14 @@ internal class Settings : ModSettings
         listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableRightClickPinnedLetters".Translate(),
             ref DisableRightClickPinnedLetters,
             "BetterLetters_Settings_DisableRightClickPinnedLetters_Desc".Translate());
+        
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableBounceIfPinned".Translate(),
+            ref DisableBounceIfPinned,
+            "BetterLetters_Settings_DisableBounceIfPinned_Desc".Translate());
+        
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashIfPinned".Translate(),
+            ref DisableFlashIfPinned,
+            "BetterLetters_Settings_DisableFlashIfPinned_Desc".Translate());
         
         listingStandard.Label("BetterLetters_Settings_PinTexture".Translate());
         if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Disabled".Translate(),
@@ -168,6 +178,8 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration", 60f);
         Scribe_Values.Look(ref MaxNumSnoozes, "MaxNumSnoozes", 15);
         Scribe_Values.Look(ref DisableRightClickPinnedLetters, "DisableRightClickPinnedLetters", false);
+        Scribe_Values.Look(ref DisableBounceIfPinned, "DisableBounceIfPinned", true);
+        Scribe_Values.Look(ref DisableFlashIfPinned, "DisableFlashIfPinned", true);
         Scribe_Values.Look(ref SnoozePinned, "SnoozePinned", true);
 
         base.ExposeData();
