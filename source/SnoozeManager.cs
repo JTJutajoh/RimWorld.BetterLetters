@@ -20,18 +20,38 @@ public class SnoozeManager : WorldComponent
         Instance = this;
     }
 
+    public enum SnoozeTypes
+    {
+        Letter, // Snoozed standard letter
+        Reminder // User-created reminder
+    }
+    
     public class Snooze : IExposable
     {
+        /// True if the snooze's elapsed time has passed its duration
         public bool Finished => _elapsed >= _duration;
+        /// The raw number of ticks remaining before the snooze finishes
         public int RemainingTicks => _duration - _elapsed;
         
+        /// The exact abs tick that this snooze was started on
         private int _start;
+        /// The number of ticks that this snooze should run for in total
         private int _duration;
+        /// Gets the total duration of the snooze in ticks.
         public int Duration => _duration;
+        /// The number of ticks elapsed so far
         private int _elapsed;
+        /// Reference to the letter that this snooze is for. If this is null for any reason, the snooze will
+        /// immediately expire itself on the next tick.<br />
+        /// This <i>must</i> match the letter's reference in the snooze dictionary. If a mismatch is detected, the snooze
+        /// will expire itself on the next tick.
         public Letter? Letter;
-        private bool _pinned;
+        /// If true, the letter will automatically be pinned when the snooze finishes
+        private bool _pinWhenFinished;
+        /// Defines the behavior of this snooze and used by UI to distinguish it
+        public SnoozeTypes SnoozeType = SnoozeTypes.Letter;
 
+        [Obsolete("Do not use the blank constructor. It only exists for serialization.")]
         public Snooze()
         {
             LogPrefixed.Trace("Creating new empty snooze data");
@@ -39,14 +59,15 @@ public class SnoozeManager : WorldComponent
             // This is only used when loading existing save files.
         }
         
-        public Snooze(Letter letter, int durationTicks, bool pinned = false)
+        public Snooze(Letter letter, int durationTicks, bool pinWhenFinished = false, SnoozeTypes snoozeType = SnoozeTypes.Letter)
         {
             LogPrefixed.Trace("Creating new snooze");
             this.Letter = letter;
             this._duration = durationTicks;
             this._start = GenTicks.TicksGame;
             this._elapsed = 0;
-            this._pinned = pinned;
+            this._pinWhenFinished = pinWhenFinished;
+            this.SnoozeType = snoozeType;
         }
 
         public void DoTipRegion(Rect rect)
@@ -74,22 +95,26 @@ public class SnoozeManager : WorldComponent
                     MessageTypeDefOf.RejectInput,
                     historical: false
                 );
-                SnoozeManager.Snoozes.Remove(null!);
                 return true;
             }
             this._elapsed = GenTicks.TicksGame - this._start;
             if (this.Finished)
             {
-                if (this._pinned)
-                {
-                    this.Letter.Pin();
-                }
-                else
-                {
-                    Find.LetterStack.ReceiveLetter(this.Letter);
-                }
+                this.Finish();
             }
             return this.Finished;
+        }
+
+        public void Finish()
+        {
+            if (this._pinWhenFinished)
+            {
+                this.Letter?.Pin();
+            }
+            else
+            {
+                Find.LetterStack.ReceiveLetter(this.Letter);
+            }
         }
         
         public void ExposeData()
@@ -103,6 +128,9 @@ public class SnoozeManager : WorldComponent
             
             Scribe_Values.Look<int>(ref this._elapsed, "elapsed", 0, false);
             Scribe_Values.Look<int>(ref this._duration, "duration", 0, false);
+            Scribe_Values.Look<int>(ref this._start, "start", 0, false);
+            Scribe_Values.Look<bool>(ref this._pinWhenFinished, "pinWhenFinished", false, false);
+            Scribe_Values.Look<SnoozeTypes>(ref this.SnoozeType, "snoozeType", SnoozeTypes.Letter, false);
             if (Scribe.mode == LoadSaveMode.PostLoadInit && !this.Finished)
             {
                 this._start = GenTicks.TicksGame;
@@ -113,8 +141,19 @@ public class SnoozeManager : WorldComponent
     private static Dictionary<Letter?, Snooze> _snoozes = new();
     public static Dictionary<Letter?, Snooze> Snoozes => _snoozes;
 
-    public static Snooze? AddSnooze(Letter letter, int durationTicks, bool pinned = false)
+    /// <summary>
+    /// Base method for adding snoozes to the dictionary.
+    /// </summary>
+    /// <param name="snooze">A snooze instance created externally. The `Letter` field on the snooze will be
+    /// used as the key in the dictionary.</param>
+    /// <returns>True if the snooze was successfully added (not a duplicate, Letter was not null, etc.)</returns>
+    public static bool AddSnooze(Snooze snooze)
     {
+        if (snooze.Letter is null)
+        {
+            LogPrefixed.Warning("Tried to add a snooze with a null letter. Skipping.");
+            return false;
+        }
         if (NumSnoozes >= MaxNumSnoozes)
         {
             LogPrefixed.Warning("Tried to add a snooze but there are already too many. Skipping.");
@@ -124,32 +163,45 @@ public class SnoozeManager : WorldComponent
                 MessageTypeDefOf.RejectInput,
                 historical: false
             );
-            return null;
+            return false;
         }
-        if (Snoozes.ContainsKey(letter))
+        if (Snoozes.ContainsKey(snooze.Letter))
         {
             LogPrefixed.Warning("Tried to add a snooze for a letter that already has one.");
-            return null;
+            return false;
         }
-        Snoozes.Add(letter, new Snooze(letter, durationTicks, pinned));
-        letter.Unpin();
-        LogPrefixed.Trace("Added snooze for letter " + letter.ToString());
+        Snoozes.Add(snooze.Letter, snooze);
+        snooze.Letter.Unpin();
+        LogPrefixed.Trace("Added snooze for letter " + snooze.Letter.ToString());
         Messages.Message(
-            "BetterLetters_SnoozeAdded".Translate(durationTicks.ToStringTicksToPeriod()),
+            "BetterLetters_SnoozeAdded".Translate(snooze.Duration.ToStringTicksToPeriod()),
             LookTargets.Invalid,
             MessageTypeDefOf.PositiveEvent,
             historical: false
         );
+        return true;
+    }
+    
+    /// <summary>
+    /// Helper method to create a snooze for a letter and add it to the dictionary.
+    /// </summary>
+    /// <param name="letter">The letter that will be snoozed</param>
+    /// <param name="durationTicks">How long the snooze will last</param>
+    /// <param name="pinned">If true, the letter will be automatically pinned when the snooze finishes</param>
+    /// <returns>Newly-created instance of the snooze for this letter, or null if it failed.</returns>
+    public static Snooze? AddSnooze(Letter letter, int durationTicks, bool pinned = false)
+    {
+        AddSnooze(new Snooze(letter, durationTicks, Settings.SnoozePinned || pinned));
         
         return Snoozes[letter];
     }
 
-    public static void RemoveSnooze(Letter? letter)
+    public static bool RemoveSnooze(Letter? letter)
     {
         if (letter is null)
         {
             LogPrefixed.Warning("Tried to remove a null snooze. Skipping.");
-            return;
+            return false;
         }
         if (Snoozes.Remove(letter))
         {
@@ -159,26 +211,23 @@ public class SnoozeManager : WorldComponent
                 MessageTypeDefOf.PositiveEvent,
                 historical: false
             );
+            return true;
         }
+
+        return false;
     }
     
     public override void WorldComponentTick()
     {
         base.WorldComponentTick();
         
-        var expiredSnoozes = new List<Letter?>();
-        foreach (var snooze in Snoozes)
+        var allSnoozes = new Dictionary<Letter?, Snooze>(Snoozes);
+        foreach (var snooze in allSnoozes)
         {
-            if (snooze.Value.TickIntervalDelta())
+            if (snooze.Key != null && snooze.Value.TickIntervalDelta())
             {
-                expiredSnoozes.Add(snooze.Key);
+                Snoozes.Remove(snooze.Key);
             }
-        }
-        
-        // Iterate a second time to remove expired snoozes, since we can't modify the list while iterating over it the first time.
-        foreach (var letter in expiredSnoozes)
-        {
-            Snoozes.Remove(letter!);
         }
     }
 
@@ -193,7 +242,6 @@ public class SnoozeManager : WorldComponent
         var snoozeDialog = new Dialog_Snooze(duration =>
         {
             var snooze = AddSnooze(letter, duration);
-            // onSnooze?.Invoke(duration.ToStringTicksToPeriodVague(vagueMin: false));
             onSnooze?.Invoke(snooze);
         });
         Find.WindowStack.Add(snoozeDialog);

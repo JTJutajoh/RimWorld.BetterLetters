@@ -20,28 +20,45 @@ namespace BetterLetters
             internal static readonly Texture2D DismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
             internal static readonly Texture2D UnDismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/UnDismiss");
             internal static readonly Texture2D PinFloatMenuIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Pin");
-            internal static readonly Texture2D PinIconRound = ContentFinder<Texture2D>.Get("UI/Icons/PinRound"); 
-            internal static readonly Texture2D PinOutlineRound = ContentFinder<Texture2D>.Get("UI/Icons/PinRoundOutline");
-            internal static readonly Texture2D PinIconAlt = ContentFinder<Texture2D>.Get("UI/Icons/Pin_alt"); 
+            internal static readonly Texture2D PinIconRound = ContentFinder<Texture2D>.Get("UI/Icons/PinRound");
+
+            internal static readonly Texture2D PinOutlineRound =
+                ContentFinder<Texture2D>.Get("UI/Icons/PinRoundOutline");
+
+            internal static readonly Texture2D PinIconAlt = ContentFinder<Texture2D>.Get("UI/Icons/Pin_alt");
             internal static readonly Texture2D PinOutlineAlt = ContentFinder<Texture2D>.Get("UI/Icons/PinOutline_alt");
-            internal static Texture2D PinIcon => Settings.PinTexture == Settings.PinTextureMode.Round ? PinIconRound : PinIconAlt;
-            internal static Texture2D PinOutline => Settings.PinTexture == Settings.PinTextureMode.Round ? PinOutlineRound : PinOutlineAlt;
+
+            internal static Texture2D PinIcon =>
+                Settings.PinTexture == Settings.PinTextureMode.Round ? PinIconRound : PinIconAlt;
+
+            internal static Texture2D PinOutline => Settings.PinTexture == Settings.PinTextureMode.Round
+                ? PinOutlineRound
+                : PinOutlineAlt;
+
             internal static Texture2D PinIconLetterStack => PinIconRound; // Might add a setting to swap this later
-            internal static readonly Texture2D SnoozeFloatMenuIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Snooze");
+
+            internal static readonly Texture2D SnoozeFloatMenuIcon =
+                ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Snooze");
+
             internal static readonly Texture2D SnoozeIcon = ContentFinder<Texture2D>.Get("UI/Icons/Snoozed");
             internal static readonly Texture2D SnoozeOutline = ContentFinder<Texture2D>.Get("UI/Icons/SnoozedOutline");
         }
 
         private static Archive? _archiveCached = null;
         private static Archive Archive => _archiveCached ??= Find.Archive;
-        
+
         public static bool IsPinned(this Letter letter)
         {
             return Archive.IsPinned(letter);
         }
 
-        public static bool IsSnoozed(this Letter letter)
+        public static bool IsSnoozed(this Letter letter, bool ignoreReminders = false)
         {
+            if (ignoreReminders)
+            {
+                return SnoozeManager.Snoozes.ContainsKey(letter) &&
+                       SnoozeManager.Snoozes[letter].SnoozeType != SnoozeManager.SnoozeTypes.Reminder;
+            }
             return SnoozeManager.Snoozes.ContainsKey(letter);
         }
 
@@ -68,6 +85,47 @@ namespace BetterLetters
             SortLetterStackByPinned();
         }
 
+        public static void Snooze(this Letter letter, int durationTicks, bool isPinned = false)
+        {
+            SnoozeManager.AddSnooze(letter, durationTicks, isPinned);
+        }
+
+        public static bool UnSnooze(this Letter letter)
+        {
+            return SnoozeManager.RemoveSnooze(letter);
+        }
+
+        public static void AddReminder(this Letter letter, int durationTicks, bool isPinned = false)
+        {
+            SnoozeManager.AddSnooze(new SnoozeManager.Snooze(letter, durationTicks, isPinned,
+                SnoozeManager.SnoozeTypes.Reminder));
+            Messages.Message(new Message(
+                "BetterLetters_ReminderCreated".Translate(durationTicks.ToStringTicksToPeriod()),
+                MessageTypeDefOf.SilentInput));
+        }
+
+        public static void AddReminder(string label, string text, LetterDef def, int durationTicks,
+            bool isPinned = false)
+        {
+            if (text.Length == 0)
+            {
+                text = label;
+            }
+            var letter = LetterMaker.MakeLetter(
+                label: label,
+                text: text,
+                def: def
+            );
+            Find.Archive.Add(letter);
+            letter.AddReminder(durationTicks, isPinned);
+        }
+
+        public static bool IsReminder(this Letter letter)
+        {
+            return SnoozeManager.Snoozes.ContainsKey(letter) &&
+                   SnoozeManager.Snoozes[letter].SnoozeType == SnoozeManager.SnoozeTypes.Reminder;
+        }
+
         private static readonly FieldInfo? LettersField =
             typeof(LetterStack).GetField("letters", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -77,7 +135,7 @@ namespace BetterLetters
             letters = letters.OrderBy(obj => obj.IsPinned()).ToList();
             LettersField?.SetValue(Find.LetterStack, letters);
         }
-        
+
 #if !v1_6
         // These two functions were added in 1.6. I copied them directly from there for legacy version support since they're so useful
 
@@ -107,9 +165,10 @@ namespace BetterLetters
         {
             FloatMenuOption option = new(label: label, action: action
 #if v1_6
-                , iconTex: iconTex, iconColor: iconColor // Only RimWorld 1.6+ has a constructor that takes icons as parameters
+                , iconTex: iconTex,
+                iconColor: iconColor // Only RimWorld 1.6+ has a constructor that takes icons as parameters
 #endif
-                ); // Legacy versions just ignore the icon parameters
+            ); // Legacy versions just ignore the icon parameters
 
             return option;
         }
@@ -135,7 +194,7 @@ namespace BetterLetters
                 "BetterLetters_SnoozeFor1Hour".Translate(),
                 action: () =>
                 {
-                    var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerHour, Settings.SnoozePinned);
+                    var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerHour);
                     onClicked?.Invoke(snooze);
                 },
                 iconTex: Icons.SnoozeFloatMenuIcon,
@@ -150,7 +209,7 @@ namespace BetterLetters
                 "BetterLetters_SnoozeFor1Day".Translate(),
                 action: () =>
                 {
-                    var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerDay, Settings.SnoozePinned);
+                    var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerDay);
                     onClicked?.Invoke(snooze);
                 },
                 iconTex: Icons.SnoozeFloatMenuIcon,
@@ -163,10 +222,7 @@ namespace BetterLetters
         {
             return MakeFloatMenuOption(
                 "BetterLetters_SnoozeForFloatMenuOption".Translate(),
-                action: () =>
-                {
-                    SnoozeManager.ShowSnoozeDialog(letter, onSnoozed);
-                },
+                action: () => { SnoozeManager.ShowSnoozeDialog(letter, onSnoozed); },
                 iconTex: Icons.SnoozeFloatMenuIcon,
                 iconColor: Color.white
             );

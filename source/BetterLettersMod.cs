@@ -44,17 +44,20 @@ namespace BetterLetters
         }
     }
 
+    [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Method)]
+    public class ReloadableAttribute : Attribute { }
+
     [StaticConstructorOnStartup]
     internal static class LoadHarmony
     {
-        private static Harmony _harmony;
+        internal static readonly Harmony Harmony;
 
         static LoadHarmony()
         {
-            _harmony = new Harmony(BetterLettersMod.Instance!.Content.PackageId);
+            Harmony = new Harmony(BetterLettersMod.Instance!.Content.PackageId);
 
 #if DEBUG
-            Harmony.DEBUG = true; // For debugging transpilers. DO NOT uncomment this unless you need it!
+            // Harmony.DEBUG = true; // For debugging transpilers. DO NOT uncomment this unless you need it!
 #endif
 
             LogPrefixed.Message("Running Harmony patches...");
@@ -103,7 +106,8 @@ namespace BetterLetters
             // Patch to clear any old letter reference when a dialog is opened
             patchClass = typeof(Dialog_NodeTreeConstructor);
             type = typeof(Dialog_NodeTree);
-            _harmony.Patch(
+            LogPrefixed.Trace("Manually patching Dialog_NodeTree Constructor");
+            Harmony.Patch(
                 type.GetConstructor(new Type[] { typeof(DiaNode), typeof(bool), typeof(bool), typeof(string) }),
                 postfix: GetPatch(patchClass, "ConstructorPostfix")
             );
@@ -122,7 +126,8 @@ namespace BetterLetters
             type = typeof(Letter);
             TranspileMethod(type, patchClass, "CheckForMouseOverTextAt");
             // Patching this one manually since we have multiple patches on the same method
-            _harmony.Patch(
+            LogPrefixed.Trace("Manually patching DrawButtonAt");
+            Harmony.Patch(
                 type.GetMethod("DrawButtonAt", AccessTools.all),
                 postfix: GetPatch(patchClass, "DrawButtonAt_Postfix"),
                 transpiler: GetPatch(patchClass, "DrawButtonAt_Transpiler")
@@ -137,6 +142,19 @@ namespace BetterLetters
             patchClass = typeof(HistoryDoArchivableRowPatch);
             type = typeof(MainTabWindow_History);
             TranspileMethod(type, patchClass, "DoArchivableRow");
+            
+            // Patches to add the reminders menu
+            patchClass = typeof(HistoryRemindersTabPatch);
+            type = typeof(MainTabWindow_History);
+            // Patching this one manually since we have multiple patches on the same method
+            LogPrefixed.Trace("Manually patching DoMessagesPage");
+            Harmony.DEBUG = true;
+            Harmony.Patch(
+                type.GetMethod("DoMessagesPage", AccessTools.all),
+                prefix: new HarmonyMethod(HistoryRemindersTabPatch.DoMessagesPage_Prefix),
+                transpiler: new HarmonyMethod(HistoryRemindersTabPatch.DoMessagesPage_Transpiler)
+            );
+            Harmony.DEBUG = false;
 
             // Patch Dialog_NodeTree to add pin texture
             patchClass = typeof(DialogDrawNodePatch);
@@ -160,7 +178,7 @@ namespace BetterLetters
                 postfix: GetPatch(patchClass, "ReceiveLetter")
                 );
 #elif v1_5 || v1_6
-            _harmony.Patch(
+            Harmony.Patch(
                 type.GetMethod("ReceiveLetter", new[] { typeof(Letter), typeof(string), typeof(int), typeof(bool) }),
                 postfix: GetPatch(patchClass, "ReceiveLetter")
             );
@@ -231,7 +249,7 @@ namespace BetterLetters
             {
                 var original = interfaceType is null ? GetGetter(t, propName) : GetGetter(t, interfaceType, propName);
                 var patch = GetPatch(patchClass, propName);
-                _harmony.Patch(original, postfix: patch);
+                Harmony.Patch(original, postfix: patch);
             }
             catch (Exception e)
             {
@@ -244,7 +262,7 @@ namespace BetterLetters
         {
             try
             {
-                _harmony.Patch(
+                Harmony.Patch(
                     t.GetMethod(methodName, AccessTools.all),
                     prefix: GetPatch(patchClass, methodName)
                 );
@@ -260,7 +278,7 @@ namespace BetterLetters
         {
             try
             {
-                _harmony.Patch(
+                Harmony.Patch(
                     t.GetMethod(methodName, AccessTools.all),
                     postfix: GetPatch(patchClass, methodName)
                 );
@@ -278,7 +296,7 @@ namespace BetterLetters
             {
                 var originalMethod = t.GetMethod(methodName, AccessTools.all);
                 var transpilerMethod = GetPatch(patchClass, methodName);
-                _harmony.Patch(
+                Harmony.Patch(
                     originalMethod,
                     transpiler: transpilerMethod
                 );

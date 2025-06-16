@@ -18,7 +18,7 @@
   <BetterLetters_SnoozeRemoved>Canceled snooze for Letter: "{0}"</BetterLetters_SnoozeRemoved>
   <BetterLetters_SnoozeExpired>Snooze expired</BetterLetters_SnoozeExpired>
   <BetterLetters_TooManySnoozes>Too many snoozed letters already! Un-snooze some letters or raise the limit in the mod settings.</BetterLetters_TooManySnoozes>
-  <BetterLetters_SnoozeUntil>Snooze until: {0}</BetterLetters_SnoozeUntil>
+  <BetterLetters_SnoozeUntil>Until: {0}</BetterLetters_SnoozeUntil>
   <BetterLetters_SnoozeFor>Duration: {0}</BetterLetters_SnoozeFor>
   <BetterLetters_SliderLabel>Days: {0}</BetterLetters_SliderLabel>
   <BetterLetters_DecDay>-1 D</BetterLetters_DecDay>
@@ -29,11 +29,22 @@
 Remaining: {1}
 
 Click to cancel the snooze.</BetterLetters_SnoozedButtonTooltip>
+  <BetterLetters_NewReminderButton>New Reminder</BetterLetters_NewReminderButton>
+  <BetterLetters_ReminderCreated>New reminder for {0} from now created</BetterLetters_ReminderCreated>
   <BetterLetters_PinQuestTooltip>Pin this quest's corresponding Letter to help keep track of it. If it is snoozed, the snooze will be canceled.</BetterLetters_PinQuestTooltip>
   <BetterLetters_UnPinQuestTooltip>Unpin this quest's corresponding letter. The letter will not be dismissed.</BetterLetters_UnPinQuestTooltip>
   <BetterLetters_SnoozeQuestTooltip>Snooze this quest until later. If it is pinned it will be unpinned.
   
 You will receive the "Quest available" letter again when the snooze ends. You will still receive notifications related to this quest, unlike dismissing it.</BetterLetters_SnoozeQuestTooltip>
+  
+  <BetterLetters_Reminder>Reminder</BetterLetters_Reminder>
+  <BetterLetters_Reminders>Reminders</BetterLetters_Reminders>
+  <BetterLetters_ReminderDialogTitle>New Reminder</BetterLetters_ReminderDialogTitle>
+  <BetterLetters_ReminderTextLabel>Optional reminder text:</BetterLetters_ReminderTextLabel>
+  <BetterLetters_ShowSnoozes>Show Snoozes</BetterLetters_ShowSnoozes>
+  <BetterLetters_ShowReminders>Show Reminders</BetterLetters_ShowReminders>
+  <BetterLetters_LetterTypeLabel>Letter Type:</BetterLetters_LetterTypeLabel>
+  <BetterLetters_PinReminder>Should this reminder automatically get pinned when it fires?</BetterLetters_PinReminder>
   
   
   <BetterLetters_SettingsCategory>Better Letters</BetterLetters_SettingsCategory>
