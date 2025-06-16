@@ -148,13 +148,11 @@ namespace BetterLetters
             type = typeof(MainTabWindow_History);
             // Patching this one manually since we have multiple patches on the same method
             LogPrefixed.Trace("Manually patching DoMessagesPage");
-            Harmony.DEBUG = true;
             Harmony.Patch(
                 type.GetMethod("DoMessagesPage", AccessTools.all),
                 prefix: new HarmonyMethod(HistoryRemindersTabPatch.DoMessagesPage_Prefix),
                 transpiler: new HarmonyMethod(HistoryRemindersTabPatch.DoMessagesPage_Transpiler)
             );
-            Harmony.DEBUG = false;
 
             // Patch Dialog_NodeTree to add pin texture
             patchClass = typeof(DialogDrawNodePatch);
