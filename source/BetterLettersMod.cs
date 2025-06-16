@@ -138,10 +138,14 @@ namespace BetterLetters
             type = typeof(Letter);
             PostfixGetter(type, patchClass, "CanCullArchivedNow", interfaceType: typeof(IArchivable));
 
+#if !(v1_1 || v1_2 || v1_3)
             // Patch the History window to show snoozed icon for snoozed letters
             patchClass = typeof(HistoryDoArchivableRowPatch);
             type = typeof(MainTabWindow_History);
             TranspileMethod(type, patchClass, "DoArchivableRow");
+#else
+            LogPrefixed.Warning("MainTabWindow_History.DoArchivableRow patch skipped, requires RimWorld 1.4+. Message History tab will not display snooze/reminder buttons in rows.");
+#endif
             
             // Patches to add the reminders menu
             patchClass = typeof(HistoryRemindersTabPatch);
@@ -151,8 +155,14 @@ namespace BetterLetters
             Harmony.Patch(
                 type.GetMethod("DoMessagesPage", AccessTools.all),
                 prefix: new HarmonyMethod(HistoryRemindersTabPatch.DoMessagesPage_Prefix),
+#if !(v1_1 || v1_2 || v1_3)
                 transpiler: new HarmonyMethod(HistoryRemindersTabPatch.DoMessagesPage_Transpiler)
             );
+#else
+                transpiler: null // Transpiler just doesn't work in 1.3 or older and I don't feel like fixing it so just disable the feature
+            );
+            LogPrefixed.Warning("Message History filtering checkboxes will not work. Only available in RimWorld 1.4+.");
+#endif
 
             // Patch Dialog_NodeTree to add pin texture
             patchClass = typeof(DialogDrawNodePatch);
@@ -162,8 +172,12 @@ namespace BetterLetters
             // Patches to the quest tab
             patchClass = typeof(QuestsTabPatches);
             type = typeof(MainTabWindow_Quests);
+#if !(v1_1 || v1_2)
             TranspileMethod(type, patchClass, "DoSelectedQuestInfo");
             PrefixMethod(type, patchClass, "DoCharityIcon");
+#else
+            LogPrefixed.Warning("Pin/Snooze buttons on Quests tab are only available in RimWorld 1.3+");
+#endif
             TranspileMethod(type, patchClass, "DoDismissButton");
 
             // Patch to sort pinned letters always on the bottom
@@ -171,7 +185,7 @@ namespace BetterLetters
             type = typeof(LetterStack);
 
 #if v1_1 || v1_2 || v1_3 || v1_4
-            _harmony.Patch(
+            Harmony.Patch(
                 type.GetMethod("ReceiveLetter", new [] {typeof(Letter), typeof(string)}),
                 postfix: GetPatch(patchClass, "ReceiveLetter")
                 );

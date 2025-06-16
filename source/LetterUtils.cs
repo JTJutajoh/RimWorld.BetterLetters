@@ -136,26 +136,6 @@ namespace BetterLetters
             LettersField?.SetValue(Find.LetterStack, letters);
         }
 
-#if v1_1 || v1_2 || v1_3 || v1_4 || v1_5
-        // These two functions were added in 1.6. I copied them directly from there for legacy version support since they're so useful
-
-        /// <summary>
-        /// Backported from RimWorld 1.6 <see cref="GenUI" />
-        /// </summary>
-        public static Rect MiddlePart(this Rect rect, float pctWidth, float pctHeight)
-        {
-            return new Rect((float) ((double) rect.x + (double) rect.width / 2.0 - (double) rect.width * (double) pctWidth / 2.0), (float) ((double) rect.y + (double) rect.height / 2.0 - (double) rect.height * (double) pctHeight / 2.0), rect.width * pctWidth, rect.height * pctHeight);
-        }
-
-        /// <summary>
-        /// Backported from RimWorld 1.6 <see cref="GenUI" />
-        /// </summary>
-        public static Rect MiddlePartPixels(this Rect rect, float width, float height)
-        {
-            return new Rect((float) ((double) rect.x + (double) rect.width / 2.0 - (double) width / 2.0), (float) ((double) rect.y + (double) rect.height / 2.0 - (double) height / 2.0), width, height);
-        }
-#endif
-
         /// <summary>
         /// Catch-all helper function to create float menus related to this mod.<br />
         /// Used partially to help with multi-version support since not all features are available in all versions.

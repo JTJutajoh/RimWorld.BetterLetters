@@ -14,7 +14,10 @@ public class Dialog_Snooze : Window
 
     private Action<int> _onConfirmed;
     private float _durationDays = 0.5f;
+
     public int DurationTicks => Mathf.RoundToInt(_durationDays * (float)GenDate.TicksPerDay);
+
+    // Maximum duration in days set in settings
     private static float MaxDuration => Settings.MaxSnoozeDuration;
 
     public Dialog_Snooze(Action<int> onConfirmedAction)
@@ -31,16 +34,29 @@ public class Dialog_Snooze : Window
 
     private string DurationString => DurationTicks.ToStringTicksToPeriodVerbose();
 
+    public static string SliderMaxLabel => "BetterLetters_SliderRightLabel".Translate(
+        Mathf.RoundToInt(MaxDuration * GenDate.TicksPerDay).ToStringTicksToPeriod());
+
+    public static string SliderDurationLabel(float durationDays) =>
+        "BetterLetters_SliderLabel".Translate(Mathf.RoundToInt(durationDays * GenDate.TicksPerDay).ToStringTicksToPeriod());
+
     public static void DoSnoozeOptions(Rect inRect, Rect labelsRect, ref float durationDays)
     {
         const float sliderWidthRatio = 0.6f;
-        Widgets.HorizontalSlider(
+        durationDays = Widgets.HorizontalSlider(
             inRect.MiddlePart(sliderWidthRatio, 1.0f),
-            ref durationDays,
-            new FloatRange(0, MaxDuration),
-            "BetterLetters_SliderLabel".Translate(durationDays.ToString("F1")),
-            1f / 24f // Round to the hour
+            durationDays,
+            0,
+            MaxDuration,
+            label: SliderDurationLabel(durationDays),
+            leftAlignedLabel: "BetterLetters_Immediately".Translate(),
+            rightAlignedLabel: SliderMaxLabel,
+            roundTo: 1f / 24f // Round to the hour
         );
+
+        var maxLabelRect = inRect.MiddlePart(sliderWidthRatio, 1.0f).RightPartPixels(72f).TopPartPixels(40f);
+        maxLabelRect.y += 16f;
+        TooltipHandler.TipRegionByKey(maxLabelRect, "BetterLetters_MaxDurationTooltip", Settings.MaxSnoozeDuration);
 
         const float buttonWidthRatio = (1f - sliderWidthRatio) / 2 - 0.03f;
         const float buttonHeightIncDec = 30f;
@@ -75,7 +91,7 @@ public class Dialog_Snooze : Window
         {
             durationDays = Mathf.Min(durationDays + 1, MaxDuration);
         }
-        
+
         var durationTicks = Mathf.RoundToInt(durationDays * (float)GenDate.TicksPerDay);
         var endDate =
             GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + durationTicks, QuestUtility.GetLocForDates());
@@ -88,25 +104,26 @@ public class Dialog_Snooze : Window
 
     public override void DoWindowContents(Rect inRect)
     {
-        var mainRect = inRect.TopPartPixels(inRect.yMax - Window.CloseButSize.y - 4);
+        var buttonSize = new Vector2(120f, 40f);
+        var mainRect = inRect.TopPartPixels(inRect.yMax - buttonSize.y - 4);
 
         var upperRect = mainRect.TopPart(0.7f);
         var labelsRect = mainRect.BottomPart(0.3f);
         DoSnoozeOptions(upperRect, labelsRect, ref _durationDays);
 
 
-        var buttonsRect = inRect.BottomPartPixels(Window.CloseButSize.y + 10);
+        var buttonsRect = inRect.BottomPartPixels(buttonSize.y + 10);
 
         if (Widgets.ButtonText(
-                new Rect(0, buttonsRect.yMax - Window.CloseButSize.y, Window.CloseButSize.x, Window.CloseButSize.y),
+                new Rect(0, buttonsRect.yMax - buttonSize.y, buttonSize.x, buttonSize.y),
                 "BetterLetters_Cancel".Translate())
            )
         {
             this.Close(true);
         }
         else if (Widgets.ButtonText(
-                     new Rect(buttonsRect.xMax - Window.CloseButSize.x, buttonsRect.yMax - Window.CloseButSize.y,
-                         Window.CloseButSize.x, Window.CloseButSize.y),
+                     new Rect(buttonsRect.xMax - buttonSize.x, buttonsRect.yMax - buttonSize.y,
+                         buttonSize.x, buttonSize.y),
                      "BetterLetters_Snooze".Translate())
                 )
         {

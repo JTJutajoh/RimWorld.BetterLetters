@@ -30,6 +30,7 @@ public class QuestsTabPatches
 
         for (int i = 0; i < codes.Count; i++)
         {
+            
             if (codes[i].Calls(DoCharityIconMethodAnchor))
             {
                 yield return codes[i];
@@ -192,12 +193,20 @@ public class QuestsTabPatches
         _questLetterCache[quest] = null;
         return null;
     }
-
+    
+#if !(v1_1 || v1_2 || v1_3 || v1_4)
     private static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).
         GetMethod(
             name: nameof(Widgets.ButtonImage),
             types: new Type[] { typeof(Rect), typeof(Texture2D), typeof(bool), typeof(string) }
         );
+#else
+    private static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).
+        GetMethod(
+            name: nameof(Widgets.ButtonImage),
+            types: new Type[] { typeof(Rect), typeof(Texture2D), typeof(bool) }
+        );
+#endif
     /// <summary>
     /// Patches the vanilla button to dismiss quests to make it also remove them from the stack
     /// </summary>

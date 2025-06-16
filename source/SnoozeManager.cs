@@ -205,8 +205,13 @@ public class SnoozeManager : WorldComponent
         }
         if (Snoozes.Remove(letter))
         {
+#if v1_4 || v1_5 || v1_6
+            var label = letter?.Label ?? "null";
+#elif v1_1 || v1_2 || v1_3
+            var label = letter?.label ?? "null";
+#endif
             Messages.Message(
-                "BetterLetters_SnoozeRemoved".Translate(letter?.Label ?? "null"),
+                "BetterLetters_SnoozeRemoved".Translate(label),
                 LookTargets.Invalid,
                 MessageTypeDefOf.PositiveEvent,
                 historical: false

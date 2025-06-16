@@ -121,8 +121,8 @@ internal class Settings : ModSettings
             MaxNumSnoozes, 1, 100, 0.5f, "BetterLetters_Settings_MaxNumSnoozes_Desc".Translate(15));
 
         MaxSnoozeDuration = (float)listingStandard.SliderLabeled(
-            "BetterLetters_Settings_MaxSnoozeDuration".Translate(MaxSnoozeDuration),
-            Mathf.RoundToInt(MaxSnoozeDuration), 1, 240, 0.5f,
+            "BetterLetters_Settings_MaxSnoozeDuration".Translate(Dialog_Snooze.SliderMaxLabel),
+            Mathf.RoundToInt(MaxSnoozeDuration), 1, 300, 0.5f,
             "BetterLetters_Settings_MaxSnoozeDuration_Desc".Translate(0));
 
         listingStandard.CheckboxLabeled("BetterLetters_Settings_SnoozePinned".Translate(), ref SnoozePinned,
@@ -178,8 +178,12 @@ internal class Settings : ModSettings
                 snoozeToRemove = snooze.Key;
             }
 
-            Widgets.Label(rect.LeftPartPixels(rect.width - 64f),
-                $"{snooze.Key?.Label ?? "null"} ({remainingTime})");
+#if v1_4 || v1_5 || v1_6
+            var label = $"{snooze.Key?.Label ?? "null"} ({remainingTime})";
+#elif v1_1 || v1_2 || v1_3
+            var label = $"{snooze.Key?.label} ({remainingTime})";
+#endif
+            Widgets.Label(rect.LeftPartPixels(rect.width - 64f), label);
         }
 
         if (snoozeToFire is not null)
@@ -191,7 +195,9 @@ internal class Settings : ModSettings
             SnoozeManager.RemoveSnooze(snoozeToRemove);
         }
 
+#if !(v1_1)
         listingStandard.Outdent();
+#endif
     }
 
     public override void ExposeData()

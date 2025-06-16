@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -34,7 +35,7 @@ public class Dialog_Reminder : Window
     public int DurationTicks => Mathf.RoundToInt(_durationDays * (float)GenDate.TicksPerDay);
 
     // Constructor
-    public Dialog_Reminder() : base(null)
+    public Dialog_Reminder() : base()
     {
         this.forcePause = true;
         this.absorbInputAroundWindow = true;
@@ -53,14 +54,16 @@ public class Dialog_Reminder : Window
         var pinSectionWidth = 40f;
 
         // Draw the content
+#if !(v1_1 || v1_2)
         Widgets.BeginGroup(innerRect);
+#endif
 
         // Title entry
         var titleTextRect = innerRect.TopPartPixels(32f);
         Widgets.Label(titleTextRect.LeftPart(0.12f), "Title".Translate());
         var titleTextEntryRect = titleTextRect.RightPart(0.9f);
         titleTextEntryRect.xMax -= pinSectionWidth;
-        _reminderTitle = Widgets.TextField(titleTextEntryRect, _reminderTitle, 64);
+        _reminderTitle = Widgets.TextField(titleTextEntryRect, _reminderTitle, 64, new Regex("^[^<>]*$"));
         _reminderTitle = SanitizeText(_reminderTitle);
 
         Widgets.Label(new Rect(0f, titleTextRect.yMax + 8f, innerRect.width, 32f),
@@ -124,6 +127,7 @@ public class Dialog_Reminder : Window
         }
 
         // Bottom buttons
+        GUI.color = Color.white; // RW version < 1.4 Widgets.ButtonImage has a bug that fails to reset the GUI color
         if (Widgets.ButtonText(buttonsRect.LeftPartPixels(buttonsSize.x), "Cancel".Translate()))
         {
             this.Close(true);
@@ -134,7 +138,9 @@ public class Dialog_Reminder : Window
             this.Close(true);
         }
 
+#if !(v1_1 || v1_2)
         Widgets.EndGroup();
+#endif
     }
 
     private static string SanitizeText(string text)

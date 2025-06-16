@@ -21,17 +21,14 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup>
+    <RimWorldLatestVersion>1.6</RimWorldLatestVersion>
     <RimWorldDir>D:\Games\Steam\steamapps\common\RimWorld</RimWorldDir>
     <HarmonyPath>D:\Games\Steam\steamapps\workshop\content\294100\2009463077\Current\Assemblies\0Harmony.dll</HarmonyPath>
-    <OutputPath>$(RimWorldDir)\Mods\BetterLetters\1.6\Assemblies\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.1|AnyCPU'">
-    <OutputPath>..\1.1\Assemblies\</OutputPath>
-    <DefineConstants>v1_1</DefineConstants>
+    <OutputPath>$(RimWorldDir)\Mods\BetterLetters\$(RimWorldLatestVersion)\Assemblies\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.2|AnyCPU'">
     <OutputPath>..\1.2\Assemblies\</OutputPath>
-    <DefineConstants>v1_2</DefineConstants>
+    <DefineConstants>v1_2;DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '1.3|AnyCPU' ">
     <OutputPath>..\1.3\Assemblies\</OutputPath>
@@ -50,9 +47,7 @@
     <DefineConstants>v1_6</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == '1.6 Debug|AnyCPU'">
-    <RimWorldDir>D:\Games\Steam\steamapps\common\RimWorld</RimWorldDir>
-    <OutputPath>$(RimWorldDir)\Mods\BetterLetters\1.6\Assemblies\</OutputPath>
-<!--    <OutputPath>..\1.6\Assemblies\</OutputPath>-->
+    <OutputPath>..\1.6\Assemblies\</OutputPath>
     <DefineConstants>v1_6;DEBUG</DefineConstants>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
@@ -101,6 +96,7 @@
     <Compile Include="BetterLettersMod.cs" />
     <Compile Include="Dialog_Reminder.cs" />
     <Compile Include="Dialog_Snooze.cs" />
+    <Compile Include="LegacySupport.cs" />
     <Compile Include="LogPrefixed.cs" />
     <Compile Include="LetterUtils.cs" />
     <Compile Include="Patches\HistoryDoArchivableRowPatch.cs" />
@@ -137,16 +133,16 @@
 
     <Delete Files="@(PdbFiles)" Condition="'$(DebugSymbols)' == 'false'" />
 
-<!--    <ItemGroup>-->
-<!--      <Assemblies Include="$(MSBuildProjectDirectory)\..\1.*\Assemblies\**\*.dll" />-->
-<!--      <Assemblies Include="$(MSBuildProjectDirectory)\..\1.*\Assemblies\**\*.pdb"-->
-<!--                  Condition="'$(DebugSymbols)' == 'true'" />-->
-<!--    </ItemGroup>-->
+    <ItemGroup>
+      <Assemblies Include="$(MSBuildProjectDirectory)\..\1.*\Assemblies\**\*.dll" />
+      <Assemblies Include="$(MSBuildProjectDirectory)\..\1.*\Assemblies\**\*.pdb"
+                  Condition="'$(DebugSymbols)' == 'true'" />
+    </ItemGroup>
 
-<!--    <Copy-->
-<!--            SourceFiles="@(Assemblies)"-->
-<!--            DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\%(RecursiveDir)"-->
-<!--            SkipUnchangedFiles="true" />-->
+    <Copy
+            SourceFiles="@(Assemblies)"
+            DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\%(RecursiveDir)"
+            SkipUnchangedFiles="true" />
 
     <ItemGroup>
       <About Include="$(ProjectDir)\About\About.xml" />

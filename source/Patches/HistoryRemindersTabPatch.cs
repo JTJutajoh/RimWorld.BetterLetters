@@ -56,7 +56,7 @@ public static class HistoryRemindersTabPatch
         // Draw the checkboxes for filtering letters
 
         var checkboxesRect = rowRect.LeftPartPixels(rowRect.width - labelSize.x);
-        ;
+        
         Widgets.CheckboxLabeled(
             checkboxesRect.LeftHalf(),
             "BetterLetters_ShowSnoozes".Translate(),
@@ -64,8 +64,7 @@ public static class HistoryRemindersTabPatch
             false,
             null,
             null,
-            true,
-            false
+            true
         );
         Widgets.CheckboxLabeled(
             checkboxesRect.RightHalf(),
@@ -74,8 +73,7 @@ public static class HistoryRemindersTabPatch
             false,
             null,
             null,
-            true,
-            false
+            true
         );
     }
 

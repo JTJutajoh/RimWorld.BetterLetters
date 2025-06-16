@@ -20,7 +20,9 @@
   <BetterLetters_TooManySnoozes>Too many snoozed letters already! Un-snooze some letters or raise the limit in the mod settings.</BetterLetters_TooManySnoozes>
   <BetterLetters_SnoozeUntil>Until: {0}</BetterLetters_SnoozeUntil>
   <BetterLetters_SnoozeFor>Duration: {0}</BetterLetters_SnoozeFor>
-  <BetterLetters_SliderLabel>Days: {0}</BetterLetters_SliderLabel>
+  <BetterLetters_SliderLabel>{0}</BetterLetters_SliderLabel>
+  <BetterLetters_SliderRightLabel>{0}</BetterLetters_SliderRightLabel>
+  <BetterLetters_Immediately>Immediately</BetterLetters_Immediately>
   <BetterLetters_DecDay>-1 D</BetterLetters_DecDay>
   <BetterLetters_DecHour>-1 H</BetterLetters_DecHour>
   <BetterLetters_IncDay>+1 D</BetterLetters_IncDay>
@@ -45,6 +47,9 @@ You will receive the "Quest available" letter again when the snooze ends. You wi
   <BetterLetters_ShowReminders>Show Reminders</BetterLetters_ShowReminders>
   <BetterLetters_LetterTypeLabel>Letter Type:</BetterLetters_LetterTypeLabel>
   <BetterLetters_PinReminder>Should this reminder automatically get pinned when it fires?</BetterLetters_PinReminder>
+  <BetterLetters_MaxDurationTooltip>Maximum is modifiable in Better Letters mod settings.
+
+Current setting: {0} days</BetterLetters_MaxDurationTooltip>
   
   
   <BetterLetters_SettingsCategory>Better Letters</BetterLetters_SettingsCategory>
