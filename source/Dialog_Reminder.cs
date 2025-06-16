@@ -109,10 +109,14 @@ public class Dialog_Reminder : Window
 
             foreach (var letterDef in ValidLetterDefs)
             {
-                floatMenuOptions.Add(new FloatMenuOption(letterDef.defName, () => _letterDef = letterDef,
-                    iconTex: letterDef.Icon, iconColor: letterDef.color));
-                ;
+                floatMenuOptions.Add(new FloatMenuOption(letterDef.defName, () => _letterDef = letterDef
+#if v1_6
+                    , iconTex: letterDef.Icon, iconColor: letterDef.color));
+#elif v1_1 || v1_2 || v1_3 || v1_4 || v1_5
+                )); // FloatMenuOption constructor only added an overload with iconTex in 1.6+, so just close the constructor here
+#endif
             }
+            
 
             Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
             SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();

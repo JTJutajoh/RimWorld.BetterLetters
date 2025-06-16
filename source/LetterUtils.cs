@@ -136,7 +136,7 @@ namespace BetterLetters
             LettersField?.SetValue(Find.LetterStack, letters);
         }
 
-#if !v1_6
+#if v1_1 || v1_2 || v1_3 || v1_4 || v1_5
         // These two functions were added in 1.6. I copied them directly from there for legacy version support since they're so useful
 
         /// <summary>
