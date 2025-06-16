@@ -60,7 +60,8 @@ public class Dialog_Reminder : Window
         Widgets.Label(titleTextRect.LeftPart(0.12f), "Title".Translate());
         var titleTextEntryRect = titleTextRect.RightPart(0.9f);
         titleTextEntryRect.xMax -= pinSectionWidth;
-        _reminderTitle = Widgets.TextField(titleTextEntryRect, _reminderTitle, 64); //TODO: Regex sanitizer
+        _reminderTitle = Widgets.TextField(titleTextEntryRect, _reminderTitle, 64);
+        _reminderTitle = SanitizeText(_reminderTitle);
 
         Widgets.Label(new Rect(0f, titleTextRect.yMax + 8f, innerRect.width, 32f),
             "BetterLetters_ReminderTextLabel".Translate());
@@ -81,6 +82,7 @@ public class Dialog_Reminder : Window
         var textEntryRect = new Rect(0f, 0f, outerScrollRegionRect.width - 10f, textEntryHeight);
         Widgets.BeginScrollView(outerScrollRegionRect, ref this._scrollPosition, textEntryRect, true);
         _reminderText = Widgets.TextArea(textEntryRect, _reminderText, false);
+        _reminderText = SanitizeText(_reminderText);
         Widgets.EndScrollView();
 
         // Snooze settings
@@ -124,10 +126,18 @@ public class Dialog_Reminder : Window
         }
         else if (Widgets.ButtonText(buttonsRect.RightPartPixels(buttonsSize.x), "Confirm".Translate()))
         {
-            LetterUtils.AddReminder(_reminderTitle, _reminderText, _letterDef, DurationTicks, _pinned);
+            LetterUtils.AddReminder(SanitizeText(_reminderTitle), SanitizeText(_reminderText), _letterDef, DurationTicks, _pinned);
             this.Close(true);
         }
 
         Widgets.EndGroup();
+    }
+
+    private static string SanitizeText(string text)
+    {
+        // Remove all instances of < and > from the string to avoid XML serialization issues
+        text = text.Replace("<", "");
+        text = text.Replace(">", "");
+        return text;
     }
 }
