@@ -21,6 +21,8 @@ namespace BetterLetters
             internal static readonly Texture2D DismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
             internal static readonly Texture2D UnDismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/UnDismiss");
             internal static readonly Texture2D PinFloatMenuIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Pin");
+            internal static readonly Texture2D ReminderIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Reminder");
+            internal static readonly Texture2D ReminderIconSmall = ContentFinder<Texture2D>.Get("UI/GlobalControls/Reminder");
             internal static readonly Texture2D PinIconRound = ContentFinder<Texture2D>.Get("UI/Icons/PinRound");
 
             internal static readonly Texture2D PinOutlineRound =
