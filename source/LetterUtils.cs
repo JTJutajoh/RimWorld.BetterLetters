@@ -70,6 +70,15 @@ namespace BetterLetters
             Find.Archive.Pin(letter);
             SnoozeManager.RemoveSnooze(letter);
             SortLetterStackByPinned();
+            if (letter is ChoiceLetter { quest: not null } choiceLetter)
+            {
+                choiceLetter.quest.dismissed = false;
+                foreach (var subQuest in choiceLetter.quest.GetSubquests())
+                {
+                    subQuest.dismissed = choiceLetter.quest.dismissed;
+                }
+                ((MainTabWindow_Quests)MainButtonDefOf.Quests.TabWindow).Select(choiceLetter.quest);
+            }
         }
 
         public static void Unpin(this Letter letter, bool alsoRemove = false)

@@ -89,7 +89,6 @@ public class QuestsTabPatches
             else
             {
                 choiceLetter.Pin();
-                //TODO: Un-dismiss it if it was dismissed
                 SoundDefOf.Tick_High.PlayOneShotOnCamera();
             }
         }
