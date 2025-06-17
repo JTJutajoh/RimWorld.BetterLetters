@@ -31,6 +31,10 @@
 Remaining: {1}
 
 Click to cancel the snooze.</BetterLetters_SnoozedButtonTooltip>
+  <BetterLetters_SnoozedReminderButtonTooltip>Reminder for: {0}.
+Remaining: {1}
+
+Click to cancel the reminder.</BetterLetters_SnoozedReminderButtonTooltip>
   <BetterLetters_NewReminderButton>New Reminder</BetterLetters_NewReminderButton>
   <BetterLetters_ReminderCreated>New reminder for {0} from now created</BetterLetters_ReminderCreated>
   <BetterLetters_PinQuestTooltip>Pin this quest's corresponding Letter to help keep track of it. If it is snoozed, the snooze will be canceled.</BetterLetters_PinQuestTooltip>

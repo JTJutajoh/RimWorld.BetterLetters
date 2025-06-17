@@ -77,7 +77,7 @@ public class SnoozeManager : WorldComponent
             var snooze = SnoozeManager.Snoozes[this.Letter];
             var remaining = snooze.RemainingTicks.ToStringTicksToPeriodVerbose();
             var end = GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + snooze.Duration, QuestUtility.GetLocForDates());
-            TooltipHandler.TipRegionByKey(rect, "BetterLetters_SnoozedButtonTooltip", end, remaining);
+            TooltipHandler.TipRegionByKey(rect, snooze.Letter?.IsReminder() ?? false ? "BetterLetters_SnoozedReminderButtonTooltip" : "BetterLetters_SnoozedButtonTooltip", end, remaining);
         }
 
         /// <summary>
