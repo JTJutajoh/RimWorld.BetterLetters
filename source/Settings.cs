@@ -39,6 +39,7 @@ internal class Settings : ModSettings
     public static float MaxSnoozeDuration = 60f;
     public static bool SnoozePinned = true;
     public static bool DismissedQuestsDismissLetters = true;
+    public static bool KeepQuestLettersOnStack = true;
 
     public void DoWindowContents(Rect inRect)
     {
@@ -113,6 +114,10 @@ internal class Settings : ModSettings
         listingStandard.CheckboxLabeled("BetterLetters_Settings_DismissedQuestsDismissLetters".Translate(),
             ref DismissedQuestsDismissLetters,
             "BetterLetters_Settings_DismissedQuestsDismissLetters_Desc".Translate());
+        
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_KeepQuestLettersOnStack".Translate(),
+            ref KeepQuestLettersOnStack,
+            "BetterLetters_Settings_KeepQuestLettersOnStack_Desc".Translate());
         
         listingStandard.Gap(4f);
         
@@ -313,6 +318,7 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref DisableFlashAlways, "DisableFlashAlways", false);
         Scribe_Values.Look(ref SnoozePinned, "SnoozePinned", true);
         Scribe_Values.Look(ref DismissedQuestsDismissLetters, "DismissedQuestsDismissLetters", true);
+        Scribe_Values.Look(ref KeepQuestLettersOnStack, "KeepQuestLettersOnStack", true);
 
         base.ExposeData();
     }
