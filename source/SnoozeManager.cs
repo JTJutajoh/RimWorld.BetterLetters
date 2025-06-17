@@ -179,6 +179,10 @@ public class SnoozeManager : WorldComponent
             MessageTypeDefOf.PositiveEvent,
             historical: false
         );
+        if (Find.LetterStack.LettersListForReading.Contains(snooze.Letter))
+        {
+            Find.LetterStack.RemoveLetter(snooze.Letter);
+        }
         return true;
     }
     
