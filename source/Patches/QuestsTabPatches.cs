@@ -69,7 +69,7 @@ public class QuestsTabPatches
         }
         var rect = new Rect(innerRect.xMax - 64f - 6f, innerRect.y, 32f, 32f);
 
-        var choiceLetter = LetterUtils.GetLetterForQuest(quest);
+        var choiceLetter = quest.GetLetter();
         if (choiceLetter is null)
         {
             LogPrefixed.WarningOnce($"Couldn't find the associated letter for quest '{quest?.name ?? "null"}'",
@@ -108,7 +108,7 @@ public class QuestsTabPatches
         }
         var rect = new Rect(innerRect.xMax - 96f - 6f, innerRect.y, 32f, 32f);
 
-        var choiceLetter = LetterUtils.GetLetterForQuest(quest);
+        var choiceLetter = quest.GetLetter();
         if (choiceLetter is null)
         {
             LogPrefixed.WarningOnce($"Couldn't find the associated letter for quest '{quest?.name ?? "null"}'",
@@ -193,7 +193,7 @@ public class QuestsTabPatches
                     {
                         return;
                     }
-                    var letter = LetterUtils.GetLetterForQuest(quest);
+                    var letter = quest.GetLetter();
                     if (letter is null)
                     {
                         LogPrefixed.WarningOnce(

@@ -146,20 +146,14 @@ namespace BetterLetters
 
         // This helper function will be called at least twice every frame and iterates over potentially hundreds of letters
         // to find a match, so it's important to cache the results.
-        private static readonly Dictionary<Quest, ChoiceLetter?> _questLetterCache = new();
+        private static readonly Dictionary<Quest, ChoiceLetter?> QuestLetterCache = new();
         /// <summary>
         /// Search for the "new quest" letter associated with a quest, since the quest does not store a reference to it.<br />
-        /// Results (including null) are cached.
+        /// Results (including null) are cached. The cache is however not serialized.
         /// </summary>
-        /// <param name="quest"></param>
-        /// <returns></returns>
-        public static ChoiceLetter? GetLetterForQuest(Quest? quest)
-        {if (quest is null)
-            {
-                LogPrefixed.Error("Tried to get letter for null quest");
-                return null;
-            }
-            if (_questLetterCache.TryGetValue(quest, out var cachedLetter))
+        public static ChoiceLetter? GetLetter(this Quest quest)
+        {
+            if (QuestLetterCache.TryGetValue(quest, out var cachedLetter))
             {
                 return cachedLetter;
             }
@@ -167,12 +161,12 @@ namespace BetterLetters
             foreach (var archivable in Find.Archive.ArchivablesListForReading)
             {
                 if (archivable is not ChoiceLetter letter || letter.quest != quest) continue;
-                _questLetterCache[quest] = letter;
+                QuestLetterCache[quest] = letter;
                 return letter;
             }
 
             // Cache null results too so we don't have to search for them again. A quest won't gain a letter if it didn't have one
-            _questLetterCache[quest] = null;
+            QuestLetterCache[quest] = null;
             return null;
         }
 
