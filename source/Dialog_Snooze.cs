@@ -43,8 +43,10 @@ public class Dialog_Snooze : Window
     public static void DoSnoozeOptions(Rect inRect, Rect labelsRect, ref float durationDays)
     {
         const float sliderWidthRatio = 0.6f;
+        var sliderRect = inRect.MiddlePart(sliderWidthRatio, 0.8f);
+        sliderRect = sliderRect.TopPartPixels(20f);
         durationDays = Widgets.HorizontalSlider(
-            inRect.MiddlePart(sliderWidthRatio, 1.0f),
+            sliderRect,
             durationDays,
             0,
             MaxDuration,

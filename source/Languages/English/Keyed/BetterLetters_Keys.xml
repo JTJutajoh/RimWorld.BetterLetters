@@ -29,6 +29,7 @@
   <BetterLetters_IncHour>+1 H</BetterLetters_IncHour>
   <BetterLetters_JumpToColon>Jump to:</BetterLetters_JumpToColon>
   <BetterLetters_NothingSelected>Nothing</BetterLetters_NothingSelected>
+  <BetterLetters_SelectSomething>Select Thing...</BetterLetters_SelectSomething>
   <BetterLetters_SnoozedButtonTooltip>Snoozed until {0}.
 Remaining: {1}
 

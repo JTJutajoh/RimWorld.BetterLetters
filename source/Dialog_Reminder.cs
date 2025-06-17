@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using DarkLog;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -9,14 +10,15 @@ namespace BetterLetters;
 
 public class Dialog_Reminder : Window
 {
-    public override Vector2 InitialSize => new Vector2(680f, (float)Mathf.Min(400f, UI.screenHeight));
+    public override Vector2 InitialSize => new Vector2(680f, (float)Mathf.Min(440f, UI.screenHeight));
+
+    public static Dialog_Reminder? Instance = null;
 
     private Vector2 _scrollPosition = Vector2.zero;
 
     private string _reminderTitle = "BetterLetters_Reminder".Translate();
 
     private string _reminderText = "";
-    private bool HasReminderText => _reminderText.Length > 0;
 
     private bool _pinned = true;
 
@@ -37,8 +39,20 @@ public class Dialog_Reminder : Window
     private Thing? _selectedThing = null;
 
     // Constructor
-    public Dialog_Reminder() : base()
+    public Dialog_Reminder(
+        Thing? thing = null,
+        string? title = null,
+        string? text = null,
+        bool pinned = true,
+        LetterDef? letterDef = null,
+        float durationDays = -1
+    ) : base()
     {
+        _selectedThing = thing;
+
+        Instance?.Close();
+        Instance = this;
+
         this.forcePause = true;
         this.absorbInputAroundWindow = true;
         this.closeOnAccept = true;
@@ -46,25 +60,32 @@ public class Dialog_Reminder : Window
         this.closeOnClickedOutside = true;
         this.soundAppear = SoundDefOf.CommsWindow_Open;
         this.soundClose = SoundDefOf.CommsWindow_Close;
-        FindSelectedThing();
+        _selectedThing = thing ?? FindSelectedThing();
+        _reminderTitle = title ?? _reminderTitle;
+        _reminderText = text ?? _reminderText;
+        _pinned = pinned;
+        _letterDef = letterDef ?? _letterDef;
+        _durationDays = durationDays >= 0 ? durationDays : _durationDays;
     }
 
-    private void FindSelectedThing()
+    private Thing? FindSelectedThing()
     {
-        if (Find.Selector.NumSelected == 0) return;
+        if (Find.Selector.NumSelected == 0) return null;
         if (Find.Selector.SelectedPawns.Count > 0)
         {
             _selectedThing = Find.Selector.SelectedPawns[0];
-            return;
+            return null;
         }
-        foreach (object o in Find.Selector.SelectedObjectsListForReading)
+
+        foreach (var o in Find.Selector.SelectedObjectsListForReading)
         {
             if (o is Thing thing)
             {
-                _selectedThing = thing;
-                break;
+                return thing;
             }
         }
+
+        return null;
     }
 
     public override void DoWindowContents(Rect inRect)
@@ -81,7 +102,8 @@ public class Dialog_Reminder : Window
 
         // Title entry
         var titleTextRect = innerRect.TopPartPixels(32f);
-        Widgets.Label(titleTextRect.LeftPart(0.12f), "Title".Translate());
+        Widgets.Label(new Rect(titleTextRect.xMin, titleTextRect.yMin + 4f, Text.CalcSize("Title".Translate()).x, 32f),
+            "Title".Translate());
         var titleTextEntryRect = titleTextRect.RightPart(0.9f);
         titleTextEntryRect.xMax -= pinSectionWidth;
         _reminderTitle = Widgets.TextField(titleTextEntryRect, _reminderTitle, 64, new Regex("^[^<>]*$"));
@@ -97,56 +119,18 @@ public class Dialog_Reminder : Window
         Widgets.Checkbox(pinIconRect.xMin, pinIconRect.yMin, ref _pinned, pinButtonSize,
             texChecked: LetterUtils.Icons.PinIcon, texUnchecked: LetterUtils.Icons.PinOutline);
         TooltipHandler.TipRegionByKey(pinIconRect, "BetterLetters_PinReminder");
-        
+
         // Text entry
-        var outerScrollRegionRect = new Rect(0f, titleTextRect.yMax + 30f, innerRect.width,
-            innerRect.height - snoozeSectionHeight - 72f - (titleTextRect.yMax));
+        var outerScrollRegionRect = new Rect(0f, titleTextRect.yMax + 30f, innerRect.width, 100f);
         var textEntryHeight = Mathf.Max(Text.CalcHeight(_reminderText, outerScrollRegionRect.width - 8f), 90f);
-        var textEntryRect = new Rect(0f, 0f, outerScrollRegionRect.width - 10f, textEntryHeight);
+        var textEntryRect = new Rect(0f, 0f, outerScrollRegionRect.width - 14f, textEntryHeight);
         Widgets.BeginScrollView(outerScrollRegionRect, ref this._scrollPosition, textEntryRect, true);
         _reminderText = Widgets.TextArea(textEntryRect, _reminderText, false);
         _reminderText = SanitizeText(_reminderText);
         Widgets.EndScrollView();
-        
-        // Selected thing button
-        if (Find.Selector.NumSelected > 0)
-        {
-            var thingRect = new Rect(innerRect.xMin, outerScrollRegionRect.yMax + 4f, innerRect.width, buttonsSize.y);
-            var label = "BetterLetters_JumpToColon".Translate();
-            var labelRect = thingRect.LeftPartPixels(Text.CalcSize(label).x);
-            labelRect.y += 2f;
-            Widgets.Label(labelRect, label);
-            var thingLabel = _selectedThing?.LabelShortCap ?? "BetterLetters_NothingSelected".Translate();
-            var thingLabelSize = Text.CalcSize(thingLabel) ;
-            thingLabelSize.x += buttonsSize.y + 8f; // Add some room for the icon
-            var thingButtonRect = new Rect(labelRect.xMax + 8f, labelRect.yMin - 4f,
-                Mathf.Max(thingLabelSize.x, buttonsSize.x), buttonsSize.y); 
-            var thingButtonClicked = Widgets.ButtonTextSubtle(thingButtonRect, thingLabel, textLeftMargin: buttonsSize.y);
-            var thingIconRect = new Rect(thingButtonRect.xMin + 2f, thingButtonRect.yMin + 2f, buttonsSize.y, buttonsSize.y);
-            Widgets.ThingIcon(thingIconRect, _selectedThing, scale: 0.6f);
 
-            if (thingButtonClicked)
-            {
-                var floatMenuOptions = new List<FloatMenuOption>()
-                {
-                    new FloatMenuOption("BetterLetters_NothingSelected".Translate(), () => { _selectedThing = null;}, MenuOptionPriority.AttackEnemy)
-                };
-                foreach (var o in Find.Selector.SelectedObjectsListForReading)
-                {
-                    var priority = MenuOptionPriority.Default;
-                    if (o is not Thing thing) continue;
-                    if (thing is Pawn) priority = MenuOptionPriority.High;
-                    floatMenuOptions.Add(
-                        new FloatMenuOption(thing.LabelCap, () => _selectedThing = thing, thing, Color.white, priority)
-                    );
-                }
-                Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
-                SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
-                Event.current.Use();
-                FindSelectedThing();
-            }
-            //TODO: Checkbox to cancel reminder if thing is invalid?
-        }
+        // Selected thing button
+        DoJumpToSelector(new Rect(inRect.xMin, outerScrollRegionRect.yMax + 4f, inRect.width, 64f));
 
         // Snooze settings
         var snoozeRect = innerRect.BottomPartPixels(snoozeSectionHeight);
@@ -179,7 +163,7 @@ public class Dialog_Reminder : Window
                 )); // FloatMenuOption constructor only added an overload with iconTex in 1.6+, so just close the constructor here
 #endif
             }
-            
+
 
             Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
             SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
@@ -199,13 +183,100 @@ public class Dialog_Reminder : Window
             {
                 lookTargets = new LookTargets(_selectedThing);
             }
-            LetterUtils.AddReminder(SanitizeText(_reminderTitle), SanitizeText(_reminderText), _letterDef, DurationTicks, _pinned, lookTargets);
+
+            LetterUtils.AddReminder(SanitizeText(_reminderTitle), SanitizeText(_reminderText), _letterDef,
+                DurationTicks, _pinned, lookTargets);
             this.Close(true);
         }
 
 #if !(v1_1 || v1_2)
         Widgets.EndGroup();
 #endif
+    }
+
+    private void DoJumpToSelector(Rect inRect)
+    {
+        var thingRect = new Rect(inRect.xMin, inRect.yMin + 4f, inRect.width, 32f);
+        var label = "BetterLetters_JumpToColon".Translate();
+        var labelRect = thingRect.LeftPartPixels(Text.CalcSize(label).x);
+        labelRect.y += 2f;
+        Widgets.Label(labelRect, label);
+        var thingLabel = _selectedThing?.LabelShortCap ?? "BetterLetters_NothingSelected".Translate();
+        var thingLabelSize = Text.CalcSize(thingLabel);
+        thingLabelSize.x += 32f + 8f; // Add some room for the icon
+        var thingButtonRect = new Rect(labelRect.xMax + 8f, labelRect.yMin - 4f,
+            Mathf.Max(thingLabelSize.x, 100f), 32f);
+        var thingButtonClicked = Widgets.ButtonTextSubtle(thingButtonRect, thingLabel, textLeftMargin: 32f);
+        var thingIconRect = new Rect(thingButtonRect.xMin + 2f, thingButtonRect.yMin + 2f, 32f, 32f);
+        Widgets.ThingIcon(thingIconRect, _selectedThing, scale: 0.6f);
+        if (thingButtonClicked)
+        {
+            var floatMenuOptions = new List<FloatMenuOption>()
+            {
+                new FloatMenuOption("BetterLetters_NothingSelected".Translate(), () => { _selectedThing = null; },
+                    MenuOptionPriority.AttackEnemy),
+                new FloatMenuOption("BetterLetters_SelectSomething".Translate(), DoSelectThing, iconTex: TexButton.Plus,
+                    iconColor: Color.white, priority: MenuOptionPriority.AttackEnemy)
+            };
+
+            var addedSelectedThing = false;
+            foreach (var o in Find.Selector.SelectedObjectsListForReading)
+            {
+                var priority = MenuOptionPriority.Default;
+                if (o is not Thing thing) continue;
+                if (thing is Pawn) priority = MenuOptionPriority.High;
+                floatMenuOptions.Add(
+                    new FloatMenuOption(thing.LabelCap, () => _selectedThing = thing, thing, Color.white, priority)
+                );
+                if (thing == _selectedThing) addedSelectedThing = true;
+            }
+
+            if (_selectedThing != null && !addedSelectedThing)
+            {
+                floatMenuOptions.Add(new FloatMenuOption(_selectedThing.LabelCap, null, _selectedThing, Color.white,
+                    priority: MenuOptionPriority.InitiateSocial));
+            }
+
+            Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
+            SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
+            Event.current.Use();
+        }
+        //TODO: Checkbox to cancel reminder if thing is invalid?
+    }
+
+    private static void DoSelectThing()
+    {
+        if (Instance is null)
+        {
+            LogPrefixed.Warning("Can't select thing, dialog instance was null");
+            return;
+        }
+
+        var selectedThing = Instance._selectedThing;
+        var title = Instance._reminderTitle;
+        var text = Instance._reminderText;
+        var pinned = Instance._pinned;
+        var letterDef = Instance._letterDef;
+        var durationDays = Instance._durationDays;
+        Instance.Close();
+        Find.Targeter.BeginTargeting(
+            TargetingParameters.ForThing(),
+            (targetInfo) =>
+            {
+                if (targetInfo.HasThing)
+                {
+                    Find.WindowStack.Add(new Dialog_Reminder(
+                        targetInfo.Thing ?? selectedThing,
+                        title,
+                        text,
+                        pinned,
+                        letterDef,
+                        durationDays
+                    ));
+                }
+            },
+            (targetInfo) => { }
+        );
     }
 
     private static string SanitizeText(string text)
