@@ -195,6 +195,7 @@ namespace BetterLetters
                 postfix: GetPatch(patchClass, "ReceiveLetter")
             );
 #endif
+            //TODO: Create a patch to add a button in the bottom right corner
         }
 
         private static MethodInfo? GetGetter(Type t, string propName)

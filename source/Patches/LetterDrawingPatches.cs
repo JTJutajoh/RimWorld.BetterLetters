@@ -190,7 +190,7 @@ namespace BetterLetters.Patches
         {
             // If pinned, override with 0 which disables flashing. Otherwise, just return whatever the original field was (or false if DisableFlashAlways is true)
             return
-                !Settings.DisableFlashAlways && (!Settings.DisableFlashIfPinned || __instance.IsPinned()) ? 0f : ___def.flashInterval; 
+                Settings.DisableFlashAlways || (!Settings.DisableFlashIfPinned || __instance.IsPinned()) ? 0f : ___def.flashInterval;
         }
 
         // ReSharper disable InconsistentNaming

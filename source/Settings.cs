@@ -126,7 +126,6 @@ internal class Settings : ModSettings
                 "BetterLetters_Settings_DisableBounceIfPinned_Desc".Translate());
         }
         
-        //TODO: This setting isn't working
         listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashAlways".Translate(),
             ref DisableFlashAlways,
             "BetterLetters_Settings_DisableFlashAlways_Desc".Translate());
