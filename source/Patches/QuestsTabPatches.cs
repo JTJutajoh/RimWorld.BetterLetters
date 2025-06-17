@@ -69,7 +69,7 @@ public class QuestsTabPatches
         }
         var rect = new Rect(innerRect.xMax - 64f - 6f, innerRect.y, 32f, 32f);
 
-        var choiceLetter = GetLetterForQuest(quest);
+        var choiceLetter = LetterUtils.GetLetterForQuest(quest);
         if (choiceLetter is null)
         {
             LogPrefixed.WarningOnce($"Couldn't find the associated letter for quest '{quest?.name ?? "null"}'",
@@ -108,7 +108,7 @@ public class QuestsTabPatches
         }
         var rect = new Rect(innerRect.xMax - 96f - 6f, innerRect.y, 32f, 32f);
 
-        var choiceLetter = GetLetterForQuest(quest);
+        var choiceLetter = LetterUtils.GetLetterForQuest(quest);
         if (choiceLetter is null)
         {
             LogPrefixed.WarningOnce($"Couldn't find the associated letter for quest '{quest?.name ?? "null"}'",
@@ -159,39 +159,6 @@ public class QuestsTabPatches
             }
         }
     }
-
-    // This helper function will be called at least twice every frame and iterates over potentially hundreds of letters
-    // to find a match, so it's important to cache the results.
-    private static Dictionary<Quest, ChoiceLetter?> _questLetterCache = new();
-
-    private static ChoiceLetter? GetLetterForQuest(Quest? quest)
-    {
-        if (quest is null)
-        {
-            LogPrefixed.Error("Tried to get letter for null quest");
-            return null;
-        }
-        if (_questLetterCache.TryGetValue(quest, out var cachedLetter))
-        {
-            return cachedLetter;
-        }
-
-        foreach (var archivable in Find.Archive.ArchivablesListForReading)
-        {
-            if (archivable is ChoiceLetter letter)
-            {
-                if (letter.quest == quest)
-                {
-                    _questLetterCache[quest] = letter;
-                    return letter;
-                }
-            }
-        }
-
-        // Cache null results too so we don't have to search for them again. A quest won't gain a letter if it didn't have one
-        _questLetterCache[quest] = null;
-        return null;
-    }
     
 #if !(v1_1 || v1_2 || v1_3 || v1_4)
     private static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).
@@ -226,7 +193,7 @@ public class QuestsTabPatches
                     {
                         return;
                     }
-                    var letter = GetLetterForQuest(quest);
+                    var letter = LetterUtils.GetLetterForQuest(quest);
                     if (letter is null)
                     {
                         LogPrefixed.WarningOnce(

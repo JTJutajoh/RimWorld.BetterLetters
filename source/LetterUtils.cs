@@ -8,6 +8,7 @@ using RimWorld;
 using HarmonyLib;
 using System.Reflection;
 using System.Runtime.Remoting.Contexts;
+using DarkLog;
 using UnityEngine;
 
 namespace BetterLetters
@@ -141,6 +142,38 @@ namespace BetterLetters
             var letters = (List<Letter>)(LettersField?.GetValue(Find.LetterStack) ?? new List<Letter>());
             letters = letters.OrderBy(obj => obj.IsPinned()).ToList();
             LettersField?.SetValue(Find.LetterStack, letters);
+        }
+
+        // This helper function will be called at least twice every frame and iterates over potentially hundreds of letters
+        // to find a match, so it's important to cache the results.
+        private static readonly Dictionary<Quest, ChoiceLetter?> _questLetterCache = new();
+        /// <summary>
+        /// Search for the "new quest" letter associated with a quest, since the quest does not store a reference to it.<br />
+        /// Results (including null) are cached.
+        /// </summary>
+        /// <param name="quest"></param>
+        /// <returns></returns>
+        public static ChoiceLetter? GetLetterForQuest(Quest? quest)
+        {if (quest is null)
+            {
+                LogPrefixed.Error("Tried to get letter for null quest");
+                return null;
+            }
+            if (_questLetterCache.TryGetValue(quest, out var cachedLetter))
+            {
+                return cachedLetter;
+            }
+
+            foreach (var archivable in Find.Archive.ArchivablesListForReading)
+            {
+                if (archivable is not ChoiceLetter letter || letter.quest != quest) continue;
+                _questLetterCache[quest] = letter;
+                return letter;
+            }
+
+            // Cache null results too so we don't have to search for them again. A quest won't gain a letter if it didn't have one
+            _questLetterCache[quest] = null;
+            return null;
         }
 
         /// <summary>
