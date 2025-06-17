@@ -44,12 +44,10 @@ namespace BetterLetters
             internal static readonly Texture2D SnoozeOutline = ContentFinder<Texture2D>.Get("UI/Icons/SnoozedOutline");
         }
 
-        private static Archive? _archiveCached = null;
-        private static Archive Archive => _archiveCached ??= Find.Archive;
 
         public static bool IsPinned(this Letter letter)
         {
-            return Archive.IsPinned(letter);
+            return Find.Archive.IsPinned(letter);
         }
 
         public static bool IsSnoozed(this Letter letter, bool ignoreReminders = false)
@@ -64,19 +62,19 @@ namespace BetterLetters
 
         public static void Pin(this Letter letter)
         {
-            if (!Archive.Contains(letter))
+            if (!Find.Archive.Contains(letter))
             {
-                Archive.Add(letter);
+                Find.Archive.Add(letter);
             }
 
-            Archive.Pin(letter);
+            Find.Archive.Pin(letter);
             SnoozeManager.RemoveSnooze(letter);
             SortLetterStackByPinned();
         }
 
         public static void Unpin(this Letter letter, bool alsoRemove = false)
         {
-            Archive.Unpin(letter);
+            Find.Archive.Unpin(letter);
             if (alsoRemove)
             {
                 Find.LetterStack.RemoveLetter(letter);
