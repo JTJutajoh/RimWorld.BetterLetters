@@ -53,6 +53,10 @@ Current setting: {0} days</BetterLetters_MaxDurationTooltip>
   
   
   <BetterLetters_SettingsCategory>Better Letters</BetterLetters_SettingsCategory>
+  <BetterLetters_Settings_Tab_Main>Main</BetterLetters_Settings_Tab_Main>
+  <BetterLetters_Settings_Tab_Pinning>Pinning</BetterLetters_Settings_Tab_Pinning>
+  <BetterLetters_Settings_Tab_Snoozing>Snoozing</BetterLetters_Settings_Tab_Snoozing>
+  <BetterLetters_Settings_Tab_Reminders>Reminders</BetterLetters_Settings_Tab_Reminders>
   <BetterLetters_Settings_SnoozeSettings>Snooze settings</BetterLetters_Settings_SnoozeSettings>
   
   <BetterLetters_Settings_DisableRightClickPinnedLetters>Disable right click float menu for pinned letters</BetterLetters_Settings_DisableRightClickPinnedLetters>
@@ -78,7 +82,7 @@ Default: {0}</BetterLetters_Settings_TextureInDialogSize_Desc>
   <BetterLetters_Settings_MaxNumSnoozes_Desc>The maximum number of letters that are allowed to be snoozed at a time.
 Large numbers of snoozed letters could negatively impact performance a little bit.
 Default: {0}</BetterLetters_Settings_MaxNumSnoozes_Desc>
-  <BetterLetters_Settings_MaxSnoozeDuration>Max Snooze Duration: {0} days</BetterLetters_Settings_MaxSnoozeDuration>
+  <BetterLetters_Settings_MaxSnoozeDuration>Max Snooze/Reminder Duration: {0}</BetterLetters_Settings_MaxSnoozeDuration>
   <BetterLetters_Settings_MaxSnoozeDuration_Desc>Determines the longest allowed snooze in the "Snooze for..." dialog. Measured in days.
 Note that letters that are snoozed for a very long time may expire before the snooze finishes.
 Default: {0}</BetterLetters_Settings_MaxSnoozeDuration_Desc>

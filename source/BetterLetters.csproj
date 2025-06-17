@@ -147,6 +147,7 @@
     <ItemGroup>
       <About Include="$(ProjectDir)\About\About.xml" />
       <About Include="$(ProjectDir)\About\Preview.png" />
+      <About Include="$(ProjectDir)\About\ModIcon.png" />
       <About Include="$(ProjectDir)\About\PublishedFileId.txt" />
     </ItemGroup>
 

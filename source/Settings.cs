@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using BetterLetters.Patches;
+using DarkLog;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -8,6 +10,16 @@ namespace BetterLetters;
 
 internal class Settings : ModSettings
 {
+    private enum SettingsTab
+    {
+        Main,
+        Pinning,
+        Snoozing,
+        Reminders
+    }
+    private SettingsTab _currentTab = SettingsTab.Main;
+    private const float TabHeight = 32f;
+    
     public enum PinTextureMode
     {
         Disabled = 0,
@@ -30,12 +42,73 @@ internal class Settings : ModSettings
 
     public void DoWindowContents(Rect inRect)
     {
+        var tabs = new List<TabRecord>
+        {
+            new TabRecord("BetterLetters_Settings_Tab_Main".Translate(), () => _currentTab = SettingsTab.Main, () => _currentTab == SettingsTab.Main),
+            new TabRecord("BetterLetters_Settings_Tab_Pinning".Translate(), () => _currentTab = SettingsTab.Pinning, () => _currentTab == SettingsTab.Pinning),
+            new TabRecord("BetterLetters_Settings_Tab_Snoozing".Translate(), () => _currentTab = SettingsTab.Snoozing, () => _currentTab == SettingsTab.Snoozing),
+            new TabRecord("BetterLetters_Settings_Tab_Reminders".Translate(), () => _currentTab = SettingsTab.Reminders, () => _currentTab == SettingsTab.Reminders),
+        };
+        TabDrawer.DrawTabsOverflow(inRect.TopPartPixels(TabHeight), tabs, 80f, 200f);
+        Widgets.DrawLineHorizontal(inRect.xMin, inRect.yMin + TabHeight, inRect.width);
+        
+        var tabRect = inRect.BottomPartPixels(inRect.height - TabHeight - 32f);
+        switch (_currentTab)
+        {
+            case SettingsTab.Main:
+                try
+                {
+                    DoTabMain(tabRect);
+                }
+                catch (Exception e)
+                {
+                    LogPrefixed.Exception(e, "Error drawing main settings tab.", true);
+                    _currentTab = SettingsTab.Pinning;
+                }
+                break;
+            case SettingsTab.Pinning:
+                try
+                {
+                    DoTabPinning(tabRect);
+                }
+                catch (Exception e)
+                {
+                    LogPrefixed.Exception(e, "Error drawing pin settings tab.", true);
+                    _currentTab = SettingsTab.Main;
+                }
+                break;
+            case SettingsTab.Reminders:
+                try
+                {
+                    DoTabReminders(tabRect);
+                }
+                catch (Exception e)
+                {
+                    LogPrefixed.Exception(e, "Error drawing reminders settings tab.", true);
+                    _currentTab = SettingsTab.Main;
+                }
+                break;
+            case SettingsTab.Snoozing:
+                try
+                {
+                    DoTabSnoozing(tabRect);
+                }
+                catch (Exception e)
+                {
+                    LogPrefixed.Exception(e, "Error drawing snooze settings tab.", true);
+                    _currentTab = SettingsTab.Main;
+                }
+                break;
+            default:
+                _currentTab = SettingsTab.Main;
+                break;
+        }
+    }
+
+    private static void DoTabMain(Rect inRect)
+    {
         var listingStandard = new Listing_Standard();
         listingStandard.Begin(inRect);
-
-        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableRightClickPinnedLetters".Translate(),
-            ref DisableRightClickPinnedLetters,
-            "BetterLetters_Settings_DisableRightClickPinnedLetters_Desc".Translate());
         
         listingStandard.CheckboxLabeled("BetterLetters_Settings_DismissedQuestsDismissLetters".Translate(),
             ref DismissedQuestsDismissLetters,
@@ -53,6 +126,7 @@ internal class Settings : ModSettings
                 "BetterLetters_Settings_DisableBounceIfPinned_Desc".Translate());
         }
         
+        //TODO: This setting isn't working
         listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashAlways".Translate(),
             ref DisableFlashAlways,
             "BetterLetters_Settings_DisableFlashAlways_Desc".Translate());
@@ -62,26 +136,21 @@ internal class Settings : ModSettings
                 ref DisableFlashIfPinned,
                 "BetterLetters_Settings_DisableFlashIfPinned_Desc".Translate());
         }
-        
-        listingStandard.Gap(4f);
-        
-        listingStandard.Label("BetterLetters_Settings_PinTexture".Translate());
-        if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Disabled".Translate(),
-                PinTexture == PinTextureMode.Disabled))
-        {
-            PinTexture = PinTextureMode.Disabled;
-        }
-        else if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Round".Translate(),
-                     PinTexture == PinTextureMode.Round))
-        {
-            PinTexture = PinTextureMode.Round;
-        }
-        else if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Alt".Translate(),
-                     PinTexture == PinTextureMode.Alt))
-        {
-            PinTexture = PinTextureMode.Alt;
-        }
 
+        listingStandard.End();
+    }
+
+    private static void DoTabPinning(Rect inRect)
+    {
+        var listingStandard = new Listing_Standard();
+        listingStandard.Begin(inRect);
+        
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableRightClickPinnedLetters".Translate(),
+            ref DisableRightClickPinnedLetters,
+            "BetterLetters_Settings_DisableRightClickPinnedLetters_Desc".Translate());
+
+        listingStandard.Gap(8f);
+        
         if (PinTexture != PinTextureMode.Disabled)
         {
             listingStandard.Indent();
@@ -112,10 +181,32 @@ internal class Settings : ModSettings
 
             listingStandard.Outdent();
         }
+        
+        listingStandard.Label("BetterLetters_Settings_PinTexture".Translate());
+        if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Disabled".Translate(),
+                PinTexture == PinTextureMode.Disabled))
+        {
+            PinTexture = PinTextureMode.Disabled;
+        }
+        else if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Round".Translate(),
+                     PinTexture == PinTextureMode.Round))
+        {
+            PinTexture = PinTextureMode.Round;
+        }
+        else if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Alt".Translate(),
+                     PinTexture == PinTextureMode.Alt))
+        {
+            PinTexture = PinTextureMode.Alt;
+        }
+        
+        listingStandard.End();
+    }
 
-        listingStandard.GapLine();
-        listingStandard.Label("BetterLetters_Settings_SnoozeSettings".Translate());
-        listingStandard.Gap();
+    private static void DoTabSnoozing(Rect inRect)
+    {
+        var listingStandard = new Listing_Standard();
+        listingStandard.Begin(inRect);
+        
         MaxNumSnoozes = (int)listingStandard.SliderLabeled(
             "BetterLetters_Settings_MaxNumSnoozes".Translate(MaxNumSnoozes),
             MaxNumSnoozes, 1, 100, 0.5f, "BetterLetters_Settings_MaxNumSnoozes_Desc".Translate(15));
@@ -133,6 +224,16 @@ internal class Settings : ModSettings
             // If in-game, show a list of currently snoozed letters here
             DoSnoozesListing(listingStandard);
         }
+
+        listingStandard.End();
+    }
+
+    private static void DoTabReminders(Rect inRect)
+    {
+        var listingStandard = new Listing_Standard();
+        listingStandard.Begin(inRect);
+
+        listingStandard.Label("Nothing (yet)");
 
         listingStandard.End();
     }
