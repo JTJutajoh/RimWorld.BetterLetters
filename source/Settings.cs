@@ -119,26 +119,32 @@ internal class Settings : ModSettings
             ref KeepQuestLettersOnStack,
             "BetterLetters_Settings_KeepQuestLettersOnStack_Desc".Translate());
         
-        listingStandard.Gap(4f);
+        listingStandard.Gap(12f);
         
         listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableBounceAlways".Translate(),
             ref DisableBounceAlways,
             "BetterLetters_Settings_DisableBounceAlways_Desc".Translate());
         if (!DisableBounceAlways)
         {
+            listingStandard.Indent();
             listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableBounceIfPinned".Translate(),
                 ref DisableBounceIfPinned,
                 "BetterLetters_Settings_DisableBounceIfPinned_Desc".Translate());
+            listingStandard.Outdent();
         }
+        
+        listingStandard.Gap(4f);
         
         listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashAlways".Translate(),
             ref DisableFlashAlways,
             "BetterLetters_Settings_DisableFlashAlways_Desc".Translate());
         if (!DisableFlashAlways)
         {
+            listingStandard.Indent();
             listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashIfPinned".Translate(),
                 ref DisableFlashIfPinned,
                 "BetterLetters_Settings_DisableFlashIfPinned_Desc".Translate());
+            listingStandard.Outdent();
         }
 
         listingStandard.End();
