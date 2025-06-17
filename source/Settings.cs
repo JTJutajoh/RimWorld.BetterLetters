@@ -40,6 +40,7 @@ internal class Settings : ModSettings
     public static bool SnoozePinned = true;
     public static bool DismissedQuestsDismissLetters = true;
     public static bool KeepQuestLettersOnStack = true;
+    public static bool DoCreateReminderPlaySetting = true;
 
     public void DoWindowContents(Rect inRect)
     {
@@ -243,7 +244,7 @@ internal class Settings : ModSettings
         var listingStandard = new Listing_Standard();
         listingStandard.Begin(inRect);
 
-        listingStandard.Label("Nothing (yet)");
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_DoCreateReminderPlaySetting".Translate(), ref DoCreateReminderPlaySetting, "BetterLetters_Settings_DoCreateReminderPlaySetting_Desc".Translate());
 
         listingStandard.End();
     }
@@ -325,6 +326,7 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref SnoozePinned, "SnoozePinned", true);
         Scribe_Values.Look(ref DismissedQuestsDismissLetters, "DismissedQuestsDismissLetters", true);
         Scribe_Values.Look(ref KeepQuestLettersOnStack, "KeepQuestLettersOnStack", true);
+        Scribe_Values.Look(ref DoCreateReminderPlaySetting, "DoCreateReminderPlaySetting", true);
 
         base.ExposeData();
     }

@@ -38,6 +38,7 @@ Click to cancel the snooze.</BetterLetters_SnoozedButtonTooltip>
   <BetterLetters_SnoozeQuestTooltip>Snooze this quest until later. If it is pinned it will be unpinned.
   
 You will receive the "Quest available" letter again when the snooze ends. You will still receive notifications related to this quest, unlike dismissing it.</BetterLetters_SnoozeQuestTooltip>
+  <BetterLetters_PlaySettingsCreateReminder>Create a new reminder</BetterLetters_PlaySettingsCreateReminder>
   
   <BetterLetters_Reminder>Reminder</BetterLetters_Reminder>
   <BetterLetters_Reminders>Reminders</BetterLetters_Reminders>
@@ -95,4 +96,7 @@ Default: {0}</BetterLetters_Settings_MaxSnoozeDuration_Desc>
   <BetterLetters_Settings_NoSnoozedLetters>None</BetterLetters_Settings_NoSnoozedLetters>
   <BetterLetters_Settings_Unsnooze>Cancel snooze</BetterLetters_Settings_Unsnooze>
   <BetterLetters_Settings_Fire>Trigger now</BetterLetters_Settings_Fire>
+  
+  <BetterLetters_Settings_DoCreateReminderPlaySetting>Add Create Reminder button to the bottom play controls</BetterLetters_Settings_DoCreateReminderPlaySetting>
+  <BetterLetters_Settings_DoCreateReminderPlaySetting_Desc>Adds a button to the bottom left buttons that can be used as a shortcut to create a new reminder.</BetterLetters_Settings_DoCreateReminderPlaySetting_Desc>
 </LanguageData>

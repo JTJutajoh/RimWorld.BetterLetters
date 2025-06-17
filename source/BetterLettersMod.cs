@@ -195,7 +195,12 @@ namespace BetterLetters
                 postfix: GetPatch(patchClass, "ReceiveLetter")
             );
 #endif
-            //TODO: Create a patch to add a button in the bottom right corner
+            // Patch to add a button in the bottom right corner to create a reminder
+            patchClass = typeof(PlaySettingsGlobalControlCreateReminderPatch);
+            type = typeof(PlaySettings);
+            PostfixMethod(type, patchClass, "DoPlaySettingsGlobalControls");
+
+            //TODO: Patch to remove/change quest letters upon expiry/completion
         }
 
         private static MethodInfo? GetGetter(Type t, string propName)

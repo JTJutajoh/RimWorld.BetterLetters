@@ -110,6 +110,7 @@
     <Compile Include="Patches\LetterDrawingPatches.cs" />
     <Compile Include="Patches\OpenLetterPatch.cs" />
     <Compile Include="Patches\NewQuestLetterOpenPatch.cs" />
+    <Compile Include="Patches\PlaySettingsGlobalControlCreateReminderPatch.cs" />
     <Compile Include="Patches\QuestsTabPatches.cs" />
     <Compile Include="Patches\RemoveLetterPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
