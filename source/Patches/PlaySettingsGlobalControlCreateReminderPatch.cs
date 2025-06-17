@@ -15,7 +15,7 @@ internal static class PlaySettingsGlobalControlCreateReminderPatch
         {
             // if (worldView) return;
 
-            var texture = LetterUtils.Icons.ReminderIconSmall;
+            var texture = LetterUtils.Icons.ReminderSmall;
             if (row.ButtonIcon(texture, "BetterLetters_PlaySettingsCreateReminder".Translate()))
             {
                 Find.WindowStack.Add(new Dialog_Reminder());

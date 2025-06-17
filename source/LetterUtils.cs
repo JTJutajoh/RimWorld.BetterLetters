@@ -18,29 +18,31 @@ namespace BetterLetters
         [StaticConstructorOnStartup]
         internal static class Icons
         {
-            internal static readonly Texture2D DismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
-            internal static readonly Texture2D UnDismissIcon = ContentFinder<Texture2D>.Get("UI/Buttons/UnDismiss");
-            internal static readonly Texture2D PinFloatMenuIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Pin");
-            internal static readonly Texture2D ReminderIcon = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Reminder");
-            internal static readonly Texture2D ReminderIconSmall = ContentFinder<Texture2D>.Get("UI/GlobalControls/Reminder");
-            internal static readonly Texture2D PinIconRound = ContentFinder<Texture2D>.Get("UI/Icons/PinRound");
+            internal static readonly Texture2D Dismiss = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
+            internal static readonly Texture2D UnDismiss = ContentFinder<Texture2D>.Get("UI/Buttons/UnDismiss");
+            internal static readonly Texture2D PinFloatMenu = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Pin");
+            internal static readonly Texture2D ReminderFloatMenu = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Reminder");
+            internal static readonly Texture2D Reminder = ContentFinder<Texture2D>.Get("UI/Icons/Reminder");
+            internal static readonly Texture2D ReminderOutline = ContentFinder<Texture2D>.Get("UI/Icons/Reminder");
+            internal static readonly Texture2D ReminderSmall = ContentFinder<Texture2D>.Get("UI/GlobalControls/Reminder");
+            internal static readonly Texture2D PinRound = ContentFinder<Texture2D>.Get("UI/Icons/PinRound");
 
             internal static readonly Texture2D PinOutlineRound =
                 ContentFinder<Texture2D>.Get("UI/Icons/PinRoundOutline");
 
-            internal static readonly Texture2D PinIconAlt = ContentFinder<Texture2D>.Get("UI/Icons/Pin_alt");
+            internal static readonly Texture2D PinAlt = ContentFinder<Texture2D>.Get("UI/Icons/Pin_alt");
             internal static readonly Texture2D PinOutlineAlt = ContentFinder<Texture2D>.Get("UI/Icons/PinOutline_alt");
 
             internal static Texture2D PinIcon =>
-                Settings.PinTexture == Settings.PinTextureMode.Round ? PinIconRound : PinIconAlt;
+                Settings.PinTexture == Settings.PinTextureMode.Round ? PinRound : PinAlt;
 
             internal static Texture2D PinOutline => Settings.PinTexture == Settings.PinTextureMode.Round
                 ? PinOutlineRound
                 : PinOutlineAlt;
 
-            internal static Texture2D PinIconLetterStack => PinIconRound; // Might add a setting to swap this later
+            internal static Texture2D PinLetterStack => PinRound; // Might add a setting to swap this later
 
-            internal static readonly Texture2D SnoozeFloatMenuIcon =
+            internal static readonly Texture2D SnoozeFloatMenu =
                 ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Snooze");
 
             internal static readonly Texture2D SnoozeIcon = ContentFinder<Texture2D>.Get("UI/Icons/Snoozed");
@@ -76,10 +78,12 @@ namespace BetterLetters
             if (letter is ChoiceLetter { quest: not null } choiceLetter)
             {
                 choiceLetter.quest.dismissed = false;
+#if !(v1_1 || v1_2)
                 foreach (var subQuest in choiceLetter.quest.GetSubquests())
                 {
                     subQuest.dismissed = choiceLetter.quest.dismissed;
                 }
+#endif
                 ((MainTabWindow_Quests)MainButtonDefOf.Quests.TabWindow).Select(choiceLetter.quest);
             }
         }
@@ -199,7 +203,7 @@ namespace BetterLetters
                     letter?.Pin();
                     onPinned?.Invoke();
                 },
-                iconTex: Icons.PinFloatMenuIcon,
+                iconTex: Icons.PinFloatMenu,
                 iconColor: Color.white
             );
         }
@@ -214,7 +218,7 @@ namespace BetterLetters
                     var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerHour);
                     onClicked?.Invoke(snooze);
                 },
-                iconTex: Icons.SnoozeFloatMenuIcon,
+                iconTex: Icons.SnoozeFloatMenu,
                 iconColor: new Color(0.2f, 0.2f, 0.2f)
             );
         }
@@ -229,7 +233,7 @@ namespace BetterLetters
                     var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerDay);
                     onClicked?.Invoke(snooze);
                 },
-                iconTex: Icons.SnoozeFloatMenuIcon,
+                iconTex: Icons.SnoozeFloatMenu,
                 iconColor: new Color(0.4f, 0.4f, 0.4f)
             );
         }
@@ -240,7 +244,7 @@ namespace BetterLetters
             return MakeFloatMenuOption(
                 "BetterLetters_SnoozeForFloatMenuOption".Translate(),
                 action: () => { SnoozeManager.ShowSnoozeDialog(letter, onSnoozed); },
-                iconTex: Icons.SnoozeFloatMenuIcon,
+                iconTex: Icons.SnoozeFloatMenu,
                 iconColor: Color.white
             );
         }

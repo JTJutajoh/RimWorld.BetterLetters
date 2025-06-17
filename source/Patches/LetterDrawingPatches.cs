@@ -47,7 +47,7 @@ namespace BetterLetters.Patches
             }
 
             var position = pinButtonRect.Rounded();
-            GUI.DrawTexture(position, LetterUtils.Icons.PinIconLetterStack);
+            GUI.DrawTexture(position, LetterUtils.Icons.PinLetterStack);
             GUI.color = Color.white;
         }
 
@@ -213,19 +213,19 @@ namespace BetterLetters.Patches
                 floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_Unpin".Translate(),
                     () => { __instance.Unpin(false); },
-                    iconTex: LetterUtils.Icons.DismissIcon,
+                    iconTex: LetterUtils.Icons.Dismiss,
                     iconColor: Color.white
                 ));
                 floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_UnpinAndDismiss".Translate(),
                     () => { __instance.Unpin(true); },
-                    iconTex: LetterUtils.Icons.DismissIcon,
+                    iconTex: LetterUtils.Icons.Dismiss,
                     iconColor: Color.red
                 ));
                 floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_DismissButStayPinned".Translate(),
                     () => { Find.LetterStack.RemoveLetter(__instance); },
-                    iconTex: LetterUtils.Icons.DismissIcon,
+                    iconTex: LetterUtils.Icons.Dismiss,
                     iconColor: Color.gray
                 ));
                 floatMenuOptions.Add(LetterUtils.Snooze1HrFloatMenuOption(__instance));

@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -56,6 +57,23 @@ public static class LegacySupport
     public static Rect MiddlePartPixels(this Rect rect, float width, float height)
     {
         return new Rect((float) ((double) rect.x + (double) rect.width / 2.0 - (double) width / 2.0), (float) ((double) rect.y + (double) rect.height / 2.0 - (double) height / 2.0), width, height);
+    }
+#endif
+    
+#if v1_1 || v1_2 || v1_3 || v1_4 || v1_5
+    public static TargetingParameters ForThing()
+    {
+        return new TargetingParameters()
+        {
+            canTargetPawns = true,
+            canTargetBuildings = true,
+            canTargetItems = true,
+#if !(v1_1 || v1_2)
+            canTargetPlants = true,
+#endif
+            canTargetFires = true,
+            mapObjectTargetsMustBeAutoAttackable = false
+        };
     }
 #endif
 }

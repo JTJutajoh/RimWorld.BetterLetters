@@ -208,16 +208,24 @@ public class Dialog_Reminder : Window
             Mathf.Max(thingLabelSize.x, 100f), 32f);
         var thingButtonClicked = Widgets.ButtonTextSubtle(thingButtonRect, thingLabel, textLeftMargin: 32f);
         var thingIconRect = new Rect(thingButtonRect.xMin + 2f, thingButtonRect.yMin + 2f, 32f, 32f);
+#if v1_6
         Widgets.ThingIcon(thingIconRect, _selectedThing, scale: 0.6f);
+#else
+        Widgets.ThingIcon(thingIconRect, _selectedThing);
+#endif
         if (thingButtonClicked)
         {
             var floatMenuOptions = new List<FloatMenuOption>()
             {
                 new FloatMenuOption("BetterLetters_NothingSelected".Translate(), () => { _selectedThing = null; },
                     MenuOptionPriority.AttackEnemy),
-                new FloatMenuOption("BetterLetters_SelectSomething".Translate(), DoSelectThing, iconTex: TexButton.Plus,
-                    iconColor: Color.white, priority: MenuOptionPriority.AttackEnemy)
-            };
+                new FloatMenuOption("BetterLetters_SelectSomething".Translate(), DoSelectThing 
+#if v1_6
+                    ,
+                    iconTex: TexButton.Plus,
+                    iconColor: Color.white, priority: MenuOptionPriority.AttackEnemy
+#endif
+            )};
 
             var addedSelectedThing = false;
             foreach (var o in Find.Selector.SelectedObjectsListForReading)
@@ -226,14 +234,22 @@ public class Dialog_Reminder : Window
                 if (o is not Thing thing) continue;
                 if (thing is Pawn) priority = MenuOptionPriority.High;
                 floatMenuOptions.Add(
-                    new FloatMenuOption(thing.LabelCap, () => _selectedThing = thing, thing, Color.white, priority)
+                    new FloatMenuOption(thing.LabelCap, () => _selectedThing = thing,
+#if v1_4 || v1_5 || v1_6
+                        thing, Color.white,
+#endif
+                        priority
+                    )
                 );
                 if (thing == _selectedThing) addedSelectedThing = true;
             }
 
             if (_selectedThing != null && !addedSelectedThing)
             {
-                floatMenuOptions.Add(new FloatMenuOption(_selectedThing.LabelCap, null, _selectedThing, Color.white,
+                floatMenuOptions.Add(new FloatMenuOption(_selectedThing.LabelCap, null, 
+#if v1_4 || v1_5 || v1_6
+                    _selectedThing, Color.white,
+#endif
                     priority: MenuOptionPriority.InitiateSocial));
             }
 
@@ -260,7 +276,11 @@ public class Dialog_Reminder : Window
         var durationDays = Instance._durationDays;
         Instance.Close();
         Find.Targeter.BeginTargeting(
+#if v1_6
             TargetingParameters.ForThing(),
+#elif v1_1 || v1_2 || v1_3 || v1_4 || v1_5
+            LegacySupport.ForThing(),
+#endif
             (targetInfo) =>
             {
                 if (targetInfo.HasThing)
@@ -275,7 +295,8 @@ public class Dialog_Reminder : Window
                     ));
                 }
             },
-            (targetInfo) => { }
+            (targetInfo) => { },
+            (targetInfo) => targetInfo.Thing != null
         );
     }
 

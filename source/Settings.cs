@@ -51,7 +51,11 @@ internal class Settings : ModSettings
             new TabRecord("BetterLetters_Settings_Tab_Snoozing".Translate(), () => _currentTab = SettingsTab.Snoozing, () => _currentTab == SettingsTab.Snoozing),
             new TabRecord("BetterLetters_Settings_Tab_Reminders".Translate(), () => _currentTab = SettingsTab.Reminders, () => _currentTab == SettingsTab.Reminders),
         };
+#if v1_5 || v1_6
         TabDrawer.DrawTabsOverflow(inRect.TopPartPixels(TabHeight), tabs, 80f, 200f);
+#elif v1_1 || v1_2 || v1_3 || v1_4
+        TabDrawer.DrawTabs(inRect.TopPartPixels(TabHeight), tabs, 200f);
+#endif
         Widgets.DrawLineHorizontal(inRect.xMin, inRect.yMin + TabHeight, inRect.width);
         
         var tabRect = inRect.BottomPartPixels(inRect.height - TabHeight - 32f);
@@ -174,11 +178,11 @@ internal class Settings : ModSettings
             Texture2D? pinTex = null;
             if (PinTexture == PinTextureMode.Round)
             {
-                pinTex = LetterUtils.Icons.PinIconRound;
+                pinTex = LetterUtils.Icons.PinRound;
             }
             else if (PinTexture == PinTextureMode.Alt)
             {
-                pinTex = LetterUtils.Icons.PinIconAlt;
+                pinTex = LetterUtils.Icons.PinAlt;
             }
 
             if (pinTex is not null)

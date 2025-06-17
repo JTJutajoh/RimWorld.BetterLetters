@@ -22,7 +22,7 @@ namespace BetterLetters.Patches
             var rect = new Rect((__instance.InitialSize.x - PinTexSize), (-PinTexSize / 2), PinTexSize, PinTexSize);
             rect.x += offset.x;
             rect.y += offset.y;
-            var tex = CurrentLetter.IsPinned() ? LetterUtils.Icons.PinIcon : LetterUtils.Icons.SnoozeIcon;
+            var tex = CurrentLetter.IsPinned() ? LetterUtils.Icons.PinIcon : CurrentLetter.IsReminder() ? LetterUtils.Icons.Reminder : LetterUtils.Icons.SnoozeIcon;
             Graphics.DrawTexture(rect, tex);
         }
     }
