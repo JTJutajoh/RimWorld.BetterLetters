@@ -115,7 +115,7 @@ namespace BetterLetters
         }
 
         public static void AddReminder(string label, string text, LetterDef def, int durationTicks,
-            bool isPinned = false)
+            bool isPinned = false, LookTargets? lookTargets = null)
         {
             if (text.Length == 0)
             {
@@ -126,6 +126,7 @@ namespace BetterLetters
                 text: text,
                 def: def
             );
+            letter.lookTargets = lookTargets;
             Find.Archive.Add(letter);
             letter.AddReminder(durationTicks, isPinned);
         }
