@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using BetterLetters.Patches;
-using DarkLog;
+using BetterLetters.DarkLog;
 using RimWorld;
 using UnityEngine;
 using Verse;

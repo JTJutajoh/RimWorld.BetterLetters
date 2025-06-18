@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using DarkLog;
+using BetterLetters.DarkLog;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
-using DarkLog;
+using BetterLetters.DarkLog;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;

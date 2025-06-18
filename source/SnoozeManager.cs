@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using DarkLog;
+using BetterLetters.DarkLog;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;

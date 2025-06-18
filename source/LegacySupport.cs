@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿// ReSharper disable RedundantUsingDirective
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;

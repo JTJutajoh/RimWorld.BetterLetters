@@ -1,9 +1,7 @@
-﻿using System.CodeDom;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
-using RimWorld.Planet;
 using Verse;
 
 namespace BetterLetters.Patches
