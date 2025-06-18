@@ -68,7 +68,11 @@ public class Dialog_Reminder : Window
 
     private Thing? FindSelectedThing()
     {
-        //TODO: Add setting to disable auto-selecting selected things for reminders
+        if (!Settings.AutoSelectThingForReminders)
+        {
+            return null;
+        }
+        
         if (Find.Selector.NumSelected == 0) return null;
         if (Find.Selector.SelectedPawns.Count > 0)
         {

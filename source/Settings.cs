@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 
@@ -14,24 +16,29 @@ internal class Settings : ModSettings
         Alt = 2
     }
 
-    // ReSharper disable RedundantDefaultMemberInitializer
-    internal static PinTextureMode PinTexture = PinTextureMode.Alt;
+    private class SettingAttribute : Attribute
+    {
+    }
 
-    internal static bool DisableRightClickPinnedLetters = false;
-    internal static bool DisableBounceIfPinned = true;
-    internal static bool DisableBounceAlways = false;
-    internal static bool DisableFlashIfPinned = true;
-    internal static bool DisableFlashAlways = false;
-    internal static int TextureInDialogSize = 56;
-    internal static int MaxNumSnoozes = 15;
-    internal static float MaxSnoozeDuration = 60f;
-    internal static bool SnoozePinned = true;
-    internal static bool DismissedQuestsDismissLetters = true;
-    internal static bool KeepQuestLettersOnStack = true;
-    internal static bool DoCreateReminderPlaySetting = true;
+    // ReSharper disable RedundantDefaultMemberInitializer
+    [Setting] internal static PinTextureMode PinTexture = PinTextureMode.Alt;
+
+    [Setting] internal static bool DisableRightClickPinnedLetters = false;
+    [Setting] internal static bool DisableBounceIfPinned = true;
+    [Setting] internal static bool DisableBounceAlways = false;
+    [Setting] internal static bool DisableFlashIfPinned = true;
+    [Setting] internal static bool DisableFlashAlways = false;
+    [Setting] internal static int TextureInDialogSize = 56;
+    [Setting] internal static int MaxNumSnoozes = 15;
+    [Setting] internal static float MaxSnoozeDuration = 60f;
+    [Setting] internal static bool SnoozePinned = true;
+    [Setting] internal static bool DismissedQuestsDismissLetters = true;
+    [Setting] internal static bool KeepQuestLettersOnStack = true;
+    [Setting] internal static bool DoCreateReminderPlaySetting = true;
+    [Setting] internal static bool AutoSelectThingForReminders = true;
     // ReSharper restore RedundantDefaultMemberInitializer
 
-    private static readonly Dictionary<string, object>? _defaultSettings;
+    private static Dictionary<string, object> _defaultSettings = new();
 
     // GUI Stuff
     private enum SettingsTab
@@ -41,12 +48,14 @@ internal class Settings : ModSettings
         Snoozing,
         Reminders
     }
+
     private SettingsTab _currentTab = SettingsTab.Main;
     private const float TabHeight = 32f;
 
     public Settings() : base()
     {
-        
+        HarvestSettingsDefaults(out _defaultSettings);
+        Log.Trace("Default settings loaded");
     }
 
     private void HarvestSettingsDefaults(out Dictionary<string, object> settings, Type? owningType = null)
@@ -54,21 +63,57 @@ internal class Settings : ModSettings
         settings = new Dictionary<string, object>();
         if (owningType is null) owningType = GetType();
 
-        Log.Trace($"Harvesting settings for type '{owningType.FullName}'");
-        foreach (var field in owningType.GetFields())
+        var fields = AccessTools.GetDeclaredFields(owningType);
+        Log.Trace($"Harvesting {fields.Count} settings for type '{owningType.FullName}'");
+        foreach (var field in fields)
         {
-            
+            if (!field.IsStatic) continue;
+            var fieldAttr = field.GetCustomAttributes(typeof(SettingAttribute), false);
+            if (fieldAttr.Length == 0) continue;
+            settings[field.Name] = field.GetValue(this);
+            Log.Trace($"Harvested Setting: '{field.Name}' Default: {settings[field.Name]}");
         }
     }
-    
+
+    private static string GetLabel(string key, bool showValue = false)
+    {
+        if (showValue)
+        {
+            var value = AccessTools.Field(typeof(Settings), key).GetValue(null).ToString();
+            return $"BetterLetters_Settings_{key}".Translate(value);
+        }
+        else
+        {
+            return $"BetterLetters_Settings_{key}".Translate();
+        }
+    }
+
+    private static string GetTooltip(string key)
+    {
+        var str = "";
+
+        str = $"BetterLetters_Settings_{key}_Desc".Translate();
+
+        if (_defaultSettings.TryGetValue(key, out var setting))
+        {
+            str += $"BetterLetters_Settings_DefaultSuffix".Translate(setting.ToString());
+        }
+
+        return str;
+    }
+
     internal void DoWindowContents(Rect inRect)
     {
         var tabs = new List<TabRecord>
         {
-            new TabRecord("BetterLetters_Settings_Tab_Main".Translate(), () => _currentTab = SettingsTab.Main, () => _currentTab == SettingsTab.Main),
-            new TabRecord("BetterLetters_Settings_Tab_Pinning".Translate(), () => _currentTab = SettingsTab.Pinning, () => _currentTab == SettingsTab.Pinning),
-            new TabRecord("BetterLetters_Settings_Tab_Snoozing".Translate(), () => _currentTab = SettingsTab.Snoozing, () => _currentTab == SettingsTab.Snoozing),
-            new TabRecord("BetterLetters_Settings_Tab_Reminders".Translate(), () => _currentTab = SettingsTab.Reminders, () => _currentTab == SettingsTab.Reminders),
+            new TabRecord("BetterLetters_Settings_Tab_Main".Translate(), () => _currentTab = SettingsTab.Main,
+                () => _currentTab == SettingsTab.Main),
+            new TabRecord("BetterLetters_Settings_Tab_Pinning".Translate(), () => _currentTab = SettingsTab.Pinning,
+                () => _currentTab == SettingsTab.Pinning),
+            new TabRecord("BetterLetters_Settings_Tab_Snoozing".Translate(), () => _currentTab = SettingsTab.Snoozing,
+                () => _currentTab == SettingsTab.Snoozing),
+            new TabRecord("BetterLetters_Settings_Tab_Reminders".Translate(), () => _currentTab = SettingsTab.Reminders,
+                () => _currentTab == SettingsTab.Reminders),
         };
 #if v1_5 || v1_6
         TabDrawer.DrawTabsOverflow(inRect.TopPartPixels(TabHeight), tabs, 80f, 200f);
@@ -76,7 +121,7 @@ internal class Settings : ModSettings
         TabDrawer.DrawTabs(inRect.TopPartPixels(TabHeight), tabs, 200f);
 #endif
         Widgets.DrawLineHorizontal(inRect.xMin, inRect.yMin + TabHeight, inRect.width);
-        
+
         var tabRect = inRect.BottomPartPixels(inRect.height - TabHeight - 32f);
         switch (_currentTab)
         {
@@ -90,6 +135,7 @@ internal class Settings : ModSettings
                     Log.Exception(e, "Error drawing main settings tab.", true);
                     _currentTab = SettingsTab.Pinning;
                 }
+
                 break;
             case SettingsTab.Pinning:
                 try
@@ -101,6 +147,7 @@ internal class Settings : ModSettings
                     Log.Exception(e, "Error drawing pin settings tab.", true);
                     _currentTab = SettingsTab.Main;
                 }
+
                 break;
             case SettingsTab.Reminders:
                 try
@@ -112,6 +159,7 @@ internal class Settings : ModSettings
                     Log.Exception(e, "Error drawing reminders settings tab.", true);
                     _currentTab = SettingsTab.Main;
                 }
+
                 break;
             case SettingsTab.Snoozing:
                 try
@@ -123,6 +171,7 @@ internal class Settings : ModSettings
                     Log.Exception(e, "Error drawing snooze settings tab.", true);
                     _currentTab = SettingsTab.Main;
                 }
+
                 break;
             default:
                 _currentTab = SettingsTab.Main;
@@ -133,38 +182,36 @@ internal class Settings : ModSettings
     private static void DoTabMain(Rect inRect)
     {
         var listingStandard = new Listing_Standard();
-        listingStandard.Begin(inRect);
-        
-        listingStandard.CheckboxLabeled("BetterLetters_Settings_DismissedQuestsDismissLetters".Translate(),
-            ref DismissedQuestsDismissLetters,
-            "BetterLetters_Settings_DismissedQuestsDismissLetters_Desc".Translate());
-        
-        listingStandard.CheckboxLabeled("BetterLetters_Settings_KeepQuestLettersOnStack".Translate(),
-            ref KeepQuestLettersOnStack,
-            "BetterLetters_Settings_KeepQuestLettersOnStack_Desc".Translate());
-        
-        listingStandard.Gap();
-        
-        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableBounceAlways".Translate(),
-            ref DisableBounceAlways,
-            "BetterLetters_Settings_DisableBounceAlways_Desc".Translate());
+        listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
+
+        listingStandard.CheckboxLabeled(GetLabel("DismissedQuestsDismissLetters"), ref DismissedQuestsDismissLetters,
+            GetTooltip("DismissedQuestsDismissLetters"), 36f, 0.90f);
+
+        listingStandard.CheckboxLabeled(GetLabel("KeepQuestLettersOnStack"), ref KeepQuestLettersOnStack,
+            GetTooltip("KeepQuestLettersOnStack"), 36f, 0.90f);
+
+        listingStandard.Gap(20f);
+
+        listingStandard.CheckboxLabeled(GetLabel("DisableBounceAlways"), ref DisableBounceAlways,
+            GetTooltip("DisableBounceAlways"), 36f, 0.90f);
         if (!DisableBounceAlways)
         {
-            listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableBounceIfPinned".Translate(),
-                ref DisableBounceIfPinned,
-                "BetterLetters_Settings_DisableBounceIfPinned_Desc".Translate());
+            listingStandard.Indent();
+            listingStandard.CheckboxLabeled(GetLabel("DisableBounceIfPinned"), ref DisableBounceIfPinned,
+                GetTooltip("DisableBounceIfPinned"), 28f, 0.87f);
+            listingStandard.Outdent();
         }
-        
+
         listingStandard.Gap(4f);
-        
-        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashAlways".Translate(),
-            ref DisableFlashAlways,
-            "BetterLetters_Settings_DisableFlashAlways_Desc".Translate());
+
+        listingStandard.CheckboxLabeled(GetLabel("DisableFlashAlways"), ref DisableFlashAlways,
+            GetTooltip("DisableFlashAlways"), 36f, 0.90f);
         if (!DisableFlashAlways)
         {
-            listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashIfPinned".Translate(),
-                ref DisableFlashIfPinned,
-                "BetterLetters_Settings_DisableFlashIfPinned_Desc".Translate());
+            listingStandard.Indent();
+            listingStandard.CheckboxLabeled(GetLabel("DisableFlashIfPinned"), ref DisableFlashIfPinned,
+                GetTooltip("DisableFlashIfPinned"), 28f,0.87f);
+            listingStandard.Outdent();
         }
 
         listingStandard.End();
@@ -173,19 +220,19 @@ internal class Settings : ModSettings
     private static void DoTabPinning(Rect inRect)
     {
         var listingStandard = new Listing_Standard();
-        listingStandard.Begin(inRect);
+        listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
         
-        listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableRightClickPinnedLetters".Translate(),
-            ref DisableRightClickPinnedLetters,
-            "BetterLetters_Settings_DisableRightClickPinnedLetters_Desc".Translate());
+        listingStandard.Indent(inRect.width * 0.1f);
+
+        listingStandard.CheckboxLabeled(GetLabel("DisableRightClickPinnedLetters"), ref DisableRightClickPinnedLetters,
+            GetTooltip("DisableRightClickPinnedLetters"), 36f);;
 
         listingStandard.Gap(8f);
-        
+
         if (PinTexture != PinTextureMode.Disabled)
         {
-            var labelRect = listingStandard.Label(
-                "BetterLetters_Settings_TextureInDialogSize".Translate(TextureInDialogSize),
-                tooltip: "BetterLetters_Settings_TextureInDialogSize_Desc".Translate(32));
+            var labelRect = listingStandard.Label(GetLabel("TextureInDialogSize", true),
+                tooltip: GetTooltip("TextureInDialogSize"));
             listingStandard.IntAdjuster(ref TextureInDialogSize, 8, 16);
 
             Texture2D? pinTex = null;
@@ -200,49 +247,49 @@ internal class Settings : ModSettings
 
             if (pinTex is not null)
             {
-                var pinTexRect = new Rect(inRect.xMin + 96f + (TextureInDialogSize / 2f), labelRect.y + 24f,
+                var pinTexRectRow = listingStandard.GetRect(TextureInDialogSize,0.75f);
+                var pinTexRect = new Rect(pinTexRectRow.xMin + 96f + (TextureInDialogSize / 2f), labelRect.y + 24f,
                     TextureInDialogSize, TextureInDialogSize);
                 GUI.DrawTexture(pinTexRect, pinTex);
-                listingStandard.Gap(Mathf.Max(12f, TextureInDialogSize - 24f));
             }
         }
-        
-        listingStandard.Label("BetterLetters_Settings_PinTexture".Translate());
+
+        listingStandard.Label(GetLabel("PinTexture"));
         if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Disabled".Translate(),
-                PinTexture == PinTextureMode.Disabled))
+                PinTexture == PinTextureMode.Disabled, 0f, 200f, null, null, false))
         {
             PinTexture = PinTextureMode.Disabled;
         }
         else if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Round".Translate(),
-                     PinTexture == PinTextureMode.Round))
+                     PinTexture == PinTextureMode.Round, 0f, 200f, null, null, false))
         {
             PinTexture = PinTextureMode.Round;
         }
         else if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Alt".Translate(),
-                     PinTexture == PinTextureMode.Alt))
+                     PinTexture == PinTextureMode.Alt, 0f, 200f, null, null, false))
         {
             PinTexture = PinTextureMode.Alt;
         }
-        
+
         listingStandard.End();
     }
 
     private static void DoTabSnoozing(Rect inRect)
     {
         var listingStandard = new Listing_Standard();
-        listingStandard.Begin(inRect);
-        
+        listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
+
         MaxNumSnoozes = (int)listingStandard.SliderLabeled(
-            "BetterLetters_Settings_MaxNumSnoozes".Translate(MaxNumSnoozes),
-            MaxNumSnoozes, 1, 100, 0.5f, "BetterLetters_Settings_MaxNumSnoozes_Desc".Translate(15));
+            GetLabel("MaxNumSnoozes", true),
+            MaxNumSnoozes, 1, 200, 0.4f, GetTooltip("MaxNumSnoozes"));
 
         MaxSnoozeDuration = listingStandard.SliderLabeled(
-            "BetterLetters_Settings_MaxSnoozeDuration".Translate(Dialog_Snooze.SliderMaxLabel),
-            Mathf.RoundToInt(MaxSnoozeDuration), 1, 300, 0.5f,
-            "BetterLetters_Settings_MaxSnoozeDuration_Desc".Translate(0));
+            GetLabel("MaxSnoozeDuration", true),
+            Mathf.RoundToInt(MaxSnoozeDuration), 1, 300, 0.4f,
+            GetTooltip("MaxSnoozeDuration"));
 
-        listingStandard.CheckboxLabeled("BetterLetters_Settings_SnoozePinned".Translate(), ref SnoozePinned,
-            "BetterLetters_Settings_SnoozePinned_Desc".Translate());
+        listingStandard.CheckboxLabeled(GetLabel("SnoozePinned"), ref SnoozePinned,
+            GetTooltip("SnoozePinned"), 28f,0.9f);
 
         if (SnoozeManager.Instance is not null)
         {
@@ -256,9 +303,13 @@ internal class Settings : ModSettings
     private static void DoTabReminders(Rect inRect)
     {
         var listingStandard = new Listing_Standard();
-        listingStandard.Begin(inRect);
+        listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
 
-        listingStandard.CheckboxLabeled("BetterLetters_Settings_DoCreateReminderPlaySetting".Translate(), ref DoCreateReminderPlaySetting, "BetterLetters_Settings_DoCreateReminderPlaySetting_Desc".Translate());
+        listingStandard.CheckboxLabeled(GetLabel("DoCreateReminderPlaySetting"),
+            ref DoCreateReminderPlaySetting, GetTooltip("DoCreateReminderPlaySetting"), 32f,0.9f);
+        
+        listingStandard.CheckboxLabeled(GetLabel("AutoSelectThingForReminders"),
+            ref AutoSelectThingForReminders, GetTooltip("AutoSelectThingForReminders"), 32f,0.9f);
 
         listingStandard.End();
     }
@@ -293,11 +344,13 @@ internal class Settings : ModSettings
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.5f));
             var buttonRemoveText = "BetterLetters_Settings_Unsnooze".Translate();
             var buttonFireText = "BetterLetters_Settings_Fire".Translate();
-            var buttonsRect = rect.RightPartPixels(Text.CalcSize(buttonRemoveText).x + Text.CalcSize(buttonFireText).x + 64f);
+            var buttonsRect =
+                rect.RightPartPixels(Text.CalcSize(buttonRemoveText).x + Text.CalcSize(buttonFireText).x + 64f);
             if (Widgets.ButtonTextSubtle(buttonsRect.RightHalf(), buttonRemoveText))
             {
                 snoozeToRemove = snooze.Key;
             }
+
             if (snooze.Key is not null && Widgets.ButtonTextSubtle(buttonsRect.LeftHalf(), buttonFireText))
             {
                 snoozeToFire = snooze.Key;
@@ -309,13 +362,14 @@ internal class Settings : ModSettings
 #elif v1_1 || v1_2 || v1_3
             var label = $"{snooze.Key?.label} ({remainingTime})";
 #endif
-            Widgets.Label(rect.LeftPartPixels(rect.width - 64f), label);
+            Widgets.Label(rect.LeftPartPixels(rect.width - 64f).MiddlePart(0.9f, 1f), label);
         }
 
         if (snoozeToFire is not null)
         {
             Find.LetterStack.ReceiveLetter(SnoozeManager.Snoozes[snoozeToFire].Letter);
         }
+
         if (snoozeToRemove is not null)
         {
             SnoozeManager.RemoveSnooze(snoozeToRemove);
@@ -342,6 +396,7 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref DismissedQuestsDismissLetters, "DismissedQuestsDismissLetters", true);
         Scribe_Values.Look(ref KeepQuestLettersOnStack, "KeepQuestLettersOnStack", true);
         Scribe_Values.Look(ref DoCreateReminderPlaySetting, "DoCreateReminderPlaySetting", true);
+        Scribe_Values.Look(ref AutoSelectThingForReminders, "AutoSelectThingForReminders", true);
         // ReSharper restore RedundantArgumentDefaultValue
 
         base.ExposeData();
