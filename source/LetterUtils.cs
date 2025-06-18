@@ -65,7 +65,7 @@ namespace BetterLetters
             return SnoozeManager.Snoozes.ContainsKey(letter);
         }
 
-        public static void Pin(this Letter letter)
+        public static void Pin(this Letter letter, bool suppressSnoozeCanceledMessage = false)
         {
             if (!Find.Archive.Contains(letter))
             {
@@ -73,7 +73,7 @@ namespace BetterLetters
             }
 
             Find.Archive.Pin(letter);
-            SnoozeManager.RemoveSnooze(letter);
+            SnoozeManager.RemoveSnooze(letter, suppressSnoozeCanceledMessage);
             SortLetterStackByPinned();
             if (letter is ChoiceLetter { quest: not null } choiceLetter)
             {
@@ -112,10 +112,13 @@ namespace BetterLetters
         public static void AddReminder(this Letter letter, int durationTicks, bool isPinned = false)
         {
             SnoozeManager.AddSnooze(new SnoozeManager.Snooze(letter, durationTicks, isPinned,
-                SnoozeManager.SnoozeTypes.Reminder));
-            Messages.Message(new Message(
-                "BetterLetters_ReminderCreated".Translate(durationTicks.ToStringTicksToPeriod()),
-                MessageTypeDefOf.SilentInput));
+                SnoozeManager.SnoozeTypes.Reminder), suppressMessage: true);
+            if (durationTicks > 0)
+            {
+                Messages.Message(new Message(
+                    "BetterLetters_ReminderCreated".Translate(durationTicks.ToStringTicksToPeriod()),
+                    MessageTypeDefOf.SilentInput));
+            }
         }
 
         public static void AddReminder(string label, string text, LetterDef def, int durationTicks,

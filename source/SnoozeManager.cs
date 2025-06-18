@@ -109,7 +109,7 @@ public class SnoozeManager : WorldComponent
         {
             if (this._pinWhenFinished)
             {
-                this.Letter?.Pin();
+                this.Letter?.Pin(suppressSnoozeCanceledMessage: true);
             }
             else
             {
@@ -147,7 +147,7 @@ public class SnoozeManager : WorldComponent
     /// <param name="snooze">A snooze instance created externally. The `Letter` field on the snooze will be
     /// used as the key in the dictionary.</param>
     /// <returns>True if the snooze was successfully added (not a duplicate, Letter was not null, etc.)</returns>
-    public static bool AddSnooze(Snooze snooze)
+    public static bool AddSnooze(Snooze snooze, bool suppressMessage = false)
     {
         if (snooze.Letter is null)
         {
@@ -173,12 +173,15 @@ public class SnoozeManager : WorldComponent
         Snoozes.Add(snooze.Letter, snooze);
         snooze.Letter.Unpin();
         LogPrefixed.Trace("Added snooze for letter " + snooze.Letter.ToString());
-        Messages.Message(
-            "BetterLetters_SnoozeAdded".Translate(snooze.Duration.ToStringTicksToPeriod()),
-            LookTargets.Invalid,
-            MessageTypeDefOf.PositiveEvent,
-            historical: false
-        );
+        if (!suppressMessage && snooze.Duration > 0)
+        {
+            Messages.Message(
+                "BetterLetters_SnoozeAdded".Translate(snooze.Duration.ToStringTicksToPeriod()),
+                LookTargets.Invalid,
+                MessageTypeDefOf.PositiveEvent,
+                historical: false
+            );
+        }
         if (Find.LetterStack.LettersListForReading.Contains(snooze.Letter))
         {
             Find.LetterStack.RemoveLetter(snooze.Letter);
@@ -200,7 +203,7 @@ public class SnoozeManager : WorldComponent
         return Snoozes[letter];
     }
 
-    public static bool RemoveSnooze(Letter? letter)
+    public static bool RemoveSnooze(Letter? letter, bool suppressSnoozeCanceledMessage = false)
     {
         if (letter is null)
         {
@@ -214,12 +217,15 @@ public class SnoozeManager : WorldComponent
 #elif v1_1 || v1_2 || v1_3
             var label = letter?.label ?? "null";
 #endif
-            Messages.Message(
-                "BetterLetters_SnoozeRemoved".Translate(label),
-                LookTargets.Invalid,
-                MessageTypeDefOf.PositiveEvent,
-                historical: false
-            );
+            if (!suppressSnoozeCanceledMessage)
+            {
+                Messages.Message(
+                    "BetterLetters_SnoozeRemoved".Translate(label),
+                    LookTargets.Invalid,
+                    MessageTypeDefOf.PositiveEvent,
+                    historical: false
+                );
+            }
             return true;
         }
 

@@ -42,6 +42,7 @@ public class Dialog_Snooze : Window
 
     public static void DoSnoozeOptions(Rect inRect, Rect labelsRect, ref float durationDays)
     {
+        //TODO: Fix snooze options layout
         const float sliderWidthRatio = 0.6f;
         var sliderRect = inRect.MiddlePart(sliderWidthRatio, 0.8f);
         sliderRect = sliderRect.TopPartPixels(20f);
@@ -60,6 +61,7 @@ public class Dialog_Snooze : Window
         maxLabelRect.y += 16f;
         TooltipHandler.TipRegionByKey(maxLabelRect, "BetterLetters_MaxDurationTooltip", Settings.MaxSnoozeDuration);
 
+        //TODO: Redo inc/dec buttons
         const float buttonWidthRatio = (1f - sliderWidthRatio) / 2 - 0.03f;
         const float buttonHeightIncDec = 30f;
         if (Widgets.ButtonTextSubtle(

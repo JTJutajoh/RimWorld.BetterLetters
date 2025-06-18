@@ -1,34 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 using DarkLog;
 using HarmonyLib;
+using JetBrains.Annotations;
 using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace BetterLetters.Patches;
 
-public static class HistoryRemindersTabPatch
+[HarmonyPatch]
+[HarmonyPatchCategory("HistoryFiltersAndButtons")]
+[SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+internal static class Patch_HistoryTab_FilteringButtons
 {
-    private enum Tab
-    {
-        Messages,
-        Reminders
-    }
+    static bool showRemindersFilter = true;
+    static bool showSnoozesFilter = true;
 
-    private static readonly List<TabRecord> Tabs = new List<TabRecord>()
-    {
-        new("Messages".Translate(), () => { _curTab = Tab.Messages; }, () => _curTab == Tab.Messages),
-        new("BetterLetters_Reminders".Translate(), () => { _curTab = Tab.Reminders; }, () => _curTab == Tab.Reminders)
-    };
-
-    private static Tab _curTab = Tab.Messages;
-    private static bool showReminders = true;
-    private static bool showSnoozes = true;
-
-    private static void DoAdditionalButtons(Rect rect)
+    /// Patch that adds buttons to the messages tab to create a new reminder and to filter snoozes and reminders.
+    [HarmonyPatch(typeof(MainTabWindow_History), "DoMessagesPage")]
+    [HarmonyPrefix]
+    [UsedImplicitly]
+    static void AddButtonsToMessagesPage(ref Rect rect)
     {
         const float rowOffsetX = 400f;
         var rowRect = new Rect(rect.x + rowOffsetX, rect.y + 10f, rect.width - rowOffsetX - 14f, 30f);
@@ -42,25 +39,16 @@ public static class HistoryRemindersTabPatch
         {
             var reminderDialog = new Dialog_Reminder();
             Find.WindowStack.Add(reminderDialog);
-            // LetterUtils.AddReminder(
-            //     label: "Test reminder letter",
-            //     text: "This is a test label for custom reminders",
-            //     def: LetterDefOf.NeutralEvent,
-            //     durationTicks: Mathf.RoundToInt(GenDate.TicksPerHour / 2f)
-            // );
-
-            // Can we assign the lookTargets based on what the user has selected when they create it? that would be really useful
-            // letter.lookTargets
         }
 
+#if !(v1_1 || v1_2 || v1_3) // Only works on RimWorld 1.4+
         // Draw the checkboxes for filtering letters
-
         var checkboxesRect = rowRect.LeftPartPixels(rowRect.width - labelSize.x);
         
         Widgets.CheckboxLabeled(
             checkboxesRect.LeftHalf(),
             "BetterLetters_ShowSnoozes".Translate(),
-            ref showSnoozes,
+            ref showSnoozesFilter,
             false,
             null,
             null,
@@ -69,31 +57,28 @@ public static class HistoryRemindersTabPatch
         Widgets.CheckboxLabeled(
             checkboxesRect.RightHalf(),
             "BetterLetters_ShowReminders".Translate(),
-            ref showReminders,
+            ref showRemindersFilter,
             false,
             null,
             null,
             true
         );
+#endif
     }
 
-    /// <summary>
-    /// Simple prefix patch 
-    /// </summary>
-    // Resharper disable once InconsistentNaming
-    internal static void DoMessagesPage_Prefix(ref Rect rect)
-        // Resharper restore InconsistentNaming
-    {
-        DoAdditionalButtons(rect);
-    }
-
+#if !(v1_1 || v1_2 || v1_3) // Only works on RimWorld 1.4+
     private static readonly FieldInfo? ShowLettersAnchor =
         typeof(MainTabWindow_History).GetField("showLetters", AccessTools.all);
 
     private static readonly FieldInfo? ShowMessagesAnchor =
         typeof(MainTabWindow_History).GetField("showMessages", AccessTools.all);
 
-    internal static IEnumerable<CodeInstruction> DoMessagesPage_Transpiler(IEnumerable<CodeInstruction> instructions,
+    /// Transpiler that modifies the vanilla condition that checks if an archivable row should be drawn or not
+    /// to include the snooze and reminder filters.
+    [HarmonyPatch(typeof(MainTabWindow_History), "DoMessagesPage")]
+    [HarmonyTranspiler]
+    [UsedImplicitly]
+    static IEnumerable<CodeInstruction> FilterSnoozesAndReminders(IEnumerable<CodeInstruction> instructions,
         ILGenerator generator)
     {
         var codes = new List<CodeInstruction>(instructions);
@@ -166,12 +151,12 @@ public static class HistoryRemindersTabPatch
                     {
                         if (letter.IsSnoozed(true))
                         {
-                            return !showSnoozes;
+                            return !showSnoozesFilter;
                         }
 
                         if (letter.IsReminder())
                         {
-                            return !showReminders;
+                            return !showRemindersFilter;
                         }
 
                         return !showLetters;
@@ -192,9 +177,5 @@ public static class HistoryRemindersTabPatch
             yield return codes[i];
         }
     }
-
-    private static void DoRemindersPage(Rect rect)
-    {
-        Widgets.Label(rect.MiddlePart(0.5f, 0.5f), "Reminders would go here");
-    }
+#endif
 }

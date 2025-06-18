@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
-using BetterLetters.Patches;
 using DarkLog;
 using Verse;
-using RimWorld;
 using HarmonyLib;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BetterLetters
 {
-    class BetterLettersMod : Verse.Mod
+    [UsedImplicitly]
+    internal class BetterLettersMod : Mod
     {
         public static BetterLettersMod? Instance { get; private set; }
 
@@ -45,7 +41,9 @@ namespace BetterLetters
     }
 
     [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Method)]
-    public class ReloadableAttribute : Attribute { }
+    public class ReloadableAttribute : Attribute
+    {
+    }
 
     [StaticConstructorOnStartup]
     internal static class LoadHarmony
@@ -77,253 +75,80 @@ namespace BetterLetters
         }
 
         /// <summary>
-        /// Contains all of the patches that should be run no matter what, regardless of what other mods are loaded
+        /// Contains all the patches that should be run no matter what, regardless of what other mods are loaded
         /// </summary>
         private static void Patch_Vanilla()
         {
-            // The type that the target method belongs to
-            var type = typeof(Verse.ChoiceLetter);
-            // The class that the patches belong to
-            var patchClass = typeof(RemoveLetterPatches);
-
-            PostfixGetter(type, patchClass, "Option_Close");
-            PostfixGetter(type, patchClass, "Option_JumpToLocation");
-            PrefixMethod(type, patchClass, "Option_ViewInQuestsTab");
-
-            type = typeof(Verse.DeathLetter);
-            PostfixGetter(type, patchClass, "Option_ReadMore");
-
-            // Patch new quest letters which don't show a dialog
-            patchClass = typeof(NewQuestLetterOpenPatch);
-            type = typeof(Verse.NewQuestLetter);
-            TranspileMethod(type, patchClass, "OpenLetter");
-
-            // Patch to track the current Letter since the Dialog doesn't know what Letter it is displaying info for (if any)
-            patchClass = typeof(OpenLetterPatch);
-            TranspileMethod(typeof(Verse.ChoiceLetter), patchClass, "OpenLetter");
-            TranspileMethod(typeof(Verse.DeathLetter), patchClass, "OpenLetter");
-
-            // Patch to clear any old letter reference when a dialog is opened
-            patchClass = typeof(Dialog_NodeTreeConstructor);
-            type = typeof(Dialog_NodeTree);
-            LogPrefixed.Trace("Manually patching Dialog_NodeTree Constructor");
-            Harmony.Patch(
-                type.GetConstructor(new Type[] { typeof(DiaNode), typeof(bool), typeof(bool), typeof(string) }),
-                postfix: GetPatch(patchClass, "ConstructorPostfix")
-            );
-
-            // Patch Archive to add newly pinned letters back to the LetterStack
-            patchClass = typeof(ArchivePinPatch);
-            type = typeof(RimWorld.Archive);
-            PostfixMethod(type, patchClass, "Pin");
-
-            // Patch Letter buttons to draw the pin button and alter right-click behavior
-            patchClass = typeof(LetterCanDismissWithRightClickPatch);
-            type = typeof(Letter);
-            PostfixGetter(type, patchClass, "CanDismissWithRightClick");
-
-            patchClass = typeof(LetterDrawingPatches);
-            type = typeof(Letter);
-            TranspileMethod(type, patchClass, "CheckForMouseOverTextAt");
-            // Patching this one manually since we have multiple patches on the same method
-            LogPrefixed.Trace("Manually patching DrawButtonAt");
-            Harmony.Patch(
-                type.GetMethod("DrawButtonAt", AccessTools.all),
-                postfix: GetPatch(patchClass, "DrawButtonAt_Postfix"),
-                transpiler: GetPatch(patchClass, "DrawButtonAt_Transpiler")
-            );
-
-            // Patch letters to not allow culling if they are snoozed
-            patchClass = typeof(LetterCanCullArchivedNowPatch);
-            type = typeof(Letter);
-            PostfixGetter(type, patchClass, "CanCullArchivedNow", interfaceType: typeof(IArchivable));
+            PatchCategory("Letter_RemoveLetter_KeepOnStack");
+            PatchCategory("Letter_RemoveLetter_KeepOnStack_QuestLetters", Settings.KeepQuestLettersOnStack);
+            PatchCategory("Letter_OpenLetter_AddDiaOptions");
+            PatchCategory("Dialog_AddIcons");
+            PatchCategory("ArchivePin_AddBackToStack");
+            PatchCategory("Letter_CanDismissWithRightClick_BlockIfPinned");
+            Harmony.DEBUG = true;
+            PatchCategory("Letter_DrawButton_Pinned");
+            Harmony.DEBUG = false;
+            PatchCategory("Letter_CanCull_KeepSnoozes");
 
 #if !(v1_1 || v1_2 || v1_3)
-            // Patch the History window to show snoozed icon for snoozed letters
-            patchClass = typeof(HistoryDoArchivableRowPatch);
-            type = typeof(MainTabWindow_History);
-            TranspileMethod(type, patchClass, "DoArchivableRow");
+            PatchCategory("HistoryArchivableRow");
 #else
             LogPrefixed.Warning("MainTabWindow_History.DoArchivableRow patch skipped, requires RimWorld 1.4+. Message History tab will not display snooze/reminder buttons in rows.");
 #endif
-            
-            // Patches to add the reminders menu
-            patchClass = typeof(HistoryRemindersTabPatch);
-            type = typeof(MainTabWindow_History);
-            // Patching this one manually since we have multiple patches on the same method
-            LogPrefixed.Trace("Manually patching DoMessagesPage");
-            Harmony.Patch(
-                type.GetMethod("DoMessagesPage", AccessTools.all),
-                prefix: new HarmonyMethod(HistoryRemindersTabPatch.DoMessagesPage_Prefix),
-#if !(v1_1 || v1_2 || v1_3)
-                transpiler: new HarmonyMethod(HistoryRemindersTabPatch.DoMessagesPage_Transpiler)
-            );
-#else
-                transpiler: null // Transpiler just doesn't work in 1.3 or older and I don't feel like fixing it so just disable the feature
-            );
-            LogPrefixed.Warning("Message History filtering checkboxes will not work. Only available in RimWorld 1.4+.");
-#endif
-
-            // Patch Dialog_NodeTree to add pin texture
-            patchClass = typeof(DialogDrawNodePatch);
-            type = typeof(Dialog_NodeTree);
-            PostfixMethod(typeof(Dialog_NodeTree), patchClass, "DoWindowContents");
-            
-            // Patches to the quest tab
-            patchClass = typeof(QuestsTabPatches);
-            type = typeof(MainTabWindow_Quests);
+            PatchCategory("HistoryFiltersAndButtons");
 #if !(v1_1 || v1_2)
-            TranspileMethod(type, patchClass, "DoSelectedQuestInfo");
-            PrefixMethod(type, patchClass, "DoCharityIcon");
+            PatchCategory("QuestsTab_Buttons");
 #else
             LogPrefixed.Warning("Pin/Snooze buttons on Quests tab are only available in RimWorld 1.3+");
 #endif
-            TranspileMethod(type, patchClass, "DoDismissButton");
-
-            // Patch to sort pinned letters always on the bottom
-            patchClass = typeof(LetterStackReceiveLetterPatch);
-            type = typeof(LetterStack);
-
-#if v1_1 || v1_2 || v1_3 || v1_4
-            Harmony.Patch(
-                type.GetMethod("ReceiveLetter", new [] {typeof(Letter), typeof(string)}),
-                postfix: GetPatch(patchClass, "ReceiveLetter")
-                );
-#elif v1_5 || v1_6
-            Harmony.Patch(
-                type.GetMethod("ReceiveLetter", new[] { typeof(Letter), typeof(string), typeof(int), typeof(bool) }),
-                postfix: GetPatch(patchClass, "ReceiveLetter")
-            );
-#endif
-            // Patch to add a button in the bottom right corner to create a reminder
-            patchClass = typeof(PlaySettingsGlobalControlCreateReminderPatch);
-            type = typeof(PlaySettings);
-            PostfixMethod(type, patchClass, "DoPlaySettingsGlobalControls");
+            PatchCategory("LetterStack_SortPinned");
+            PatchCategory("PlaySettings_CreateReminderButton");
 
             //TODO: Patch to remove/change quest letters upon expiry/completion
-        }
 
-        private static MethodInfo? GetGetter(Type t, string propName)
-        {
-            try
-            {
-                LogPrefixed.Trace($"Patching {propName} property getter");
-                return t.GetProperty(propName, AccessTools.all)?.GetGetMethod(true) ?? null;
-            }
-            catch (Exception e)
-            {
-                LogPrefixed.Error($"Error getting getter for property: {t.Name}.{propName}");
-                throw;
-            }
-        }
-
-        private static MethodInfo? GetGetter(Type implementingType, Type interfaceType, string propName)
-        {
-            try
-            {
-                LogPrefixed.Trace($"Patching interface property {propName} getter");
-                var interfaceProp = interfaceType.GetProperty(propName, AccessTools.all);
-                if (interfaceProp == null)
-                    return null;
-
-                var map = implementingType.GetInterfaceMap(interfaceType);
-                var interfaceMethod = interfaceProp.GetGetMethod(true);
-
-                var index = Array.IndexOf(map.InterfaceMethods, interfaceMethod);
-                return index != -1 ? map.TargetMethods[index] : null;
-            }
-            catch (Exception e)
-            {
-                LogPrefixed.Error($"Error getting interface getter for property: {implementingType.Name}.{propName}");
-                throw;
-            }
-        }
-
-        private static HarmonyMethod GetPatch(Type t, string methodName)
-        {
-            try
-            {
-                LogPrefixed.Trace($"Patching {methodName} method");
-                var method = t.GetMethod(methodName, AccessTools.all);
-                var harmonyMethod = new HarmonyMethod(method);
-                return harmonyMethod;
-            }
-            catch (Exception e)
-            {
-                LogPrefixed.Error($"Error getting patch method: {t.Name}.{methodName}");
-                throw;
-            }
+            //TODO: FEATURE to change severity of individual letters
+            //TODO: FEATURE custom reminder-specific LetterDef
+            //TODO: FEATURE alert that shows number of snoozes
         }
 
         /// <summary>
-        /// Automatically gets the appropriate methods and applies a postfix patch to a property getter
+        /// Wrapper for <see cref="Harmony"/>.<see cref="Harmony.PatchCategory(string)"/> that logs any errors that occur and
+        /// skips patches that are disabled in the mod's configs.
         /// </summary>
-        /// <param name="t">The type to patch the property of</param>
-        /// <param name="patchClass">A class containing patches with matching names to the desired properties</param>
-        /// <param name="propName">The property to patch. Must match the method name in the patchClass.</param>
-        private static void PostfixGetter(Type t, Type patchClass, string propName, Type? interfaceType = null)
+        /// <param name="category">Name of the category to pass to <see cref="Harmony"/>.<see cref="Harmony.PatchCategory(string)"/></param>
+        /// <param name="condition">Optional condition that must be true or the patch will be skipped.<br />
+        /// Used for conditionally skipping patches based on mod configs.</param>
+        private static void PatchCategory(string category, bool condition = true)
         {
+            if (!condition) //TODO: Come up with a way to conditionally RE-patch categories if they're enabled in settings without requiring a restart
+            {
+                LogPrefixed.Message($"Patch \"{category}\" skipped, disabled in mod config.");
+                return;
+            }
+
             try
             {
-                var original = interfaceType is null ? GetGetter(t, propName) : GetGetter(t, interfaceType, propName);
-                var patch = GetPatch(patchClass, propName);
-                Harmony.Patch(original, postfix: patch);
+                LogPrefixed.Trace($"Patching category \"{category}\"...");
+                Harmony.PatchCategory(category);
             }
             catch (Exception e)
             {
-                LogPrefixed.Error($"Error patching property getter: {t.Name}.{propName}");
-                throw;
+                LogPrefixed.Exception(e, $"Error patching category {category}");
             }
         }
-
-        private static void PrefixMethod(Type t, Type patchClass, string methodName)
+        
+        /// <summary>
+        /// Helper method to get the method info of an interface property for patching
+        /// </summary>
+        public static MethodBase? GetInterfaceProperty(this Type type, Type interfaceType, string propName)
         {
-            try
-            {
-                Harmony.Patch(
-                    t.GetMethod(methodName, AccessTools.all),
-                    prefix: GetPatch(patchClass, methodName)
-                );
-            }
-            catch (Exception e)
-            {
-                LogPrefixed.Error($"Error patching method: {t.Name}.{methodName}");
-                throw;
-            }
-        }
+            var interfaceProp = interfaceType.GetProperty(propName, AccessTools.all);
+            var map = type.GetInterfaceMap(interfaceType);
+            var interfaceMethod = interfaceProp?.GetGetMethod(true);
+        
+            var index = Array.IndexOf(map.InterfaceMethods, interfaceMethod);
 
-        private static void PostfixMethod(Type t, Type patchClass, string methodName)
-        {
-            try
-            {
-                Harmony.Patch(
-                    t.GetMethod(methodName, AccessTools.all),
-                    postfix: GetPatch(patchClass, methodName)
-                );
-            }
-            catch (Exception e)
-            {
-                LogPrefixed.Error($"Error patching method: {t.Name}.{methodName}");
-                throw;
-            }
-        }
-
-        private static void TranspileMethod(Type t, Type patchClass, string methodName)
-        {
-            try
-            {
-                var originalMethod = t.GetMethod(methodName, AccessTools.all);
-                var transpilerMethod = GetPatch(patchClass, methodName);
-                Harmony.Patch(
-                    originalMethod,
-                    transpiler: transpilerMethod
-                );
-            }
-            catch (Exception e)
-            {
-                LogPrefixed.Error($"Error transpiling method: {t.Name}.{methodName}");
-                throw;
-            }
+            return index != -1 ? map.TargetMethods[index] : null;
         }
     }
 }

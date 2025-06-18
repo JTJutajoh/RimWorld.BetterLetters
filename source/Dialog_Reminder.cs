@@ -70,6 +70,7 @@ public class Dialog_Reminder : Window
 
     private Thing? FindSelectedThing()
     {
+        //TODO: Add setting to disable auto-selecting selected things for reminders
         if (Find.Selector.NumSelected == 0) return null;
         if (Find.Selector.SelectedPawns.Count > 0)
         {
@@ -196,6 +197,7 @@ public class Dialog_Reminder : Window
 
     private void DoJumpToSelector(Rect inRect)
     {
+        //TODO: Improve appearance/placement of the thing selector
         var thingRect = new Rect(inRect.xMin, inRect.yMin + 4f, inRect.width, 32f);
         var label = "BetterLetters_JumpToColon".Translate();
         var labelRect = thingRect.LeftPartPixels(Text.CalcSize(label).x);
@@ -257,7 +259,6 @@ public class Dialog_Reminder : Window
             SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
             Event.current.Use();
         }
-        //TODO: Checkbox to cancel reminder if thing is invalid?
     }
 
     private static void DoSelectThing()

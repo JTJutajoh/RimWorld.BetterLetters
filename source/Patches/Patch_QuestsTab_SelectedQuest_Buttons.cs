@@ -1,9 +1,12 @@
-﻿using System;
+﻿#if !(v1_1 || v1_2) // This patch only works on RimWorld 1.3+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 using DarkLog;
 using HarmonyLib;
+using JetBrains.Annotations;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -11,15 +14,26 @@ using Verse.Sound;
 
 namespace BetterLetters.Patches;
 
-public class QuestsTabPatches
+/// <summary>
+/// Modifies the behavior of the Quests tab and quests' associated letters.<br />
+/// Primarily adds buttons next to the vanilla Dismiss button<br />
+/// Also Changes the behavior of quest letters on the stack when the Dismiss button is clicked. 
+/// </summary>
+[HarmonyPatch]
+[HarmonyPatchCategory("QuestsTab_Buttons")]
+[SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+internal static class Patch_QuestsTab_SelectedQuest_Buttons
 {
     private static readonly FieldInfo? SelectedFieldInfo =
         typeof(MainTabWindow_Quests).GetField("selected", AccessTools.all);
-    
     private static readonly MethodInfo? DoCharityIconMethodAnchor =
         typeof(MainTabWindow_Quests).GetMethod("DoCharityIcon", AccessTools.all);
 
-    public static IEnumerable<CodeInstruction> DoSelectedQuestInfo(IEnumerable<CodeInstruction> instructions)
+    [HarmonyPatch(typeof(MainTabWindow_Quests), "DoSelectedQuestInfo")]
+    [HarmonyTranspiler]
+    [UsedImplicitly]
+    static IEnumerable<CodeInstruction> DoSelectedQuestInfo(IEnumerable<CodeInstruction> instructions)
     {
         if (DoCharityIconMethodAnchor is null)
         {
@@ -28,6 +42,7 @@ public class QuestsTabPatches
 
         var codes = new List<CodeInstruction>(instructions);
 
+        // ReSharper disable once ForCanBeConvertedToForeach
         for (int i = 0; i < codes.Count; i++)
         {
             
@@ -43,7 +58,7 @@ public class QuestsTabPatches
                 // Load the currently selected quest from a field
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return new CodeInstruction(OpCodes.Ldfld, SelectedFieldInfo);
-                yield return CodeInstruction.Call(typeof(QuestsTabPatches), nameof(DoPinButton));
+                yield return CodeInstruction.Call(typeof(Patch_QuestsTab_SelectedQuest_Buttons), nameof(DoPinButton));
 
                 // PATCH 2:
                 // Snooze button
@@ -52,7 +67,7 @@ public class QuestsTabPatches
                 // Load the currently selected quest from a field
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return new CodeInstruction(OpCodes.Ldfld, SelectedFieldInfo);
-                yield return CodeInstruction.Call(typeof(QuestsTabPatches), nameof(DoSnoozeButton));
+                yield return CodeInstruction.Call(typeof(Patch_QuestsTab_SelectedQuest_Buttons), nameof(DoSnoozeButton));
 
                 continue;
             }
@@ -61,7 +76,11 @@ public class QuestsTabPatches
         }
     }
 
-    public static void DoPinButton(Rect innerRect, Quest? quest)
+    /// <summary>
+    /// Creates a pin button next to the Dismiss button.
+    /// Similar to the vanilla DoDismissButton
+    /// </summary>
+    static void DoPinButton(Rect innerRect, Quest? quest)
     {
         if (quest is null)
         {
@@ -72,8 +91,8 @@ public class QuestsTabPatches
         var choiceLetter = quest.GetLetter();
         if (choiceLetter is null)
         {
-            LogPrefixed.WarningOnce($"Couldn't find the associated letter for quest '{quest?.name ?? "null"}'",
-                quest?.GetHashCode().ToString() ?? "null");
+            LogPrefixed.WarningOnce($"Couldn't find the associated letter for quest '{quest.name}'",
+                quest.GetHashCode().ToString());
             return;
         }
 
@@ -100,7 +119,11 @@ public class QuestsTabPatches
         }
     }
 
-    public static void DoSnoozeButton(Rect innerRect, Quest? quest)
+    /// <summary>
+    /// Creates a Snooze button next to the Dismiss button.
+    /// Similar to the vanilla DoDismissButton
+    /// </summary>
+    static void DoSnoozeButton(Rect innerRect, Quest? quest)
     {
         if (quest is null)
         {
@@ -111,8 +134,8 @@ public class QuestsTabPatches
         var choiceLetter = quest.GetLetter();
         if (choiceLetter is null)
         {
-            LogPrefixed.WarningOnce($"Couldn't find the associated letter for quest '{quest?.name ?? "null"}'",
-                quest?.GetHashCode().ToString() ?? "null");
+            LogPrefixed.WarningOnce($"Couldn't find the associated letter for quest '{quest.name}'",
+                quest.GetHashCode().ToString());
             return;
         }
 
@@ -161,22 +184,26 @@ public class QuestsTabPatches
     }
     
 #if !(v1_1 || v1_2 || v1_3 || v1_4)
-    private static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).
+    static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).
         GetMethod(
             name: nameof(Widgets.ButtonImage),
-            types: new Type[] { typeof(Rect), typeof(Texture2D), typeof(bool), typeof(string) }
+            types: new[] { typeof(Rect), typeof(Texture2D), typeof(bool), typeof(string) }
         );
 #else
-    private static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).
+    static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).
         GetMethod(
             name: nameof(Widgets.ButtonImage),
             types: new Type[] { typeof(Rect), typeof(Texture2D), typeof(bool) }
         );
 #endif
+    //TODO: Look into conditionally patching/unpatching this patch instead of just checking settings at runtime
     /// <summary>
     /// Patches the vanilla button to dismiss quests to make it also remove them from the stack
     /// </summary>
-    private static IEnumerable<CodeInstruction> DoDismissButton(IEnumerable<CodeInstruction> instructions)
+    [HarmonyPatch(typeof(MainTabWindow_Quests), "DoDismissButton")]
+    [HarmonyTranspiler]
+    [UsedImplicitly]
+    static IEnumerable<CodeInstruction> DoDismissButton(IEnumerable<CodeInstruction> instructions)
     {
         var codes = new List<CodeInstruction>(instructions);
 
@@ -197,8 +224,8 @@ public class QuestsTabPatches
                     if (letter is null)
                     {
                         LogPrefixed.WarningOnce(
-                            $"Couldn't find the associated letter for quest '{quest?.name ?? "null"}'",
-                            quest?.GetHashCode().ToString() ?? "null");
+                            $"Couldn't find the associated letter for quest '{quest.name}'",
+                            quest.GetHashCode().ToString());
                         return;
                     }
 
@@ -213,8 +240,12 @@ public class QuestsTabPatches
     /// <summary>
     /// Prefix patch that modifies the position of the charity icon
     /// </summary>
-    public static void DoCharityIcon(ref Rect innerRect)
+    [HarmonyPatch(typeof(MainTabWindow_Quests), "DoCharityIcon")]
+    [HarmonyPrefix]
+    [UsedImplicitly]
+    static void DoCharityIcon(ref Rect innerRect)
     {
         innerRect.x -= 40f;
     }
 }
+#endif
