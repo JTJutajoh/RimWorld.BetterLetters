@@ -16,10 +16,10 @@ namespace BetterLetters
         public BetterLettersMod(ModContentPack content) : base(content)
         {
             Instance = this;
+            // ReSharper disable once RedundantArgumentDefaultValue
             LogPrefixed.Initialize(this, "cyan");
 
             GetSettings<Settings>();
-            
         }
 
         public override void DoSettingsWindowContents(Rect inRect)
@@ -96,12 +96,6 @@ namespace BetterLetters
 #endif
             PatchCategory("LetterStack_SortPinned");
             PatchCategory("PlaySettings_CreateReminderButton");
-
-            //TODO: Patch to remove/change quest letters upon expiry/completion
-
-            //TODO: FEATURE to change severity of individual letters
-            //TODO: FEATURE custom reminder-specific LetterDef
-            //TODO: FEATURE alert that shows number of snoozes
         }
 
         /// <summary>
