@@ -196,7 +196,6 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
             types: new Type[] { typeof(Rect), typeof(Texture2D), typeof(bool) }
         );
 #endif
-    //TODO: Look into conditionally patching/unpatching this patch instead of just checking settings at runtime
     /// <summary>
     /// Patches the vanilla button to dismiss quests to make it also remove them from the stack
     /// </summary>

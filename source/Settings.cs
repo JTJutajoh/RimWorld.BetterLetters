@@ -26,7 +26,8 @@ internal class Settings : ModSettings
         Alt = 2
     }
 
-    public static PinTextureMode PinTexture = PinTextureMode.Round;
+    // ReSharper disable RedundantDefaultMemberInitializer
+    public static PinTextureMode PinTexture = PinTextureMode.Alt;
 
     public static bool DisableRightClickPinnedLetters = false;
     public static bool DisableBounceIfPinned = true;
@@ -40,6 +41,7 @@ internal class Settings : ModSettings
     public static bool DismissedQuestsDismissLetters = true;
     public static bool KeepQuestLettersOnStack = true;
     public static bool DoCreateReminderPlaySetting = true;
+    // ReSharper restore RedundantDefaultMemberInitializer
 
     public void DoWindowContents(Rect inRect)
     {
@@ -123,7 +125,7 @@ internal class Settings : ModSettings
             ref KeepQuestLettersOnStack,
             "BetterLetters_Settings_KeepQuestLettersOnStack_Desc".Translate());
         
-        listingStandard.Gap(12f);
+        listingStandard.Gap();
         
         listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableBounceAlways".Translate(),
             ref DisableBounceAlways,
@@ -216,7 +218,7 @@ internal class Settings : ModSettings
             "BetterLetters_Settings_MaxNumSnoozes".Translate(MaxNumSnoozes),
             MaxNumSnoozes, 1, 100, 0.5f, "BetterLetters_Settings_MaxNumSnoozes_Desc".Translate(15));
 
-        MaxSnoozeDuration = (float)listingStandard.SliderLabeled(
+        MaxSnoozeDuration = listingStandard.SliderLabeled(
             "BetterLetters_Settings_MaxSnoozeDuration".Translate(Dialog_Snooze.SliderMaxLabel),
             Mathf.RoundToInt(MaxSnoozeDuration), 1, 300, 0.5f,
             "BetterLetters_Settings_MaxSnoozeDuration_Desc".Translate(0));
@@ -308,7 +310,8 @@ internal class Settings : ModSettings
 
     public override void ExposeData()
     {
-        Scribe_Values.Look(ref PinTexture, "PinTexture", PinTextureMode.Round);
+        // ReSharper disable RedundantArgumentDefaultValue
+        Scribe_Values.Look(ref PinTexture, "PinTexture", PinTextureMode.Alt);
         Scribe_Values.Look(ref TextureInDialogSize, "TextureInDialogSize", 56);
         Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration", 60f);
         Scribe_Values.Look(ref MaxNumSnoozes, "MaxNumSnoozes", 15);
@@ -321,6 +324,7 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref DismissedQuestsDismissLetters, "DismissedQuestsDismissLetters", true);
         Scribe_Values.Look(ref KeepQuestLettersOnStack, "KeepQuestLettersOnStack", true);
         Scribe_Values.Look(ref DoCreateReminderPlaySetting, "DoCreateReminderPlaySetting", true);
+        // ReSharper restore RedundantArgumentDefaultValue
 
         base.ExposeData();
     }

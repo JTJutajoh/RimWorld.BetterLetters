@@ -48,7 +48,6 @@ internal static class Patch_HistoryTab_DoArchivableRow
         }
         var codes = new List<CodeInstruction>(instructions);
 
-        Label? labelOfEndOfIfBlock = null;
         Label? labelOfEndOfElseBlock = null;
         bool hasPatchedClickBehavior = false;
 
@@ -61,14 +60,14 @@ internal static class Patch_HistoryTab_DoArchivableRow
             if (codes[i].opcode == OpCodes.Stloc_S && ((LocalBuilder)codes[i].operand).LocalIndex == 4) //IL_0124 in 1.6
             {
                 // Store the label for the end of the if block we want to skip
-                labelOfEndOfIfBlock = codes[i + 3].operand as System.Reflection.Emit.Label?; 
+                var labelOfEndOfIfBlock = codes[i + 3].operand as Label?; 
                 // Search forward for the IL with the label we just found, so we can find the label of the end of the else block to skip both
                 for (int i2 = i; i < codes.Count; i2++)
                 {
                     if (labelOfEndOfIfBlock is not null && codes[i2].labels.Contains(labelOfEndOfIfBlock.Value))
                     {
                         // Store the label for the end of the else block we want to skip
-                        labelOfEndOfElseBlock = codes[i2 - 1].operand as System.Reflection.Emit.Label?; 
+                        labelOfEndOfElseBlock = codes[i2 - 1].operand as Label?; 
                         break;
                     }
                     // Do NOT emit the IL here, this loop is just for searching.

@@ -166,7 +166,7 @@ internal static class Patch_HistoryTab_FilteringButtons
                     {
                         return true;
                     }
-                    if (archivable is Message message)
+                    if (archivable is Message)
                     {
                         return !showMessages;
                     }

@@ -15,10 +15,10 @@ namespace BetterLetters.Patches
     [UsedImplicitly]
     internal static class Patch_Dialog_NodeTree_DoWindowContents_AddDialogIcon
     {
-        static float PinTexSize => (float)Settings.TextureInDialogSize;
+        static float PinTexSize => Settings.TextureInDialogSize;
 
-        /// Reference set by <see cref="Patch_Letter_OpenLetter_AddDiaOptions.SaveLetterReference"/>
-        public static Letter? CurrentLetter = null;
+        /// Reference set by <see cref="Patch_Letter_OpenLetter_AddDiaOptions"/>
+        public static Letter? CurrentLetter;
 
         /// Patch that draws an additional icon in the letter dialog, pin/snooze/reminder/etc.
         [HarmonyPatch(typeof(Dialog_NodeTree), nameof(Dialog_NodeTree.DoWindowContents))]
@@ -26,7 +26,7 @@ namespace BetterLetters.Patches
         [UsedImplicitly]
         static void DoWindowContents(Dialog_NodeTree __instance)
         {
-            if (CurrentLetter is null || (!(CurrentLetter?.IsPinned() ?? false) && !(CurrentLetter?.IsSnoozed() ?? false))) return;
+            if (CurrentLetter is null || !(CurrentLetter.IsPinned() && !CurrentLetter.IsSnoozed())) return;
 
             var offset = new Vector2(-8, -12);
             var rect = new Rect((__instance.InitialSize.x - PinTexSize), (-PinTexSize / 2), PinTexSize, PinTexSize);
