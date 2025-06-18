@@ -85,9 +85,7 @@ namespace BetterLetters
             PatchCategory("Dialog_AddIcons");
             PatchCategory("ArchivePin_AddBackToStack");
             PatchCategory("Letter_CanDismissWithRightClick_BlockIfPinned");
-            Harmony.DEBUG = true;
             PatchCategory("Letter_DrawButton_Pinned");
-            Harmony.DEBUG = false;
             PatchCategory("Letter_CanCull_KeepSnoozes");
 
 #if !(v1_1 || v1_2 || v1_3)

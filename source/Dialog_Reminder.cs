@@ -74,8 +74,7 @@ public class Dialog_Reminder : Window
         if (Find.Selector.NumSelected == 0) return null;
         if (Find.Selector.SelectedPawns.Count > 0)
         {
-            _selectedThing = Find.Selector.SelectedPawns[0];
-            return null;
+            return Find.Selector.SelectedPawns[0];
         }
 
         foreach (var o in Find.Selector.SelectedObjectsListForReading)
@@ -211,9 +210,15 @@ public class Dialog_Reminder : Window
         var thingButtonClicked = Widgets.ButtonTextSubtle(thingButtonRect, thingLabel, textLeftMargin: 32f);
         var thingIconRect = new Rect(thingButtonRect.xMin + 2f, thingButtonRect.yMin + 2f, 32f, 32f);
 #if v1_6
-        Widgets.ThingIcon(thingIconRect, _selectedThing, scale: 0.6f);
+        if (_selectedThing is not null)
+        {
+            Widgets.ThingIcon(thingIconRect, _selectedThing, scale: 0.6f);
+        }
 #else
-        Widgets.ThingIcon(thingIconRect, _selectedThing);
+        if (_selectedThing is not null)
+        {
+            Widgets.ThingIcon(thingIconRect, _selectedThing);
+        }
 #endif
         if (thingButtonClicked)
         {
@@ -221,13 +226,14 @@ public class Dialog_Reminder : Window
             {
                 new FloatMenuOption("BetterLetters_NothingSelected".Translate(), () => { _selectedThing = null; },
                     MenuOptionPriority.AttackEnemy),
-                new FloatMenuOption("BetterLetters_SelectSomething".Translate(), DoSelectThing 
+                new FloatMenuOption("BetterLetters_SelectSomething".Translate(), DoSelectThing
 #if v1_6
                     ,
                     iconTex: TexButton.Plus,
                     iconColor: Color.white, priority: MenuOptionPriority.AttackEnemy
 #endif
-            )};
+                )
+            };
 
             var addedSelectedThing = false;
             foreach (var o in Find.Selector.SelectedObjectsListForReading)
@@ -248,7 +254,7 @@ public class Dialog_Reminder : Window
 
             if (_selectedThing != null && !addedSelectedThing)
             {
-                floatMenuOptions.Add(new FloatMenuOption(_selectedThing.LabelCap, null, 
+                floatMenuOptions.Add(new FloatMenuOption(_selectedThing.LabelCap, null,
 #if v1_4 || v1_5 || v1_6
                     _selectedThing, Color.white,
 #endif
@@ -295,9 +301,7 @@ public class Dialog_Reminder : Window
                         durationDays
                     ));
                 }
-            },
-            (targetInfo) => { },
-            (targetInfo) => targetInfo.Thing != null
+            }
         );
     }
 
