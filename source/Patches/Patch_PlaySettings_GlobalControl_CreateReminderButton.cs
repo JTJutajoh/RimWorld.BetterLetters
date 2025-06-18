@@ -23,8 +23,6 @@ internal static class Patch_PlaySettings_GlobalControl_CreateReminderButton
         
         try
         {
-            // if (worldView) return; //TODO: Test if it breaks in world view and remove this if not
-
             var texture = LetterUtils.Icons.ReminderSmall;
             if (row.ButtonIcon(texture, "BetterLetters_PlaySettingsCreateReminder".Translate()))
             {
