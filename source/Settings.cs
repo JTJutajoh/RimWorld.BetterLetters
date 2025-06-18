@@ -9,6 +9,31 @@ namespace BetterLetters;
 
 internal class Settings : ModSettings
 {
+    internal enum PinTextureMode
+    {
+        Disabled = 0,
+        Round = 1,
+        Alt = 2
+    }
+
+    // ReSharper disable RedundantDefaultMemberInitializer
+    internal static PinTextureMode PinTexture = PinTextureMode.Alt;
+
+    internal static bool DisableRightClickPinnedLetters = false;
+    internal static bool DisableBounceIfPinned = true;
+    internal static bool DisableBounceAlways = false;
+    internal static bool DisableFlashIfPinned = true;
+    internal static bool DisableFlashAlways = false;
+    internal static int TextureInDialogSize = 56;
+    internal static int MaxNumSnoozes = 15;
+    internal static float MaxSnoozeDuration = 60f;
+    internal static bool SnoozePinned = true;
+    internal static bool DismissedQuestsDismissLetters = true;
+    internal static bool KeepQuestLettersOnStack = true;
+    internal static bool DoCreateReminderPlaySetting = true;
+    // ReSharper restore RedundantDefaultMemberInitializer
+
+    // GUI Stuff
     private enum SettingsTab
     {
         Main,
@@ -19,31 +44,7 @@ internal class Settings : ModSettings
     private SettingsTab _currentTab = SettingsTab.Main;
     private const float TabHeight = 32f;
     
-    public enum PinTextureMode
-    {
-        Disabled = 0,
-        Round = 1,
-        Alt = 2
-    }
-
-    // ReSharper disable RedundantDefaultMemberInitializer
-    public static PinTextureMode PinTexture = PinTextureMode.Alt;
-
-    public static bool DisableRightClickPinnedLetters = false;
-    public static bool DisableBounceIfPinned = true;
-    public static bool DisableBounceAlways = false;
-    public static bool DisableFlashIfPinned = true;
-    public static bool DisableFlashAlways = false;
-    public static int TextureInDialogSize = 56;
-    public static int MaxNumSnoozes = 15;
-    public static float MaxSnoozeDuration = 60f;
-    public static bool SnoozePinned = true;
-    public static bool DismissedQuestsDismissLetters = true;
-    public static bool KeepQuestLettersOnStack = true;
-    public static bool DoCreateReminderPlaySetting = true;
-    // ReSharper restore RedundantDefaultMemberInitializer
-
-    public void DoWindowContents(Rect inRect)
+    internal void DoWindowContents(Rect inRect)
     {
         var tabs = new List<TabRecord>
         {
