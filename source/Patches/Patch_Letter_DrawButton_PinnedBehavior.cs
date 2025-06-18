@@ -35,7 +35,7 @@ namespace BetterLetters.Patches
                 return;
 
             const float size = 14f;
-            var xPos = (float)UI.screenWidth - size;
+            var xPos = UI.screenWidth - size;
             var pinButtonRect = new Rect(xPos - PinXOffset, topY - 6f, size, size);
 
             // Animate the icon moving with the letter, just copied from vanilla code
@@ -47,11 +47,11 @@ namespace BetterLetters.Patches
             }
 
             // Animate the icon with the letter bounce, again copied from vanilla
-            var letterRect = new Rect((float)UI.screenWidth - 38f - 12f, topY, 38f, 30f);
+            var letterRect = new Rect(UI.screenWidth - 38f - 12f, topY, 38f, 30f);
             if (!Settings.DisableBounceIfPinned && !Mouse.IsOver(letterRect) && ___def.bounce && lerp > 15f &&
                 lerp % 5f < 1f)
             {
-                var num3 = (float)UI.screenWidth * 0.06f;
+                var num3 = UI.screenWidth * 0.06f;
                 var num4 = 2f * (lerp % 1f) - 1f;
                 var num5 = num3 * (1f - num4 * num4);
                 pinButtonRect.x -= num5;
@@ -175,7 +175,7 @@ namespace BetterLetters.Patches
                 // Unpin option is first in the list so it's under the player's mouse after they right click, meaning you can still do the vanilla behavior of spamming right click to remove all letters
                 floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_Unpin".Translate(),
-                    () => { letter.Unpin(false); },
+                    () => { letter.Unpin(); },
                     iconTex: LetterUtils.Icons.Dismiss,
                     iconColor: Color.white
                 ));

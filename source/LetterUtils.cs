@@ -198,7 +198,7 @@ namespace BetterLetters
                 "BetterLetters_Pin".Translate(),
                 action: () =>
                 {
-                    letter?.Pin();
+                    letter.Pin();
                     onPinned?.Invoke();
                 },
                 iconTex: Icons.PinFloatMenu,

@@ -16,10 +16,12 @@ namespace BetterLetters.Patches;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class Patch_Letter_CanCull_KeepSnoozes
 {
+    // Manually define TargetMethods because the target method is an inherited virtual member from an interface,
+    // and I couldn't get it to work with just annotations.
+    [UsedImplicitly]
     static IEnumerable<MethodBase> TargetMethods() => new[]
-        { typeof(Letter).GetInterfaceProperty(typeof(IArchivable), "CanCullArchivedNow") };
+        { typeof(Letter).GetInterfaceProperty(typeof(IArchivable), "CanCullArchivedNow") }!;
 
-    // [HarmonyPatch(typeof(Letter), "Rimworld.IArchivable.get_CanCullArchivedNow")]
     [HarmonyPostfix]
     [UsedImplicitly]
     static void CanCullArchivedNow(ref bool __result, Letter __instance)

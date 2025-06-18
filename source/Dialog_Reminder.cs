@@ -10,9 +10,9 @@ namespace BetterLetters;
 
 public class Dialog_Reminder : Window
 {
-    public override Vector2 InitialSize => new Vector2(680f, (float)Mathf.Min(440f, UI.screenHeight));
+    public override Vector2 InitialSize => new(680f, Mathf.Min(440f, UI.screenHeight));
 
-    public static Dialog_Reminder? Instance = null;
+    public static Dialog_Reminder? Instance;
 
     private Vector2 _scrollPosition = Vector2.zero;
 
@@ -34,9 +34,9 @@ public class Dialog_Reminder : Window
     };
 
     private float _durationDays = 1f;
-    public int DurationTicks => Mathf.RoundToInt(_durationDays * (float)GenDate.TicksPerDay);
+    public int DurationTicks => Mathf.RoundToInt(_durationDays * GenDate.TicksPerDay);
 
-    private Thing? _selectedThing = null;
+    private Thing? _selectedThing;
 
     // Constructor
     public Dialog_Reminder(
@@ -46,20 +46,20 @@ public class Dialog_Reminder : Window
         bool pinned = true,
         LetterDef? letterDef = null,
         float durationDays = -1
-    ) : base()
+    )
     {
         _selectedThing = thing;
 
         Instance?.Close();
         Instance = this;
 
-        this.forcePause = true;
-        this.absorbInputAroundWindow = true;
-        this.closeOnAccept = true;
-        this.closeOnClickedOutside = true;
-        this.closeOnClickedOutside = true;
-        this.soundAppear = SoundDefOf.CommsWindow_Open;
-        this.soundClose = SoundDefOf.CommsWindow_Close;
+        forcePause = true;
+        absorbInputAroundWindow = true;
+        closeOnAccept = true;
+        closeOnClickedOutside = true;
+        closeOnClickedOutside = true;
+        soundAppear = SoundDefOf.CommsWindow_Open;
+        soundClose = SoundDefOf.CommsWindow_Close;
         _selectedThing = thing ?? FindSelectedThing();
         _reminderTitle = title ?? _reminderTitle;
         _reminderText = text ?? _reminderText;
@@ -124,8 +124,8 @@ public class Dialog_Reminder : Window
         var outerScrollRegionRect = new Rect(0f, titleTextRect.yMax + 30f, innerRect.width, 100f);
         var textEntryHeight = Mathf.Max(Text.CalcHeight(_reminderText, outerScrollRegionRect.width - 8f), 90f);
         var textEntryRect = new Rect(0f, 0f, outerScrollRegionRect.width - 14f, textEntryHeight);
-        Widgets.BeginScrollView(outerScrollRegionRect, ref this._scrollPosition, textEntryRect, true);
-        _reminderText = Widgets.TextArea(textEntryRect, _reminderText, false);
+        Widgets.BeginScrollView(outerScrollRegionRect, ref _scrollPosition, textEntryRect);
+        _reminderText = Widgets.TextArea(textEntryRect, _reminderText);
         _reminderText = SanitizeText(_reminderText);
         Widgets.EndScrollView();
 
@@ -174,7 +174,7 @@ public class Dialog_Reminder : Window
         GUI.color = Color.white; // RW version < 1.4 Widgets.ButtonImage has a bug that fails to reset the GUI color
         if (Widgets.ButtonText(buttonsRect.LeftPartPixels(buttonsSize.x), "Cancel".Translate()))
         {
-            this.Close(true);
+            Close();
         }
         else if (Widgets.ButtonText(buttonsRect.RightPartPixels(buttonsSize.x), "Confirm".Translate()))
         {
@@ -186,7 +186,7 @@ public class Dialog_Reminder : Window
 
             LetterUtils.AddReminder(SanitizeText(_reminderTitle), SanitizeText(_reminderText), _letterDef,
                 DurationTicks, _pinned, lookTargets);
-            this.Close(true);
+            Close();
         }
 
 #if !(v1_1 || v1_2)
@@ -222,7 +222,7 @@ public class Dialog_Reminder : Window
 #endif
         if (thingButtonClicked)
         {
-            var floatMenuOptions = new List<FloatMenuOption>()
+            var floatMenuOptions = new List<FloatMenuOption>
             {
                 new FloatMenuOption("BetterLetters_NothingSelected".Translate(), () => { _selectedThing = null; },
                     MenuOptionPriority.AttackEnemy),
@@ -288,7 +288,7 @@ public class Dialog_Reminder : Window
 #elif v1_1 || v1_2 || v1_3 || v1_4 || v1_5
             LegacySupport.ForThing(),
 #endif
-            (targetInfo) =>
+            targetInfo =>
             {
                 if (targetInfo.HasThing)
                 {

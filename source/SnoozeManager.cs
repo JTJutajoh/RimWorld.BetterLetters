@@ -62,19 +62,19 @@ public class SnoozeManager : WorldComponent
         public Snooze(Letter letter, int durationTicks, bool pinWhenFinished = false, SnoozeTypes snoozeType = SnoozeTypes.Letter)
         {
             LogPrefixed.Trace("Creating new snooze");
-            this.Letter = letter;
-            this._duration = durationTicks;
-            this._start = GenTicks.TicksGame;
-            this._elapsed = 0;
-            this._pinWhenFinished = pinWhenFinished;
-            this.SnoozeType = snoozeType;
+            Letter = letter;
+            _duration = durationTicks;
+            _start = GenTicks.TicksGame;
+            _elapsed = 0;
+            _pinWhenFinished = pinWhenFinished;
+            SnoozeType = snoozeType;
         }
 
         public void DoTipRegion(Rect rect)
         {
-            if (this.Letter is null) return;
+            if (Letter is null) return;
             
-            var snooze = SnoozeManager.Snoozes[this.Letter];
+            var snooze = Snoozes[Letter];
             var remaining = snooze.RemainingTicks.ToStringTicksToPeriodVerbose();
             var end = GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + snooze.Duration, QuestUtility.GetLocForDates());
             TooltipHandler.TipRegionByKey(rect, snooze.Letter?.IsReminder() ?? false ? "BetterLetters_SnoozedReminderButtonTooltip" : "BetterLetters_SnoozedButtonTooltip", end, remaining);
@@ -86,7 +86,7 @@ public class SnoozeManager : WorldComponent
         /// <returns>true if the timer is complete or invalid. false if the timer is still running</returns>
         public bool TickIntervalDelta()
         {
-            if (this.Letter is null)
+            if (Letter is null)
             {
                 LogPrefixed.Warning("Snooze reference to its letter was lost!");
                 Messages.Message(
@@ -97,43 +97,44 @@ public class SnoozeManager : WorldComponent
                 );
                 return true;
             }
-            this._elapsed = GenTicks.TicksGame - this._start;
-            if (this.Finished)
+            _elapsed = GenTicks.TicksGame - _start;
+            if (Finished)
             {
-                this.Finish();
+                Finish();
             }
-            return this.Finished;
+            return Finished;
         }
 
         public void Finish()
         {
-            if (this._pinWhenFinished)
+            if (_pinWhenFinished)
             {
-                this.Letter?.Pin(suppressSnoozeCanceledMessage: true);
+                Letter?.Pin(suppressSnoozeCanceledMessage: true);
             }
             else
             {
-                Find.LetterStack.ReceiveLetter(this.Letter);
+                Find.LetterStack.ReceiveLetter(Letter);
             }
         }
         
         public void ExposeData()
         {
-            if (Scribe.mode == LoadSaveMode.Saving && this.Letter is null)
+            if (Scribe.mode == LoadSaveMode.Saving && Letter is null)
             {
                 LogPrefixed.Warning("Tried to save a snooze with an expired letter.");
                 return;
             }
-            Scribe_References.Look<Letter>(ref this.Letter!, "letter", false);
-            
-            Scribe_Values.Look<int>(ref this._elapsed, "elapsed", 0, false);
-            Scribe_Values.Look<int>(ref this._duration, "duration", 0, false);
-            Scribe_Values.Look<int>(ref this._start, "start", 0, false);
-            Scribe_Values.Look<bool>(ref this._pinWhenFinished, "pinWhenFinished", false, false);
-            Scribe_Values.Look<SnoozeTypes>(ref this.SnoozeType, "snoozeType", SnoozeTypes.Letter, false);
-            if (Scribe.mode == LoadSaveMode.PostLoadInit && !this.Finished)
+            // ReSharper disable RedundantArgumentDefaultValue
+            Scribe_References.Look(ref Letter!, "letter", false);
+            Scribe_Values.Look(ref _elapsed, "elapsed", 0, false);
+            Scribe_Values.Look(ref _duration, "duration", 0, false);
+            Scribe_Values.Look(ref _start, "start", 0, false);
+            Scribe_Values.Look(ref _pinWhenFinished, "pinWhenFinished", false, false);
+            Scribe_Values.Look(ref SnoozeType, "snoozeType", SnoozeTypes.Letter, false);
+            // ReSharper restore RedundantArgumentDefaultValue
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && !Finished)
             {
-                this._start = GenTicks.TicksGame;
+                _start = GenTicks.TicksGame;
             }
         }
     }
@@ -146,6 +147,7 @@ public class SnoozeManager : WorldComponent
     /// </summary>
     /// <param name="snooze">A snooze instance created externally. The `Letter` field on the snooze will be
     /// used as the key in the dictionary.</param>
+    /// <param name="suppressMessage">If true, the top-left message saying that a new snooze was created will not appear.</param>
     /// <returns>True if the snooze was successfully added (not a duplicate, Letter was not null, etc.)</returns>
     public static bool AddSnooze(Snooze snooze, bool suppressMessage = false)
     {
@@ -172,7 +174,7 @@ public class SnoozeManager : WorldComponent
         }
         Snoozes.Add(snooze.Letter, snooze);
         snooze.Letter.Unpin();
-        LogPrefixed.Trace("Added snooze for letter " + snooze.Letter.ToString());
+        LogPrefixed.Trace("Added snooze for letter " + snooze.Letter);
         if (!suppressMessage && snooze.Duration > 0)
         {
             Messages.Message(
@@ -213,9 +215,9 @@ public class SnoozeManager : WorldComponent
         if (Snoozes.Remove(letter))
         {
 #if v1_4 || v1_5 || v1_6
-            var label = letter?.Label ?? "null";
+            var label = letter.Label;
 #elif v1_1 || v1_2 || v1_3
-            var label = letter?.label ?? "null";
+            var label = letter.label;
 #endif
             if (!suppressSnoozeCanceledMessage)
             {
@@ -263,13 +265,13 @@ public class SnoozeManager : WorldComponent
     }
 
     // Used just for reassembling the dictionary when a save is loaded
-    private static List<Letter>? _letterList = null;
-    private static List<Snooze>? _snoozeList = null;
+    private static List<Letter>? _letterList;
+    private static List<Snooze>? _snoozeList;
     public override void ExposeData()
     {
         base.ExposeData();
         
-        Scribe_Collections.Look<Letter, Snooze>(
+        Scribe_Collections.Look(
             ref _snoozes!,
             "Snoozes",
             LookMode.Reference,
@@ -291,13 +293,13 @@ public class SnoozeManager : WorldComponent
                 }
                 if (Snoozes[letter] == null)
                 {
-                    LogPrefixed.Warning("Found a null snooze reference for letter " + letter.ToString() + ". Removing.");
+                    LogPrefixed.Warning("Found a null snooze reference for letter " + letter + ". Removing.");
                     Snoozes.Remove(letter);
                     continue;
                 }
                 if (Snoozes[letter].Letter != letter)
                 {
-                    LogPrefixed.Warning("Found a mismatched snooze reference for letter " + letter.ToString() + ". Removing.");
+                    LogPrefixed.Warning("Found a mismatched snooze reference for letter " + letter + ". Removing.");
                     Snoozes.Remove(letter);
                 }
             }

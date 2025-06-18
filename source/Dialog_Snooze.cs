@@ -14,7 +14,7 @@ public class Dialog_Snooze : Window
     private Action<int> _onConfirmed;
     private float _durationDays = 0.5f;
 
-    public int DurationTicks => Mathf.RoundToInt(_durationDays * (float)GenDate.TicksPerDay);
+    public int DurationTicks => Mathf.RoundToInt(_durationDays * GenDate.TicksPerDay);
 
     // Maximum duration in days set in settings
     private static float MaxDuration => Settings.MaxSnoozeDuration;
@@ -24,14 +24,9 @@ public class Dialog_Snooze : Window
         _instance?.Close();
         _instance = this;
         _onConfirmed = onConfirmedAction;
-        this.closeOnClickedOutside = true;
-        this.absorbInputAroundWindow = true;
+        closeOnClickedOutside = true;
+        absorbInputAroundWindow = true;
     }
-
-    private string EndDate =>
-        GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + DurationTicks, QuestUtility.GetLocForDates());
-
-    private string DurationString => DurationTicks.ToStringTicksToPeriodVerbose();
 
     public static string SliderMaxLabel => "BetterLetters_SliderRightLabel".Translate(
         Mathf.RoundToInt(MaxDuration * GenDate.TicksPerDay).ToStringTicksToPeriod());
@@ -95,7 +90,7 @@ public class Dialog_Snooze : Window
             durationDays = Mathf.Min(durationDays + 1, MaxDuration);
         }
 
-        var durationTicks = Mathf.RoundToInt(durationDays * (float)GenDate.TicksPerDay);
+        var durationTicks = Mathf.RoundToInt(durationDays * GenDate.TicksPerDay);
         var endDate =
             GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + durationTicks, QuestUtility.GetLocForDates());
         Widgets.Label(labelsRect.LeftHalf(), "BetterLetters_SnoozeUntil".Translate(endDate));
@@ -122,7 +117,7 @@ public class Dialog_Snooze : Window
                 "BetterLetters_Cancel".Translate())
            )
         {
-            this.Close(true);
+            Close();
         }
         else if (Widgets.ButtonText(
                      new Rect(buttonsRect.xMax - buttonSize.x, buttonsRect.yMax - buttonSize.y,
@@ -131,7 +126,7 @@ public class Dialog_Snooze : Window
                 )
         {
             _onConfirmed(DurationTicks);
-            this.Close(true);
+            Close();
         }
     }
 }

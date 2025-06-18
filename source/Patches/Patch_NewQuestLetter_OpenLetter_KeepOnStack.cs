@@ -17,7 +17,6 @@ namespace BetterLetters.Patches
     internal static class Patch_NewQuestLetter_OpenLetter_KeepOnStack
     {
         private static readonly MethodInfo? AnchorMethod = typeof(Find).GetProperty("LetterStack")?.GetGetMethod();
-        private static readonly FieldInfo? QuestField = typeof(ChoiceLetter).GetField("quest");
         /// Transpiler that skips the line calling Find.LetterStack.RemoveLetter(this);
         /// Keeping letters in the letter stack when opened, instead of the vanilla functionality that automatically
         /// removes them.

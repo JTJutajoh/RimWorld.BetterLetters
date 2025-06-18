@@ -28,14 +28,10 @@ namespace BetterLetters.Patches
         static void Option_JumpToLocation(ref DiaOption __result, ChoiceLetter __instance)
         {
             var target = __instance.lookTargets.TryGetPrimaryTarget();
-            __result.action = delegate()
+            __result.action = delegate
             {
                 DismissIfNotPinned(__instance);
-#if v1_4 || v1_5 || v1_6
-                CameraJumper.TryJumpAndSelect(target, CameraJumper.MovementMode.Pan);
-#elif v1_3
                 CameraJumper.TryJumpAndSelect(target);
-#endif
             };
         }
 
@@ -45,14 +41,10 @@ namespace BetterLetters.Patches
         static void Option_ReadMore(ref DiaOption __result, DeathLetter __instance)
         {
             var target = __instance.lookTargets.TryGetPrimaryTarget();
-            __result.action = delegate()
+            __result.action = delegate
             {
                 DismissIfNotPinned(__instance);
-#if v1_4 || v1_5 || v1_6
-                CameraJumper.TryJumpAndSelect(target, CameraJumper.MovementMode.Pan);
-#elif v1_3
                 CameraJumper.TryJumpAndSelect(target);
-#endif
                 InspectPaneUtility.OpenTab(typeof(ITab_Pawn_Log));
             };
         }
