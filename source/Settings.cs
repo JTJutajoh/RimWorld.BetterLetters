@@ -131,11 +131,9 @@ internal class Settings : ModSettings
             "BetterLetters_Settings_DisableBounceAlways_Desc".Translate());
         if (!DisableBounceAlways)
         {
-            listingStandard.Indent();
             listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableBounceIfPinned".Translate(),
                 ref DisableBounceIfPinned,
                 "BetterLetters_Settings_DisableBounceIfPinned_Desc".Translate());
-            listingStandard.Outdent();
         }
         
         listingStandard.Gap(4f);
@@ -145,11 +143,9 @@ internal class Settings : ModSettings
             "BetterLetters_Settings_DisableFlashAlways_Desc".Translate());
         if (!DisableFlashAlways)
         {
-            listingStandard.Indent();
             listingStandard.CheckboxLabeled("BetterLetters_Settings_DisableFlashIfPinned".Translate(),
                 ref DisableFlashIfPinned,
                 "BetterLetters_Settings_DisableFlashIfPinned_Desc".Translate());
-            listingStandard.Outdent();
         }
 
         listingStandard.End();
@@ -168,8 +164,6 @@ internal class Settings : ModSettings
         
         if (PinTexture != PinTextureMode.Disabled)
         {
-            listingStandard.Indent();
-
             var labelRect = listingStandard.Label(
                 "BetterLetters_Settings_TextureInDialogSize".Translate(TextureInDialogSize),
                 tooltip: "BetterLetters_Settings_TextureInDialogSize_Desc".Translate(32));
@@ -192,9 +186,6 @@ internal class Settings : ModSettings
                 GUI.DrawTexture(pinTexRect, pinTex);
                 listingStandard.Gap(Mathf.Max(12f, TextureInDialogSize - 24f));
             }
-
-
-            listingStandard.Outdent();
         }
         
         listingStandard.Label("BetterLetters_Settings_PinTexture".Translate());
