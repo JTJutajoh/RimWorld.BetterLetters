@@ -19,6 +19,7 @@ namespace BetterLetters
             LogPrefixed.Initialize(this, "cyan");
 
             GetSettings<Settings>();
+            
         }
 
         public override void DoSettingsWindowContents(Rect inRect)
@@ -38,11 +39,6 @@ namespace BetterLetters
         {
             return "BetterLetters_SettingsCategory".Translate();
         }
-    }
-
-    [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Method)]
-    public class ReloadableAttribute : Attribute
-    {
     }
 
     [StaticConstructorOnStartup]
@@ -77,10 +73,9 @@ namespace BetterLetters
         /// <summary>
         /// Contains all the patches that should be run no matter what, regardless of what other mods are loaded
         /// </summary>
-        private static void Patch_Vanilla()
+        internal static void Patch_Vanilla()
         {
             PatchCategory("Letter_RemoveLetter_KeepOnStack");
-            PatchCategory("Letter_RemoveLetter_KeepOnStack_QuestLetters", Settings.KeepQuestLettersOnStack);
             PatchCategory("Letter_OpenLetter_AddDiaOptions");
             PatchCategory("Dialog_AddIcons");
             PatchCategory("ArchivePin_AddBackToStack");
