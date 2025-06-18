@@ -12,7 +12,7 @@ namespace BetterLetters.Patches
 {
     /// Patch New Quest letters that don't show the dialog to prevent them from removing their letter from the stack 
     [HarmonyPatch]
-    [HarmonyPatchCategory("Letter_RemoveLetter_KeepOnStack_QuestLetters")]
+    [HarmonyPatchCategory("Letter_RemoveLetter_KeepOnStack")]
     [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class Patch_NewQuestLetter_OpenLetter_KeepOnStack
@@ -34,14 +34,12 @@ namespace BetterLetters.Patches
                 if (codes[i].Calls(AnchorMethod))
                 {
                     yield return new CodeInstruction(OpCodes.Ldarg_0);
-                    yield return new CodeInstruction(OpCodes.Ldfld, QuestField);
-                    yield return new CodeInstruction(OpCodes.Ldarg_0);
-                    yield return CodeInstruction.CallClosure<Action<Quest, ChoiceLetter>>((quest, letter) =>
+                    yield return CodeInstruction.CallClosure<Action<ChoiceLetter>>((letter) =>
                     {
-                        //TODO: Remove unused "quest" parameter and test it doesn't break everything
+                        if (Settings.KeepQuestLettersOnStack) return;
                         Find.LetterStack.RemoveLetter(letter);
                     });
-                    // Replace the original call to RemoveLetter with a return to skip it, since we replaced it fully
+                    // Replace the original call to RemoveLetter with a return to skip it
                     yield return new CodeInstruction(OpCodes.Ret);
                 }
                 
