@@ -54,9 +54,14 @@ public class Dialog_Snooze : Window
         maxLabelRect.y += 16f;
         TooltipHandler.TipRegionByKey(maxLabelRect, "BetterLetters_MaxDurationTooltip", Settings.MaxSnoozeDuration);
 
+        
         //TODO: Redo inc/dec buttons
         const float buttonWidthRatio = (1f - sliderWidthRatio) / 2 - 0.03f;
         const float buttonHeightIncDec = 30f;
+
+        //TODO: Add a text entry field to directly set the duration
+        // Widgets.TextFieldNumeric();
+        
         if (Widgets.ButtonTextSubtle(
                 inRect.MiddlePartPixels(inRect.width, buttonHeightIncDec).LeftPart(buttonWidthRatio).LeftHalf(),
                 "BetterLetters_DecDay".Translate()
@@ -64,7 +69,7 @@ public class Dialog_Snooze : Window
         {
             durationDays = Mathf.Max(durationDays - 1, 0);
         }
-
+        
         if (Widgets.ButtonTextSubtle(
                 inRect.MiddlePartPixels(inRect.width, buttonHeightIncDec).LeftPart(buttonWidthRatio).RightHalf(),
                 "BetterLetters_DecHour".Translate()

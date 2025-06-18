@@ -94,7 +94,7 @@ public class Dialog_Reminder : Window
     {
         var innerRect = inRect.AtZero();
         var buttonsSize = new Vector2(100f, 32f);
-        var snoozeSectionHeight = 160f;
+        var snoozeSectionHeight = 112f;
         var pinSectionWidth = 40f;
 
         // Draw the content
@@ -135,11 +135,12 @@ public class Dialog_Reminder : Window
         DoJumpToSelector(new Rect(inRect.xMin, outerScrollRegionRect.yMax + 4f, inRect.width, 64f));
 
         // Snooze settings
-        var snoozeRect = innerRect.BottomPartPixels(snoozeSectionHeight);
+        var snoozeRect = innerRect.BottomPartPixels(snoozeSectionHeight).MiddlePart(0.9f, 1f);
         snoozeRect.yMax -= buttonsSize.y + 20f;
         snoozeRect.yMin -= buttonsSize.y;
         var snoozeControlsRect = snoozeRect.TopPart(0.7f);
-        var labelsRect = snoozeRect.BottomPart(0.2f);
+        var labelsRect = snoozeRect.BottomPart(0.25f);
+        labelsRect.y -= 16f;
         Dialog_Snooze.DoSnoozeOptions(snoozeControlsRect, labelsRect, ref _durationDays);
 
         // Bottom Row
