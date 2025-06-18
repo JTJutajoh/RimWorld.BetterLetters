@@ -9,6 +9,7 @@
   <BetterLetters_SnoozeFor1Day>Snooze for 1 day</BetterLetters_SnoozeFor1Day>
   <BetterLetters_Cancel>Cancel</BetterLetters_Cancel>
   <BetterLetters_CancelSnooze>Cancel Snooze ({0})</BetterLetters_CancelSnooze>
+  <BetterLetters_CancelReminder>Cancel Reminder ({0})</BetterLetters_CancelReminder>
   <BetterLetters_IsSnoozed>Snoozed</BetterLetters_IsSnoozed>
   <BetterLetters_Unpin>Unpin</BetterLetters_Unpin>
   <BetterLetters_UnpinAndDismiss>Unpin and Dismiss</BetterLetters_UnpinAndDismiss>

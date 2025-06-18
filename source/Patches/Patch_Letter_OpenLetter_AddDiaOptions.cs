@@ -87,11 +87,25 @@ namespace BetterLetters.Patches
             var defaultText = "BetterLetters_DialogFloatMenuButton".Translate();
             var pinnedText = "BetterLetters_Unpin".Translate();
 
-            //TODO: Add "Cancel Reminder" option
-            var optionText = __instance.IsPinned() ? pinnedText :
-                __instance.IsSnoozed() ? "BetterLetters_CancelSnooze".Translate(SnoozeManager.Snoozes[__instance]
-                    .Duration.ToStringTicksToPeriodVague(vagueMin: false)) :
-                defaultText;
+            string optionText;
+            if (__instance.IsPinned())
+            {
+                optionText = pinnedText;
+            }
+            else if (__instance.IsReminder())
+            {
+                optionText = "BetterLetters_CancelReminder".Translate(SnoozeManager.Snoozes[__instance]
+                    .Duration.ToStringTicksToPeriodVague(vagueMin: false));
+            }
+            else if (__instance.IsSnoozed())
+            {
+                optionText = "BetterLetters_CancelSnooze".Translate(SnoozeManager.Snoozes[__instance]
+                    .Duration.ToStringTicksToPeriodVague(vagueMin: false));
+            }
+            else
+            {
+                optionText = defaultText;
+            }
 
             var option = new DiaOption(optionText)
             {
