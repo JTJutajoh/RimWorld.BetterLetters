@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using BetterLetters.DarkLog;
 using RimWorld;
 using UnityEngine;
-using Verse;
 
 namespace BetterLetters;
 
@@ -33,6 +31,8 @@ internal class Settings : ModSettings
     internal static bool DoCreateReminderPlaySetting = true;
     // ReSharper restore RedundantDefaultMemberInitializer
 
+    private static readonly Dictionary<string, object>? _defaultSettings;
+
     // GUI Stuff
     private enum SettingsTab
     {
@@ -43,6 +43,23 @@ internal class Settings : ModSettings
     }
     private SettingsTab _currentTab = SettingsTab.Main;
     private const float TabHeight = 32f;
+
+    public Settings() : base()
+    {
+        
+    }
+
+    private void HarvestSettingsDefaults(out Dictionary<string, object> settings, Type? owningType = null)
+    {
+        settings = new Dictionary<string, object>();
+        if (owningType is null) owningType = GetType();
+
+        Log.Trace($"Harvesting settings for type '{owningType.FullName}'");
+        foreach (var field in owningType.GetFields())
+        {
+            
+        }
+    }
     
     internal void DoWindowContents(Rect inRect)
     {
@@ -70,7 +87,7 @@ internal class Settings : ModSettings
                 }
                 catch (Exception e)
                 {
-                    LogPrefixed.Exception(e, "Error drawing main settings tab.", true);
+                    Log.Exception(e, "Error drawing main settings tab.", true);
                     _currentTab = SettingsTab.Pinning;
                 }
                 break;
@@ -81,7 +98,7 @@ internal class Settings : ModSettings
                 }
                 catch (Exception e)
                 {
-                    LogPrefixed.Exception(e, "Error drawing pin settings tab.", true);
+                    Log.Exception(e, "Error drawing pin settings tab.", true);
                     _currentTab = SettingsTab.Main;
                 }
                 break;
@@ -92,7 +109,7 @@ internal class Settings : ModSettings
                 }
                 catch (Exception e)
                 {
-                    LogPrefixed.Exception(e, "Error drawing reminders settings tab.", true);
+                    Log.Exception(e, "Error drawing reminders settings tab.", true);
                     _currentTab = SettingsTab.Main;
                 }
                 break;
@@ -103,7 +120,7 @@ internal class Settings : ModSettings
                 }
                 catch (Exception e)
                 {
-                    LogPrefixed.Exception(e, "Error drawing snooze settings tab.", true);
+                    Log.Exception(e, "Error drawing snooze settings tab.", true);
                     _currentTab = SettingsTab.Main;
                 }
                 break;

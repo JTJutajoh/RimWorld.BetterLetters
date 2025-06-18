@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Verse;
 
 // ReSharper disable once CheckNamespace
 namespace BetterLetters.DarkLog
@@ -42,17 +41,17 @@ namespace BetterLetters.DarkLog
         
         internal static void Error(string text)
         {
-            Log.Error(PrefixedMessage(text));
+            Verse.Log.Error(PrefixedMessage(text));
         }
 
         internal static void ErrorOnce(string text, String key)
         {
-            Log.ErrorOnce(PrefixedMessage(text), key.GetHashCode());
+            Verse.Log.ErrorOnce(PrefixedMessage(text), key.GetHashCode());
         }
 
         internal static void Warning(string text)
         {
-            Log.Warning(PrefixedMessage(text));
+            Verse.Log.Warning(PrefixedMessage(text));
         }
 
         /// <summary>
@@ -81,15 +80,15 @@ namespace BetterLetters.DarkLog
         internal static void WarningOnce(string text, String key)
         {
 #if v1_4 || v1_5 || v1_6
-            Log.WarningOnce(PrefixedMessage(text), key.GetHashCode());
+            Verse.Log.WarningOnce(PrefixedMessage(text), key.GetHashCode());
 #else
-            Log.Warning(PrefixedMessage(text));
+            Verse.Log.Warning(PrefixedMessage(text));
 #endif
         }
 
         internal static void Message(string text)
         {
-            Log.Message(PrefixedMessage(text));
+            Verse.Log.Message(PrefixedMessage(text));
         }
 
         /// <summary>

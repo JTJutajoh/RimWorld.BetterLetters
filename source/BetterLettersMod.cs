@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using BetterLetters.DarkLog;
-using Verse;
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -28,7 +26,7 @@ namespace BetterLetters
         {
             Instance = this;
             // ReSharper disable once RedundantArgumentDefaultValue
-            LogPrefixed.Initialize(this, "cyan");
+            Log.Initialize(this, "cyan");
 
             GetSettings<Settings>();
         }
@@ -42,7 +40,7 @@ namespace BetterLetters
             }
             catch (Exception e)
             {
-                LogPrefixed.Exception(e, "Error drawing mod settings window.", true);
+                Log.Exception(e, "Error drawing mod settings window.", true);
             }
         }
 
@@ -65,7 +63,7 @@ namespace BetterLetters
             // Harmony.DEBUG = true; // For debugging transpilers. DO NOT uncomment this unless you need it!
 #endif
 
-            LogPrefixed.Message("Running Harmony patches...");
+            Log.Message("Running Harmony patches...");
 
             try
             {
@@ -73,12 +71,12 @@ namespace BetterLetters
             }
             catch (Exception e)
             {
-                LogPrefixed.Exception(e,
+                Log.Exception(e,
                     "Error patching vanilla. This likely means either the wrong game version or a hard incompatibility with another mod.");
             }
             // Do any mod-specific patching (Vanilla Expanded...)
 
-            LogPrefixed.Message("Harmony patching complete");
+            Log.Message("Harmony patching complete");
         }
 
         /// <summary>
@@ -97,13 +95,13 @@ namespace BetterLetters
 #if !(v1_1 || v1_2 || v1_3)
             PatchCategory("HistoryArchivableRow");
 #else
-            LogPrefixed.Warning("MainTabWindow_History.DoArchivableRow patch skipped, requires RimWorld 1.4+. Message History tab will not display snooze/reminder buttons in rows.");
+            Log.Warning("MainTabWindow_History.DoArchivableRow patch skipped, requires RimWorld 1.4+. Message History tab will not display snooze/reminder buttons in rows.");
 #endif
             PatchCategory("HistoryFiltersAndButtons");
 #if !(v1_1 || v1_2)
             PatchCategory("QuestsTab_Buttons");
 #else
-            LogPrefixed.Warning("Pin/Snooze buttons on Quests tab are only available in RimWorld 1.3+");
+            Log.Warning("Pin/Snooze buttons on Quests tab are only available in RimWorld 1.3+");
 #endif
             PatchCategory("LetterStack_SortPinned");
             PatchCategory("PlaySettings_CreateReminderButton");
@@ -120,18 +118,18 @@ namespace BetterLetters
         {
             if (!condition) //TODO: Come up with a way to conditionally RE-patch categories if they're enabled in settings without requiring a restart
             {
-                LogPrefixed.Message($"Patch \"{category}\" skipped, disabled in mod config.");
+                Log.Message($"Patch \"{category}\" skipped, disabled in mod config.");
                 return;
             }
 
             try
             {
-                LogPrefixed.Trace($"Patching category \"{category}\"...");
+                Log.Trace($"Patching category \"{category}\"...");
                 Harmony.PatchCategory(category);
             }
             catch (Exception e)
             {
-                LogPrefixed.Exception(e, $"Error patching category {category}");
+                Log.Exception(e, $"Error patching category {category}");
             }
         }
         

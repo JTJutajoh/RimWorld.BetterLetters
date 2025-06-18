@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using BetterLetters.DarkLog;
 using RimWorld;
 using UnityEngine;
-using Verse;
 using Verse.Sound;
 
 namespace BetterLetters;
@@ -271,7 +269,7 @@ public class Dialog_Reminder : Window
     {
         if (Instance is null)
         {
-            LogPrefixed.Warning("Can't select thing, dialog instance was null");
+            Log.Warning("Can't select thing, dialog instance was null");
             return;
         }
 

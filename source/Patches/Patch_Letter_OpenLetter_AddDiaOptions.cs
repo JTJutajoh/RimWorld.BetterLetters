@@ -7,7 +7,6 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
-using Verse;
 using Verse.Sound;
 
 namespace BetterLetters.Patches

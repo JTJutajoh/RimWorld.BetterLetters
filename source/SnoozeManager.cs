@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using BetterLetters.DarkLog;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
-using Verse;
 
 namespace BetterLetters;
 
@@ -54,14 +52,14 @@ public class SnoozeManager : WorldComponent
         [Obsolete("Do not use the blank constructor. It only exists for serialization.")]
         public Snooze()
         {
-            LogPrefixed.Trace("Creating new empty snooze data");
+            Log.Trace("Creating new empty snooze data");
             // Empty constructor for scribe.
             // This is only used when loading existing save files.
         }
         
         public Snooze(Letter letter, int durationTicks, bool pinWhenFinished = false, SnoozeTypes snoozeType = SnoozeTypes.Letter)
         {
-            LogPrefixed.Trace("Creating new snooze");
+            Log.Trace("Creating new snooze");
             Letter = letter;
             _duration = durationTicks;
             _start = GenTicks.TicksGame;
@@ -88,7 +86,7 @@ public class SnoozeManager : WorldComponent
         {
             if (Letter is null)
             {
-                LogPrefixed.Warning("Snooze reference to its letter was lost!");
+                Log.Warning("Snooze reference to its letter was lost!");
                 Messages.Message(
                     "BetterLetters_SnoozeExpired".Translate(),
                     LookTargets.Invalid,
@@ -121,7 +119,7 @@ public class SnoozeManager : WorldComponent
         {
             if (Scribe.mode == LoadSaveMode.Saving && Letter is null)
             {
-                LogPrefixed.Warning("Tried to save a snooze with an expired letter.");
+                Log.Warning("Tried to save a snooze with an expired letter.");
                 return;
             }
             // ReSharper disable RedundantArgumentDefaultValue
@@ -153,12 +151,12 @@ public class SnoozeManager : WorldComponent
     {
         if (snooze.Letter is null)
         {
-            LogPrefixed.Warning("Tried to add a snooze with a null letter. Skipping.");
+            Log.Warning("Tried to add a snooze with a null letter. Skipping.");
             return false;
         }
         if (NumSnoozes >= MaxNumSnoozes)
         {
-            LogPrefixed.Warning("Tried to add a snooze but there are already too many. Skipping.");
+            Log.Warning("Tried to add a snooze but there are already too many. Skipping.");
             Messages.Message(
                 "BetterLetters_TooManySnoozes".Translate(),
                 LookTargets.Invalid,
@@ -169,12 +167,12 @@ public class SnoozeManager : WorldComponent
         }
         if (Snoozes.ContainsKey(snooze.Letter))
         {
-            LogPrefixed.Warning("Tried to add a snooze for a letter that already has one.");
+            Log.Warning("Tried to add a snooze for a letter that already has one.");
             return false;
         }
         Snoozes.Add(snooze.Letter, snooze);
         snooze.Letter.Unpin();
-        LogPrefixed.Trace("Added snooze for letter " + snooze.Letter);
+        Log.Trace("Added snooze for letter " + snooze.Letter);
         if (!suppressMessage && snooze.Duration > 0)
         {
             Messages.Message(
@@ -209,7 +207,7 @@ public class SnoozeManager : WorldComponent
     {
         if (letter is null)
         {
-            LogPrefixed.Warning("Tried to remove a null snooze. Skipping.");
+            Log.Warning("Tried to remove a null snooze. Skipping.");
             return false;
         }
         if (Snoozes.Remove(letter))
@@ -287,19 +285,19 @@ public class SnoozeManager : WorldComponent
             {
                 if (letter == null)
                 {
-                    LogPrefixed.Warning("Found a null letter reference in the snooze dictionary. Removing.");
+                    Log.Warning("Found a null letter reference in the snooze dictionary. Removing.");
                     Snoozes.Remove(null!);
                     continue;
                 }
                 if (Snoozes[letter] == null)
                 {
-                    LogPrefixed.Warning("Found a null snooze reference for letter " + letter + ". Removing.");
+                    Log.Warning("Found a null snooze reference for letter " + letter + ". Removing.");
                     Snoozes.Remove(letter);
                     continue;
                 }
                 if (Snoozes[letter].Letter != letter)
                 {
-                    LogPrefixed.Warning("Found a mismatched snooze reference for letter " + letter + ". Removing.");
+                    Log.Warning("Found a mismatched snooze reference for letter " + letter + ". Removing.");
                     Snoozes.Remove(letter);
                 }
             }

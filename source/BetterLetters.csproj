@@ -96,6 +96,7 @@
     <Compile Include="BetterLettersMod.cs" />
     <Compile Include="Dialog_Reminder.cs" />
     <Compile Include="Dialog_Snooze.cs" />
+    <Compile Include="GlobalUsings.cs" />
     <Compile Include="LegacySupport.cs" />
     <Compile Include="LogPrefixed.cs" />
     <Compile Include="LetterUtils.cs" />

@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
-using BetterLetters.DarkLog;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
 using UnityEngine;
-using Verse;
 using Verse.Sound;
 
 namespace BetterLetters.Patches;
@@ -37,7 +35,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
     {
         if (DoCharityIconMethodAnchor is null)
         {
-            LogPrefixed.Error("Cannot transpile DoSelectedQuestInfo, failed to get DoCharityIcon method");
+            Log.Error("Cannot transpile DoSelectedQuestInfo, failed to get DoCharityIcon method");
         }
 
         var codes = new List<CodeInstruction>(instructions);
@@ -91,7 +89,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         var choiceLetter = quest.GetLetter();
         if (choiceLetter is null)
         {
-            LogPrefixed.WarningOnce($"Couldn't find the associated letter for quest '{quest.name}'",
+            Log.WarningOnce($"Couldn't find the associated letter for quest '{quest.name}'",
                 quest.GetHashCode().ToString());
             return;
         }
@@ -134,7 +132,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         var choiceLetter = quest.GetLetter();
         if (choiceLetter is null)
         {
-            LogPrefixed.WarningOnce($"Couldn't find the associated letter for quest '{quest.name}'",
+            Log.WarningOnce($"Couldn't find the associated letter for quest '{quest.name}'",
                 quest.GetHashCode().ToString());
             return;
         }
@@ -222,7 +220,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
                     var letter = quest.GetLetter();
                     if (letter is null)
                     {
-                        LogPrefixed.WarningOnce(
+                        Log.WarningOnce(
                             $"Couldn't find the associated letter for quest '{quest.name}'",
                             quest.GetHashCode().ToString());
                         return;

@@ -4,7 +4,6 @@ using System.Reflection;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
-using Verse;
 
 namespace BetterLetters.Patches;
 

@@ -7,7 +7,6 @@ using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
 using UnityEngine;
-using Verse;
 using Verse.Sound;
 
 namespace BetterLetters.Patches

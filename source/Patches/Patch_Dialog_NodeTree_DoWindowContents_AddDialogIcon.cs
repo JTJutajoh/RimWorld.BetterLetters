@@ -2,7 +2,6 @@
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
-using Verse;
 
 namespace BetterLetters.Patches
 {

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using BetterLetters.DarkLog;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
-using Verse;
 
 namespace BetterLetters.Patches;
 
@@ -31,7 +29,7 @@ internal static class Patch_PlaySettings_GlobalControl_CreateReminderButton
         }
         catch (Exception e)
         {
-            LogPrefixed.Exception(e, "Play Settings Global Controls create reminder button");
+            Log.Exception(e, "Play Settings Global Controls create reminder button");
         }
     }
 }

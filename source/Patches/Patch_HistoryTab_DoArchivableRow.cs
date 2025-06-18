@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
-using BetterLetters.DarkLog;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
 using UnityEngine;
-using Verse;
 using Verse.Sound;
 
 namespace BetterLetters.Patches;
@@ -42,7 +40,7 @@ internal static class Patch_HistoryTab_DoArchivableRow
     {
         if (ButtonPatchMethodAnchor is null)
         {
-            LogPrefixed.Error("Cannot transpile DoArchivableRow, failed to get Find.Archive getter");
+            Log.Error("Cannot transpile DoArchivableRow, failed to get Find.Archive getter");
             foreach (var codeInstruction in instructions) yield return codeInstruction;
             yield break;
         }
@@ -104,7 +102,7 @@ internal static class Patch_HistoryTab_DoArchivableRow
                 }
                 else
                 {
-                    LogPrefixed.Error("Failed transpiling DoArchivableRow. Couldn't find 2nd IL Label.");
+                    Log.Error("Failed transpiling DoArchivableRow. Couldn't find 2nd IL Label.");
                 }
             }
             #endregion ReplaceIcon

@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
-using BetterLetters.DarkLog;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
 using UnityEngine;
-using Verse;
 
 namespace BetterLetters.Patches;
 
@@ -118,7 +116,7 @@ internal static class Patch_HistoryTab_FilteringButtons
 
                 if (conditionIsTrueLabel is null || conditionIsFalseLabel is null)
                 {
-                    LogPrefixed.Error("Failed transpiling DoMessagesPage. Couldn't find IL Labels.");
+                    Log.Error("Failed transpiling DoMessagesPage. Couldn't find IL Labels.");
                     yield return codes[i];
                     continue;
                 }
