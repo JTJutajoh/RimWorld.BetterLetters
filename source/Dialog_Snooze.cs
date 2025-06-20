@@ -39,6 +39,8 @@ public class Dialog_Snooze : Window
         const float sliderWidthRatio = 0.6f;
         var sliderRect = inRect.MiddlePart(sliderWidthRatio, 0.8f);
         sliderRect = sliderRect.TopPartPixels(20f);
+// For some reason RW 1.4 made this obsolete, but not anymore in 1.5+. Just ignore the warning.
+#pragma warning disable CS0612 // Type or member is obsolete
         durationDays = Widgets.HorizontalSlider(
             sliderRect,
             durationDays,
@@ -49,19 +51,20 @@ public class Dialog_Snooze : Window
             rightAlignedLabel: SliderMaxLabel,
             roundTo: 1f / 24f // Round to the hour
         );
+#pragma warning restore CS0612 // Type or member is obsolete
 
         var maxLabelRect = inRect.MiddlePart(sliderWidthRatio, 1.0f).RightPartPixels(72f).TopPartPixels(40f);
         maxLabelRect.y += 16f;
         TooltipHandler.TipRegionByKey(maxLabelRect, "BetterLetters_MaxDurationTooltip", Settings.MaxSnoozeDuration);
 
-        
+
         //TODO: Redo inc/dec buttons
         const float buttonWidthRatio = (1f - sliderWidthRatio) / 2 - 0.03f;
         const float buttonHeightIncDec = 30f;
 
         //TODO: Add a text entry field to directly set the duration
         // Widgets.TextFieldNumeric();
-        
+
         if (Widgets.ButtonTextSubtle(
                 inRect.MiddlePartPixels(inRect.width, buttonHeightIncDec).LeftPart(buttonWidthRatio).LeftHalf(),
                 "BetterLetters_DecDay".Translate()
@@ -69,7 +72,7 @@ public class Dialog_Snooze : Window
         {
             durationDays = Mathf.Max(durationDays - 1, 0);
         }
-        
+
         if (Widgets.ButtonTextSubtle(
                 inRect.MiddlePartPixels(inRect.width, buttonHeightIncDec).LeftPart(buttonWidthRatio).RightHalf(),
                 "BetterLetters_DecHour".Translate()

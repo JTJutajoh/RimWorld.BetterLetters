@@ -26,7 +26,8 @@ namespace BetterLetters.Patches
         [UsedImplicitly]
         static void Option_JumpToLocation(ref DiaOption __result, ChoiceLetter __instance)
         {
-            var target = __instance.lookTargets.TryGetPrimaryTarget();
+            if (__instance.lookTargets?.TryGetPrimaryTarget() is not { } target) return;
+
             __result.action = delegate
             {
                 DismissIfNotPinned(__instance);
@@ -39,7 +40,8 @@ namespace BetterLetters.Patches
         [UsedImplicitly]
         static void Option_ReadMore(ref DiaOption __result, DeathLetter __instance)
         {
-            var target = __instance.lookTargets.TryGetPrimaryTarget();
+            if (__instance.lookTargets?.TryGetPrimaryTarget() is not { } target) return;
+
             __result.action = delegate
             {
                 DismissIfNotPinned(__instance);
@@ -52,7 +54,7 @@ namespace BetterLetters.Patches
         static void DismissIfNotPinned(Letter letter)
         {
             if (!letter.IsPinned())
-                Find.LetterStack.RemoveLetter(letter);
+                Find.LetterStack?.RemoveLetter(letter);
         }
 
         /// Slightly different from the other methods since this one uses a normal method in vanilla rather than a Property getter

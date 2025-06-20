@@ -5,20 +5,27 @@ using RimWorld;
 using System.Reflection;
 using UnityEngine;
 
-namespace BetterLetters
+namespace BetterLetters.Utils
 {
     internal static class LetterUtils
     {
         [StaticConstructorOnStartup]
         internal static class Icons
         {
+            // ReSharper disable AssignNullToNotNullAttribute
             internal static readonly Texture2D Dismiss = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
             internal static readonly Texture2D UnDismiss = ContentFinder<Texture2D>.Get("UI/Buttons/UnDismiss");
             internal static readonly Texture2D PinFloatMenu = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Pin");
-            internal static readonly Texture2D ReminderFloatMenu = ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Reminder");
+
+            internal static readonly Texture2D ReminderFloatMenu =
+                ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Reminder");
+
             internal static readonly Texture2D Reminder = ContentFinder<Texture2D>.Get("UI/Icons/Reminder");
             internal static readonly Texture2D ReminderOutline = ContentFinder<Texture2D>.Get("UI/Icons/Reminder");
-            internal static readonly Texture2D ReminderSmall = ContentFinder<Texture2D>.Get("UI/GlobalControls/Reminder");
+
+            internal static readonly Texture2D ReminderSmall =
+                ContentFinder<Texture2D>.Get("UI/GlobalControls/Reminder");
+
             internal static readonly Texture2D PinRound = ContentFinder<Texture2D>.Get("UI/Icons/PinRound");
 
             internal static readonly Texture2D PinOutlineRound =
@@ -40,13 +47,15 @@ namespace BetterLetters
                 ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Snooze");
 
             internal static readonly Texture2D SnoozeIcon = ContentFinder<Texture2D>.Get("UI/Icons/Snoozed");
+
             internal static readonly Texture2D SnoozeOutline = ContentFinder<Texture2D>.Get("UI/Icons/SnoozedOutline");
+            // ReSharper restore AssignNullToNotNullAttribute
         }
 
 
         public static bool IsPinned(this Letter letter)
         {
-            return Find.Archive.IsPinned(letter);
+            return Find.Archive?.IsPinned(letter) ?? false;
         }
 
         public static bool IsSnoozed(this Letter letter, bool ignoreReminders = false)
@@ -54,40 +63,45 @@ namespace BetterLetters
             if (ignoreReminders)
             {
                 return SnoozeManager.Snoozes.ContainsKey(letter) &&
-                       SnoozeManager.Snoozes[letter].SnoozeType != SnoozeManager.SnoozeTypes.Reminder;
+                       SnoozeManager.Snoozes[letter]?.SnoozeType != SnoozeManager.SnoozeTypes.Reminder;
             }
+
             return SnoozeManager.Snoozes.ContainsKey(letter);
         }
 
         public static void Pin(this Letter letter, bool suppressSnoozeCanceledMessage = false)
         {
-            if (!Find.Archive.Contains(letter))
+            if (!Find.Archive?.Contains(letter) ?? false)
             {
-                Find.Archive.Add(letter);
+                Find.Archive!.Add(letter);
             }
 
-            Find.Archive.Pin(letter);
+            Find.Archive?.Pin(letter);
             SnoozeManager.RemoveSnooze(letter, suppressSnoozeCanceledMessage);
             SortLetterStackByPinned();
-            if (letter is ChoiceLetter { quest: not null } choiceLetter)
+            if (letter is ChoiceLetter { quest: not null } choiceLetter
+#if !(v1_1 || v1_2)
+                && choiceLetter.quest?.GetSubquests() is { } subQuests
+#endif
+               )
             {
                 choiceLetter.quest.dismissed = false;
 #if !(v1_1 || v1_2)
-                foreach (var subQuest in choiceLetter.quest.GetSubquests())
+                foreach (var subQuest in subQuests)
                 {
                     subQuest.dismissed = choiceLetter.quest.dismissed;
                 }
 #endif
-                ((MainTabWindow_Quests)MainButtonDefOf.Quests.TabWindow).Select(choiceLetter.quest);
+                ((MainTabWindow_Quests)MainButtonDefOf.Quests!.TabWindow!).Select(choiceLetter.quest);
             }
         }
 
         public static void Unpin(this Letter letter, bool alsoRemove = false)
         {
-            Find.Archive.Unpin(letter);
+            Find.Archive?.Unpin(letter);
             if (alsoRemove)
             {
-                Find.LetterStack.RemoveLetter(letter);
+                Find.LetterStack?.RemoveLetter(letter);
             }
 
             SortLetterStackByPinned();
@@ -111,7 +125,7 @@ namespace BetterLetters
             {
                 Messages.Message(new Message(
                     "BetterLetters_ReminderCreated".Translate(durationTicks.ToStringTicksToPeriod()),
-                    MessageTypeDefOf.SilentInput));
+                    MessageTypeDefOf.SilentInput!));
             }
         }
 
@@ -122,20 +136,21 @@ namespace BetterLetters
             {
                 text = label;
             }
+
             var letter = LetterMaker.MakeLetter(
                 label: label,
                 text: text,
                 def: def
-            );
-            letter.lookTargets = lookTargets;
-            Find.Archive.Add(letter);
+            )!;
+            letter.lookTargets = lookTargets!;
+            Find.Archive?.Add(letter);
             letter.AddReminder(durationTicks, isPinned);
         }
 
         public static bool IsReminder(this Letter letter)
         {
             return SnoozeManager.Snoozes.ContainsKey(letter) &&
-                   SnoozeManager.Snoozes[letter].SnoozeType == SnoozeManager.SnoozeTypes.Reminder;
+                   SnoozeManager.Snoozes[letter]?.SnoozeType == SnoozeManager.SnoozeTypes.Reminder;
         }
 
         private static readonly FieldInfo? LettersField =
@@ -143,14 +158,15 @@ namespace BetterLetters
 
         public static void SortLetterStackByPinned()
         {
-            var letters = (List<Letter>)(LettersField?.GetValue(Find.LetterStack) ?? new List<Letter>());
+            var letters = (List<Letter>)(LettersField?.GetValue(Find.LetterStack!) ?? new List<Letter>());
             letters = letters.OrderBy(obj => obj.IsPinned()).ToList();
-            LettersField?.SetValue(Find.LetterStack, letters);
+            LettersField?.SetValue(Find.LetterStack!, letters);
         }
 
         // This helper function will be called at least twice every frame and iterates over potentially hundreds of letters
         // to find a match, so it's important to cache the results.
         private static readonly Dictionary<Quest, ChoiceLetter?> QuestLetterCache = new();
+
         /// <summary>
         /// Search for the "new quest" letter associated with a quest, since the quest does not store a reference to it.<br />
         /// Results (including null) are cached. The cache is however not serialized.
@@ -162,7 +178,7 @@ namespace BetterLetters
                 return cachedLetter;
             }
 
-            foreach (var archivable in Find.Archive.ArchivablesListForReading)
+            foreach (var archivable in Find.Archive?.ArchivablesListForReading ?? new List<IArchivable>())
             {
                 if (archivable is not ChoiceLetter letter || letter.quest != quest) continue;
                 QuestLetterCache[quest] = letter;

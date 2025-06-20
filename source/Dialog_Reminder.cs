@@ -18,9 +18,9 @@ public class Dialog_Reminder : Window
 
     private string _reminderText = "";
 
-    private bool _pinned = true;
+    private bool _pinned;
 
-    private LetterDef _letterDef = LetterDefOf.PositiveEvent;
+    private LetterDef _letterDef = LetterDefOf.PositiveEvent!;
 
     private static readonly List<LetterDef> ValidLetterDefs = new()
     {
@@ -56,8 +56,8 @@ public class Dialog_Reminder : Window
         closeOnAccept = true;
         closeOnClickedOutside = true;
         closeOnClickedOutside = true;
-        soundAppear = SoundDefOf.CommsWindow_Open;
-        soundClose = SoundDefOf.CommsWindow_Close;
+        soundAppear = SoundDefOf.CommsWindow_Open!;
+        soundClose = SoundDefOf.CommsWindow_Close!;
         _selectedThing = thing ?? FindSelectedThing();
         _reminderTitle = title ?? _reminderTitle;
         _reminderText = text ?? _reminderText;
@@ -72,14 +72,14 @@ public class Dialog_Reminder : Window
         {
             return null;
         }
-        
-        if (Find.Selector.NumSelected == 0) return null;
-        if (Find.Selector.SelectedPawns.Count > 0)
+
+        if (Find.Selector?.NumSelected == 0) return null;
+        if (Find.Selector?.SelectedPawns?.Count > 0)
         {
             return Find.Selector.SelectedPawns[0];
         }
 
-        foreach (var o in Find.Selector.SelectedObjectsListForReading)
+        foreach (var o in Find.Selector?.SelectedObjectsListForReading ?? new List<object>())
         {
             if (o is Thing thing)
             {
@@ -108,7 +108,7 @@ public class Dialog_Reminder : Window
             "Title".Translate());
         var titleTextEntryRect = titleTextRect.RightPart(0.9f);
         titleTextEntryRect.xMax -= pinSectionWidth;
-        _reminderTitle = Widgets.TextField(titleTextEntryRect, _reminderTitle, 64, new Regex("^[^<>]*$"));
+        _reminderTitle = Widgets.TextField(titleTextEntryRect, _reminderTitle, 64, new Regex("^[^<>]*$")) ?? _reminderTitle;
         _reminderTitle = SanitizeText(_reminderTitle);
 
         Widgets.Label(new Rect(0f, titleTextRect.yMax + 8f, innerRect.width, 32f),
@@ -127,7 +127,7 @@ public class Dialog_Reminder : Window
         var textEntryHeight = Mathf.Max(Text.CalcHeight(_reminderText, outerScrollRegionRect.width - 8f), 90f);
         var textEntryRect = new Rect(0f, 0f, outerScrollRegionRect.width - 14f, textEntryHeight);
         Widgets.BeginScrollView(outerScrollRegionRect, ref _scrollPosition, textEntryRect);
-        _reminderText = Widgets.TextArea(textEntryRect, _reminderText);
+        _reminderText = Widgets.TextArea(textEntryRect, _reminderText) ?? _reminderText;
         _reminderText = SanitizeText(_reminderText);
         Widgets.EndScrollView();
 
@@ -147,30 +147,30 @@ public class Dialog_Reminder : Window
         var buttonsRect = innerRect.BottomPartPixels(buttonsSize.y);
 
         // Letter type selection
-        var letterIconSize = new Vector2(_letterDef.Icon.width, _letterDef.Icon.height) * 0.5f;
+        var letterIconSize = new Vector2(_letterDef.Icon?.width ?? 64f, _letterDef.Icon?.height ?? 64f) * 0.5f;
         var letterTypeRect = buttonsRect.MiddlePartPixels(buttonsSize.x * 1.3f, letterIconSize.y);
         var letterIconRect = new Rect(letterTypeRect.xMax - letterIconSize.x,
             letterTypeRect.center.y - (letterIconSize.y / 2) - 4f, letterIconSize.x, letterIconSize.y);
         Widgets.Label(letterTypeRect.LeftPartPixels(letterTypeRect.width - letterIconSize.x),
             "BetterLetters_LetterTypeLabel".Translate());
-        if (Widgets.ButtonImage(letterIconRect, _letterDef.Icon, _letterDef.color))
+        if (Widgets.ButtonImage(letterIconRect, _letterDef.Icon!, _letterDef.color))
         {
             var floatMenuOptions = new List<FloatMenuOption>();
 
             foreach (var letterDef in ValidLetterDefs)
             {
-                floatMenuOptions.Add(new FloatMenuOption(letterDef.defName, () => _letterDef = letterDef
+                floatMenuOptions.Add(new FloatMenuOption(letterDef.defName!, () => _letterDef = letterDef
 #if v1_6
-                    , iconTex: letterDef.Icon, iconColor: letterDef.color));
+                    , iconTex: letterDef.Icon!, iconColor: letterDef.color));
 #elif v1_1 || v1_2 || v1_3 || v1_4 || v1_5
                 )); // FloatMenuOption constructor only added an overload with iconTex in 1.6+, so just close the constructor here
 #endif
             }
 
 
-            Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
-            SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
-            Event.current.Use();
+            Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
+            SoundDefOf.FloatMenu_Open?.PlayOneShotOnCamera();
+            Event.current?.Use();
         }
 
         // Bottom buttons
@@ -232,20 +232,20 @@ public class Dialog_Reminder : Window
                 new FloatMenuOption("BetterLetters_SelectSomething".Translate(), DoSelectThing
 #if v1_6
                     ,
-                    iconTex: TexButton.Plus,
+                    iconTex: TexButton.Plus!,
                     iconColor: Color.white, priority: MenuOptionPriority.AttackEnemy
 #endif
                 )
             };
 
             var addedSelectedThing = false;
-            foreach (var o in Find.Selector.SelectedObjectsListForReading)
+            foreach (var o in Find.Selector?.SelectedObjectsListForReading ?? new List<object>())
             {
                 var priority = MenuOptionPriority.Default;
                 if (o is not Thing thing) continue;
                 if (thing is Pawn) priority = MenuOptionPriority.High;
                 floatMenuOptions.Add(
-                    new FloatMenuOption(thing.LabelCap, () => _selectedThing = thing,
+                    new FloatMenuOption(thing.LabelCap ?? string.Empty, () => _selectedThing = thing,
 #if v1_4 || v1_5 || v1_6
                         thing, Color.white,
 #endif
@@ -257,16 +257,16 @@ public class Dialog_Reminder : Window
 
             if (_selectedThing != null && !addedSelectedThing)
             {
-                floatMenuOptions.Add(new FloatMenuOption(_selectedThing.LabelCap, null,
+                floatMenuOptions.Add(new FloatMenuOption(_selectedThing.LabelCap ?? string.Empty, null!,
 #if v1_4 || v1_5 || v1_6
                     _selectedThing, Color.white,
 #endif
                     priority: MenuOptionPriority.InitiateSocial));
             }
 
-            Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
-            SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
-            Event.current.Use();
+            Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
+            SoundDefOf.FloatMenu_Open?.PlayOneShotOnCamera();
+            Event.current?.Use();
         }
     }
 
@@ -285,9 +285,9 @@ public class Dialog_Reminder : Window
         var letterDef = Instance._letterDef;
         var durationDays = Instance._durationDays;
         Instance.Close();
-        Find.Targeter.BeginTargeting(
+        Find.Targeter?.BeginTargeting(
 #if v1_6
-            TargetingParameters.ForThing(),
+            TargetingParameters.ForThing()!,
 #elif v1_1 || v1_2 || v1_3 || v1_4 || v1_5
             LegacySupport.ForThing(),
 #endif
@@ -295,7 +295,7 @@ public class Dialog_Reminder : Window
             {
                 if (targetInfo.HasThing)
                 {
-                    Find.WindowStack.Add(new Dialog_Reminder(
+                    Find.WindowStack?.Add(new Dialog_Reminder(
                         targetInfo.Thing ?? selectedThing,
                         title,
                         text,

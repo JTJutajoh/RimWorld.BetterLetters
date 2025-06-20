@@ -15,7 +15,7 @@ namespace BetterLetters.Patches;
 /// <summary>
 /// Modifies the behavior of the Quests tab and quests' associated letters.<br />
 /// Primarily adds buttons next to the vanilla Dismiss button<br />
-/// Also Changes the behavior of quest letters on the stack when the Dismiss button is clicked. 
+/// Also Changes the behavior of quest letters on the stack when the Dismiss button is clicked.
 /// </summary>
 [HarmonyPatch]
 [HarmonyPatchCategory("QuestsTab_Buttons")]
@@ -25,6 +25,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
 {
     private static readonly FieldInfo? SelectedFieldInfo =
         typeof(MainTabWindow_Quests).GetField("selected", AccessTools.all);
+
     private static readonly MethodInfo? DoCharityIconMethodAnchor =
         typeof(MainTabWindow_Quests).GetMethod("DoCharityIcon", AccessTools.all);
 
@@ -33,20 +34,22 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
     [UsedImplicitly]
     static IEnumerable<CodeInstruction> DoSelectedQuestInfo(IEnumerable<CodeInstruction> instructions)
     {
-        if (DoCharityIconMethodAnchor is null)
-        {
-            Log.Error("Cannot transpile DoSelectedQuestInfo, failed to get DoCharityIcon method");
-        }
+        if (SelectedFieldInfo == null)
+            throw new InvalidOperationException(
+                $"Couldn't find {nameof(SelectedFieldInfo)} method for {nameof(Patch_QuestsTab_SelectedQuest_Buttons)}.{MethodBase.GetCurrentMethod()} patch");
+
+        if (DoCharityIconMethodAnchor == null)
+            throw new InvalidOperationException(
+                $"Couldn't find {nameof(DoCharityIconMethodAnchor)} method for {nameof(Patch_QuestsTab_SelectedQuest_Buttons)}.{MethodBase.GetCurrentMethod()} patch");
 
         var codes = new List<CodeInstruction>(instructions);
 
         // ReSharper disable once ForCanBeConvertedToForeach
         for (int i = 0; i < codes.Count; i++)
         {
-            
-            if (codes[i].Calls(DoCharityIconMethodAnchor))
+            if (codes[i]!.Calls(DoCharityIconMethodAnchor))
             {
-                yield return codes[i];
+                yield return codes[i]!;
 
                 // Add our buttons after the dismiss button is drawn
                 // PATCH 1:
@@ -56,7 +59,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
                 // Load the currently selected quest from a field
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return new CodeInstruction(OpCodes.Ldfld, SelectedFieldInfo);
-                yield return CodeInstruction.Call(typeof(Patch_QuestsTab_SelectedQuest_Buttons), nameof(DoPinButton));
+                yield return CodeInstruction.Call(typeof(Patch_QuestsTab_SelectedQuest_Buttons), nameof(DoPinButton))!;
 
                 // PATCH 2:
                 // Snooze button
@@ -65,12 +68,13 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
                 // Load the currently selected quest from a field
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return new CodeInstruction(OpCodes.Ldfld, SelectedFieldInfo);
-                yield return CodeInstruction.Call(typeof(Patch_QuestsTab_SelectedQuest_Buttons), nameof(DoSnoozeButton));
+                yield return CodeInstruction.Call(typeof(Patch_QuestsTab_SelectedQuest_Buttons),
+                    nameof(DoSnoozeButton))!;
 
                 continue;
             }
 
-            yield return codes[i];
+            yield return codes[i]!;
         }
     }
 
@@ -84,6 +88,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         {
             return;
         }
+
         var rect = new Rect(innerRect.xMax - 64f - 6f, innerRect.y, 32f, 32f);
 
         var choiceLetter = quest.GetLetter();
@@ -101,12 +106,12 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
             if (pinned)
             {
                 choiceLetter.Unpin();
-                SoundDefOf.Tick_Low.PlayOneShotOnCamera();
+                SoundDefOf.Tick_Low!.PlayOneShotOnCamera();
             }
             else
             {
                 choiceLetter.Pin();
-                SoundDefOf.Tick_High.PlayOneShotOnCamera();
+                SoundDefOf.Tick_High!.PlayOneShotOnCamera();
             }
         }
 
@@ -127,6 +132,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         {
             return;
         }
+
         var rect = new Rect(innerRect.xMax - 96f - 6f, innerRect.y, 32f, 32f);
 
         var choiceLetter = quest.GetLetter();
@@ -144,14 +150,14 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
             if (snoozed)
             {
                 SnoozeManager.RemoveSnooze(choiceLetter);
-                SoundDefOf.Tick_Low.PlayOneShotOnCamera();
+                SoundDefOf.Tick_Low!.PlayOneShotOnCamera();
                 snoozed = false;
             }
             else
             {
                 void OnSnooze(SnoozeManager.Snooze? snooze)
                 {
-                    SoundDefOf.Tick_High.PlayOneShotOnCamera();
+                    SoundDefOf.Tick_High!.PlayOneShotOnCamera();
                     snoozed = true;
                 }
 
@@ -162,8 +168,8 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
                     LetterUtils.SnoozeDialogFloatMenuOption(choiceLetter, OnSnooze)
                 };
 
-                Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
-                SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
+                Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
+                SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();
             }
         }
 
@@ -171,8 +177,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         {
             if (snoozed)
             {
-                var snooze = SnoozeManager.Snoozes[choiceLetter];
-                snooze.DoTipRegion(rect);
+                SnoozeManager.Snoozes[choiceLetter]?.DoTipRegion(rect);
             }
             else
             {
@@ -180,13 +185,12 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
             }
         }
     }
-    
+
 #if !(v1_1 || v1_2 || v1_3 || v1_4)
-    static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).
-        GetMethod(
-            name: nameof(Widgets.ButtonImage),
-            types: new[] { typeof(Rect), typeof(Texture2D), typeof(bool), typeof(string) }
-        );
+    static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).GetMethod(
+        name: nameof(Widgets.ButtonImage),
+        types: new[] { typeof(Rect), typeof(Texture2D), typeof(bool), typeof(string) }
+    );
 #else
     static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).
         GetMethod(
@@ -202,11 +206,18 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
     [UsedImplicitly]
     static IEnumerable<CodeInstruction> DoDismissButton(IEnumerable<CodeInstruction> instructions)
     {
+        if (DismissButtonClickedMethodAnchor == null)
+            throw new InvalidOperationException(
+                $"Couldn't find {nameof(DismissButtonClickedMethodAnchor)} method for {nameof(Patch_QuestsTab_SelectedQuest_Buttons)}.{MethodBase.GetCurrentMethod()} patch");
+        if (SelectedFieldInfo == null)
+            throw new InvalidOperationException(
+                $"Couldn't find {nameof(SelectedFieldInfo)} method for {nameof(Patch_QuestsTab_SelectedQuest_Buttons)}.{MethodBase.GetCurrentMethod()} patch");
+
         var codes = new List<CodeInstruction>(instructions);
 
         for (int i = 0; i < codes.Count; i++)
         {
-            if (i > 2 && codes[i - 2].Calls(DismissButtonClickedMethodAnchor))
+            if (i > 2 && codes[i - 2]!.Calls(DismissButtonClickedMethodAnchor))
             {
                 yield return new CodeInstruction(OpCodes.Ldarg_0);
                 yield return new CodeInstruction(OpCodes.Ldfld, SelectedFieldInfo);
@@ -217,6 +228,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
                     {
                         return;
                     }
+
                     var letter = quest.GetLetter();
                     if (letter is null)
                     {
@@ -226,11 +238,11 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
                         return;
                     }
 
-                    Find.LetterStack.RemoveLetter(letter);
-                });
+                    Find.LetterStack?.RemoveLetter(letter);
+                })!;
             }
 
-            yield return codes[i];
+            yield return codes[i]!;
         }
     }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -38,7 +37,7 @@ internal class Settings : ModSettings
     [Setting] internal static bool AutoSelectThingForReminders = true;
     // ReSharper restore RedundantDefaultMemberInitializer
 
-    private static Dictionary<string, object> _defaultSettings = new();
+    internal static Dictionary<string, object> DefaultSettings = new();
 
     // GUI Stuff
     private enum SettingsTab
@@ -52,9 +51,9 @@ internal class Settings : ModSettings
     private SettingsTab _currentTab = SettingsTab.Main;
     private const float TabHeight = 32f;
 
-    public Settings() : base()
+    public Settings()
     {
-        HarvestSettingsDefaults(out _defaultSettings);
+        HarvestSettingsDefaults(out DefaultSettings);
         Log.Trace("Default settings loaded");
     }
 
@@ -63,7 +62,7 @@ internal class Settings : ModSettings
         settings = new Dictionary<string, object>();
         if (owningType is null) owningType = GetType();
 
-        var fields = AccessTools.GetDeclaredFields(owningType);
+        var fields = AccessTools.GetDeclaredFields(owningType)!;
         Log.Trace($"Harvesting {fields.Count} settings for type '{owningType.FullName}'");
         foreach (var field in fields)
         {
@@ -75,29 +74,28 @@ internal class Settings : ModSettings
         }
     }
 
-    private static string GetLabel(string key, bool showValue = false)
+    internal static string GetSettingLabel(string key, bool showValue = false)
     {
-        if (showValue)
-        {
-            var value = AccessTools.Field(typeof(Settings), key).GetValue(null).ToString();
-            return $"BetterLetters_Settings_{key}".Translate(value);
-        }
-        else
-        {
-            return $"BetterLetters_Settings_{key}".Translate();
-        }
+        if (!showValue) return $"BetterLetters_Settings_{key}".Translate();
+
+        var value = AccessTools.Field(typeof(Settings), key)?.GetValue(null!)?.ToString() ?? null;
+        if (value is null) return $"BetterLetters_Settings_{key}".Translate();
+
+        return $"BetterLetters_Settings_{key}".Translate() + ": " + value;
     }
 
-    private static string GetTooltip(string key)
+    internal static string GetSettingTooltip(string key)
     {
-        var str = "";
+        var success = $"BetterLetters_Settings_{key}_Desc".TryTranslate(out var str);
 
-        str = $"BetterLetters_Settings_{key}_Desc".Translate();
-
-        if (_defaultSettings.TryGetValue(key, out var setting))
+        if (!success)
         {
-            str += $"BetterLetters_Settings_DefaultSuffix".Translate(setting.ToString());
+            str = "";
+            return str;
         }
+
+        if (DefaultSettings.TryGetValue(key, out var setting))
+            str += "BetterLetters_Settings_DefaultSuffix".Translate(setting!.ToString());
 
         return str;
     }
@@ -118,7 +116,9 @@ internal class Settings : ModSettings
 #if v1_5 || v1_6
         TabDrawer.DrawTabsOverflow(inRect.TopPartPixels(TabHeight), tabs, 80f, 200f);
 #elif v1_1 || v1_2 || v1_3 || v1_4
-        TabDrawer.DrawTabs(inRect.TopPartPixels(TabHeight), tabs, 200f);
+        var tabsRect = inRect.TopPartPixels(TabHeight);
+        tabsRect.y += TabHeight;
+        TabDrawer.DrawTabs(tabsRect, tabs, 200f);
 #endif
         Widgets.DrawLineHorizontal(inRect.xMin, inRect.yMin + TabHeight, inRect.width);
 
@@ -184,33 +184,34 @@ internal class Settings : ModSettings
         var listingStandard = new Listing_Standard();
         listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
 
-        listingStandard.CheckboxLabeled(GetLabel("DismissedQuestsDismissLetters"), ref DismissedQuestsDismissLetters,
-            GetTooltip("DismissedQuestsDismissLetters"), 36f, 0.90f);
+        listingStandard.CheckboxLabeled(GetSettingLabel("DismissedQuestsDismissLetters"),
+            ref DismissedQuestsDismissLetters,
+            GetSettingTooltip("DismissedQuestsDismissLetters"), 36f, 0.90f);
 
-        listingStandard.CheckboxLabeled(GetLabel("KeepQuestLettersOnStack"), ref KeepQuestLettersOnStack,
-            GetTooltip("KeepQuestLettersOnStack"), 36f, 0.90f);
+        listingStandard.CheckboxLabeled(GetSettingLabel("KeepQuestLettersOnStack"), ref KeepQuestLettersOnStack,
+            GetSettingTooltip("KeepQuestLettersOnStack"), 36f, 0.90f);
 
         listingStandard.Gap(20f);
 
-        listingStandard.CheckboxLabeled(GetLabel("DisableBounceAlways"), ref DisableBounceAlways,
-            GetTooltip("DisableBounceAlways"), 36f, 0.90f);
+        listingStandard.CheckboxLabeled(GetSettingLabel("DisableBounceAlways"), ref DisableBounceAlways,
+            GetSettingTooltip("DisableBounceAlways"), 36f, 0.90f);
         if (!DisableBounceAlways)
         {
             listingStandard.Indent();
-            listingStandard.CheckboxLabeled(GetLabel("DisableBounceIfPinned"), ref DisableBounceIfPinned,
-                GetTooltip("DisableBounceIfPinned"), 28f, 0.87f);
+            listingStandard.CheckboxLabeled(GetSettingLabel("DisableBounceIfPinned"), ref DisableBounceIfPinned,
+                GetSettingTooltip("DisableBounceIfPinned"), 28f, 0.87f);
             listingStandard.Outdent();
         }
 
         listingStandard.Gap(4f);
 
-        listingStandard.CheckboxLabeled(GetLabel("DisableFlashAlways"), ref DisableFlashAlways,
-            GetTooltip("DisableFlashAlways"), 36f, 0.90f);
+        listingStandard.CheckboxLabeled(GetSettingLabel("DisableFlashAlways"), ref DisableFlashAlways,
+            GetSettingTooltip("DisableFlashAlways"), 36f, 0.90f);
         if (!DisableFlashAlways)
         {
             listingStandard.Indent();
-            listingStandard.CheckboxLabeled(GetLabel("DisableFlashIfPinned"), ref DisableFlashIfPinned,
-                GetTooltip("DisableFlashIfPinned"), 28f,0.87f);
+            listingStandard.CheckboxLabeled(GetSettingLabel("DisableFlashIfPinned"), ref DisableFlashIfPinned,
+                GetSettingTooltip("DisableFlashIfPinned"), 28f, 0.87f);
             listingStandard.Outdent();
         }
 
@@ -221,18 +222,19 @@ internal class Settings : ModSettings
     {
         var listingStandard = new Listing_Standard();
         listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
-        
+
         listingStandard.Indent(inRect.width * 0.1f);
 
-        listingStandard.CheckboxLabeled(GetLabel("DisableRightClickPinnedLetters"), ref DisableRightClickPinnedLetters,
-            GetTooltip("DisableRightClickPinnedLetters"), 36f);;
+        listingStandard.CheckboxLabeled(GetSettingLabel("DisableRightClickPinnedLetters"),
+            ref DisableRightClickPinnedLetters,
+            GetSettingTooltip("DisableRightClickPinnedLetters"), 36f);
 
         listingStandard.Gap(8f);
 
         if (PinTexture != PinTextureMode.Disabled)
         {
-            var labelRect = listingStandard.Label(GetLabel("TextureInDialogSize", true),
-                tooltip: GetTooltip("TextureInDialogSize"));
+            var labelRect = listingStandard.Label(GetSettingLabel("TextureInDialogSize", true),
+                tooltip: GetSettingTooltip("TextureInDialogSize"));
             listingStandard.IntAdjuster(ref TextureInDialogSize, 8, 16);
 
             Texture2D? pinTex = null;
@@ -247,26 +249,26 @@ internal class Settings : ModSettings
 
             if (pinTex is not null)
             {
-                var pinTexRectRow = listingStandard.GetRect(TextureInDialogSize,0.75f);
+                var pinTexRectRow = listingStandard.GetRect(TextureInDialogSize, 0.75f);
                 var pinTexRect = new Rect(pinTexRectRow.xMin + 96f + (TextureInDialogSize / 2f), labelRect.y + 24f,
                     TextureInDialogSize, TextureInDialogSize);
                 GUI.DrawTexture(pinTexRect, pinTex);
             }
         }
 
-        listingStandard.Label(GetLabel("PinTexture"));
+        listingStandard.Label(GetSettingLabel("PinTexture"));
         if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Disabled".Translate(),
-                PinTexture == PinTextureMode.Disabled, 0f, 200f, null, null, false))
+                PinTexture == PinTextureMode.Disabled, 0f, 200f, null!, null, false))
         {
             PinTexture = PinTextureMode.Disabled;
         }
         else if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Round".Translate(),
-                     PinTexture == PinTextureMode.Round, 0f, 200f, null, null, false))
+                     PinTexture == PinTextureMode.Round, 0f, 200f, null!, null, false))
         {
             PinTexture = PinTextureMode.Round;
         }
         else if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Alt".Translate(),
-                     PinTexture == PinTextureMode.Alt, 0f, 200f, null, null, false))
+                     PinTexture == PinTextureMode.Alt, 0f, 200f, null!, null, false))
         {
             PinTexture = PinTextureMode.Alt;
         }
@@ -280,20 +282,21 @@ internal class Settings : ModSettings
         listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
 
         MaxNumSnoozes = (int)listingStandard.SliderLabeled(
-            GetLabel("MaxNumSnoozes", true),
-            MaxNumSnoozes, 1, 200, 0.4f, GetTooltip("MaxNumSnoozes"));
+            GetSettingLabel("MaxNumSnoozes", true),
+            MaxNumSnoozes, 1, 200, 0.4f, GetSettingTooltip("MaxNumSnoozes"));
 
         MaxSnoozeDuration = listingStandard.SliderLabeled(
-            GetLabel("MaxSnoozeDuration", true),
+            GetSettingLabel("MaxSnoozeDuration", true),
             Mathf.RoundToInt(MaxSnoozeDuration), 1, 300, 0.4f,
-            GetTooltip("MaxSnoozeDuration"));
+            GetSettingTooltip("MaxSnoozeDuration"));
 
-        listingStandard.CheckboxLabeled(GetLabel("SnoozePinned"), ref SnoozePinned,
-            GetTooltip("SnoozePinned"), 28f,0.9f);
+        listingStandard.CheckboxLabeled(GetSettingLabel("SnoozePinned"), ref SnoozePinned,
+            GetSettingTooltip("SnoozePinned"), 28f, 0.9f);
 
         if (SnoozeManager.Instance is not null)
         {
             // If in-game, show a list of currently snoozed letters here
+            //TODO: Move this to a devmode-only tab
             DoSnoozesListing(listingStandard);
         }
 
@@ -305,11 +308,11 @@ internal class Settings : ModSettings
         var listingStandard = new Listing_Standard();
         listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
 
-        listingStandard.CheckboxLabeled(GetLabel("DoCreateReminderPlaySetting"),
-            ref DoCreateReminderPlaySetting, GetTooltip("DoCreateReminderPlaySetting"), 32f,0.9f);
-        
-        listingStandard.CheckboxLabeled(GetLabel("AutoSelectThingForReminders"),
-            ref AutoSelectThingForReminders, GetTooltip("AutoSelectThingForReminders"), 32f,0.9f);
+        listingStandard.CheckboxLabeled(GetSettingLabel("DoCreateReminderPlaySetting"),
+            ref DoCreateReminderPlaySetting, GetSettingTooltip("DoCreateReminderPlaySetting"), 32f, 0.9f);
+
+        listingStandard.CheckboxLabeled(GetSettingLabel("AutoSelectThingForReminders"),
+            ref AutoSelectThingForReminders, GetSettingTooltip("AutoSelectThingForReminders"), 32f, 0.9f);
 
         listingStandard.End();
     }
@@ -339,7 +342,7 @@ internal class Settings : ModSettings
         Letter? snoozeToFire = null; // Doing it this way to avoid modifying the collection mid-loop
         foreach (var snooze in snoozedLetters)
         {
-            var remainingTime = snooze.Value.RemainingTicks.ToStringTicksToPeriodVerbose();
+            var remainingTime = snooze.Value?.RemainingTicks.ToStringTicksToPeriodVerbose();
             var rect = listingStandard.GetRect(30f, 0.9f);
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.5f));
             var buttonRemoveText = "BetterLetters_Settings_Unsnooze".Translate();
@@ -367,7 +370,8 @@ internal class Settings : ModSettings
 
         if (snoozeToFire is not null)
         {
-            Find.LetterStack.ReceiveLetter(SnoozeManager.Snoozes[snoozeToFire].Letter);
+            if (SnoozeManager.Snoozes[snoozeToFire]?.Letter is { } letter)
+                Find.LetterStack?.ReceiveLetter(letter);
         }
 
         if (snoozeToRemove is not null)

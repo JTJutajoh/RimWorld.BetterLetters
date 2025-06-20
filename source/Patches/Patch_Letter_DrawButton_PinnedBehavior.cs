@@ -63,7 +63,7 @@ namespace BetterLetters.Patches
 
 
         const float PinnedLetterInflateAmount = 4f;
-        
+
         static readonly MethodInfo? AnchorMethodButtonInvisible =
             typeof(Widgets).GetMethod(nameof(Widgets.ButtonInvisible));
 
@@ -76,6 +76,13 @@ namespace BetterLetters.Patches
         [UsedImplicitly]
         static IEnumerable<CodeInstruction> DrawButtonAt_Transpiler(IEnumerable<CodeInstruction> instructions)
         {
+            if (AnchorMethodButtonInvisible == null)
+                throw new InvalidOperationException(
+                    $"Couldn't find {nameof(AnchorMethodButtonInvisible)} method for {nameof(Patch_Letter_DrawButton_PinnedBehavior)}.{MethodBase.GetCurrentMethod()} patch");
+            if (RectConstructor == null)
+                throw new InvalidOperationException(
+                    $"Couldn't find {nameof(RectConstructor)} method for {nameof(Patch_Letter_DrawButton_PinnedBehavior)}.{MethodBase.GetCurrentMethod()} patch");
+
             var codes = new List<CodeInstruction>(instructions);
 
             var hasInflatedLetterIcon = false;
@@ -83,22 +90,22 @@ namespace BetterLetters.Patches
             for (int i = 0; i < codes.Count; i++)
             {
                 // Altering the Letter icon Rect
-                if (!hasInflatedLetterIcon && codes[i].opcode == OpCodes.Call &&
-                    (ConstructorInfo?)codes[i].operand == RectConstructor)
+                if (!hasInflatedLetterIcon && codes[i]!.opcode == OpCodes.Call &&
+                    (ConstructorInfo?)codes[i]!.operand == RectConstructor)
                 {
                     hasInflatedLetterIcon = true;
                     // Call the first Rect constructor
-                    yield return codes[i++];
+                    yield return codes[i++]!;
                     // Skip over the ldloca.s
                     i++;
                     // Load a "this" reference
                     yield return new CodeInstruction(OpCodes.Ldarg_0);
                     // Call ldloc.1 to get the base Rect that was just constructed
-                    yield return codes[i++];
+                    yield return codes[i++]!;
                     // Replace the 2nd Rect constructor with an inflated Rect
                     yield return CodeInstruction.CallClosure<Func<Letter, Rect, Rect>>(
                         (letter, rect) => !letter.IsPinned() ? new Rect(rect) : new Rect(rect.ExpandedBy(PinnedLetterInflateAmount))
-                    );
+                    )!;
                     // Store the rect in "rect2"
                     yield return new CodeInstruction(OpCodes.Stloc_2);
                     // Skip the next IL (the 2nd Rect constructor)
@@ -106,35 +113,35 @@ namespace BetterLetters.Patches
                 }
 
                 // Altering right-click behavior
-                if (codes[i].Calls(AnchorMethodButtonInvisible))
+                if (codes[i]!.Calls(AnchorMethodButtonInvisible))
                 {
                     yield return new CodeInstruction(OpCodes.Ldarg_0); // Load a "this" reference
                     yield return new CodeInstruction(OpCodes.Ldloc_1); // Load a reference to "rect" local variable)
-                    yield return CodeInstruction.Call(typeof(Patch_Letter_DrawButton_PinnedBehavior), nameof(DoPinnedFloatMenu));
+                    yield return CodeInstruction.Call(typeof(Patch_Letter_DrawButton_PinnedBehavior), nameof(DoPinnedFloatMenu))!;
                 }
 
                 // Disabling bouncing for pinned letters
-                if (codes[i].opcode == OpCodes.Ldfld &&
-                    (FieldInfo?)codes[i].operand == typeof(LetterDef).GetField("bounce"))
+                if (codes[i]!.opcode == OpCodes.Ldfld &&
+                    (FieldInfo?)codes[i]!.operand == typeof(LetterDef).GetField("bounce"))
                 {
                     yield return new CodeInstruction(OpCodes.Ldarg_0); // Load a "this" reference
                     // Replace the original LetterDef.bounce getter
-                    yield return CodeInstruction.CallClosure<Func<LetterDef, Letter, bool>>(OverrideBounce);
+                    yield return CodeInstruction.CallClosure<Func<LetterDef, Letter, bool>>(OverrideBounce)!;
                     continue; // Skip over the original getter
                 }
 
                 // Disabling flashing for pinned letters
-                if (codes[i].opcode == OpCodes.Ldfld &&
-                    (FieldInfo?)codes[i].operand == typeof(LetterDef).GetField("flashInterval"))
+                if (codes[i]!.opcode == OpCodes.Ldfld &&
+                    (FieldInfo?)codes[i]!.operand == typeof(LetterDef).GetField("flashInterval"))
                 {
                     yield return new CodeInstruction(OpCodes.Ldarg_0); // Load a "this" reference
                     // Replace the original LetterDef.flashInterval getter
-                    yield return CodeInstruction.CallClosure<Func<LetterDef, Letter, float>>(OverrideFlash);
+                    yield return CodeInstruction.CallClosure<Func<LetterDef, Letter, float>>(OverrideFlash)!;
                     continue; // Skip over the original getter
                 }
 
                 // Emitting the original IL instruction
-                yield return codes[i];
+                yield return codes[i]!;
             }
         }
 
@@ -155,12 +162,12 @@ namespace BetterLetters.Patches
                     : def.flashInterval;
         }
 
-        
+
         /// Generates and shows a float menu for pinned letters.
         static void DoPinnedFloatMenu(Letter letter, Rect rect)
         {
             // Checks for right-click first and returns early if not
-            if (Event.current.type != EventType.MouseDown || Event.current.button != 1 || !Mouse.IsOver(rect)) return;
+            if (Event.current?.type != EventType.MouseDown || Event.current.button != 1 || !Mouse.IsOver(rect)) return;
 
             if (Settings.DisableRightClickPinnedLetters)
             {
@@ -186,7 +193,7 @@ namespace BetterLetters.Patches
                 ));
                 floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_DismissButStayPinned".Translate(),
-                    () => { Find.LetterStack.RemoveLetter(letter); },
+                    () => { Find.LetterStack?.RemoveLetter(letter); },
                     iconTex: LetterUtils.Icons.Dismiss,
                     iconColor: Color.gray
                 ));
@@ -194,13 +201,13 @@ namespace BetterLetters.Patches
                 floatMenuOptions.Add(LetterUtils.Snooze1DayFloatMenuOption(letter));
                 floatMenuOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(letter));
 
-                Find.WindowStack.Add(new FloatMenu(floatMenuOptions));
-                SoundDefOf.FloatMenu_Open.PlayOneShotOnCamera();
+                Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
+                SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();
                 Event.current.Use();
             }
             else
             {
-                // Right-click functionality for NOT pinned letters would go here in the future    
+                // Right-click functionality for NOT pinned letters would go here in the future
             }
         }
     }

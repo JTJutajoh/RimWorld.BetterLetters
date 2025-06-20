@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 
 namespace BetterLetters;
 
-public class SnoozeManager : WorldComponent
+[UsedImplicitly]
+internal class SnoozeManager : WorldComponent
 {
     public static SnoozeManager? Instance { get; private set; }
 
     public static int MaxNumSnoozes => Settings.MaxNumSnoozes;
     public static int NumSnoozes => Snoozes.Count;
-    
+
     public SnoozeManager(World world) : base(world)
     {
         Instance = this;
@@ -23,41 +26,49 @@ public class SnoozeManager : WorldComponent
         Letter, // Snoozed standard letter
         Reminder // User-created reminder
     }
-    
-    public class Snooze : IExposable
+
+    internal class Snooze : IExposable
     {
         /// True if the snooze's elapsed time has passed its duration
-        public bool Finished => _elapsed >= _duration;
+        internal bool Finished => _elapsed >= _duration;
+
         /// The raw number of ticks remaining before the snooze finishes
-        public int RemainingTicks => _duration - _elapsed;
-        
+        internal int RemainingTicks => _duration - _elapsed;
+
         /// The exact abs tick that this snooze was started on
         private int _start;
+
         /// The number of ticks that this snooze should run for in total
         private int _duration;
+
         /// Gets the total duration of the snooze in ticks.
-        public int Duration => _duration;
+        internal int Duration => _duration;
+
         /// The number of ticks elapsed so far
         private int _elapsed;
+
         /// Reference to the letter that this snooze is for. If this is null for any reason, the snooze will
         /// immediately expire itself on the next tick.<br />
         /// This <i>must</i> match the letter's reference in the snooze dictionary. If a mismatch is detected, the snooze
         /// will expire itself on the next tick.
-        public Letter? Letter;
+        internal Letter? Letter;
+
         /// If true, the letter will automatically be pinned when the snooze finishes
         private bool _pinWhenFinished;
-        /// Defines the behavior of this snooze and used by UI to distinguish it
-        public SnoozeTypes SnoozeType = SnoozeTypes.Letter;
 
+        /// Defines the behavior of this snooze and used by UI to distinguish it
+        internal SnoozeTypes SnoozeType = SnoozeTypes.Letter;
+
+        /// Empty constructor for scribe.
+        /// This is only used when loading existing save files.
         [Obsolete("Do not use the blank constructor. It only exists for serialization.")]
-        public Snooze()
+        internal Snooze()
         {
             Log.Trace("Creating new empty snooze data");
-            // Empty constructor for scribe.
-            // This is only used when loading existing save files.
         }
-        
-        public Snooze(Letter letter, int durationTicks, bool pinWhenFinished = false, SnoozeTypes snoozeType = SnoozeTypes.Letter)
+
+        internal Snooze(Letter letter, int durationTicks, bool pinWhenFinished = false,
+            SnoozeTypes snoozeType = SnoozeTypes.Letter)
         {
             Log.Trace("Creating new snooze");
             Letter = letter;
@@ -68,53 +79,64 @@ public class SnoozeManager : WorldComponent
             SnoozeType = snoozeType;
         }
 
-        public void DoTipRegion(Rect rect)
+        internal void DoTipRegion(Rect rect)
         {
-            if (Letter is null) return;
-            
-            var snooze = Snoozes[Letter];
+            if (Letter is null || Snoozes[Letter] is not { } snooze) return;
+
             var remaining = snooze.RemainingTicks.ToStringTicksToPeriodVerbose();
-            var end = GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + snooze.Duration, QuestUtility.GetLocForDates());
-            TooltipHandler.TipRegionByKey(rect, snooze.Letter?.IsReminder() ?? false ? "BetterLetters_SnoozedReminderButtonTooltip" : "BetterLetters_SnoozedButtonTooltip", end, remaining);
+            var end = GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + snooze.Duration,
+                QuestUtility.GetLocForDates());
+            TooltipHandler.TipRegionByKey(rect,
+                snooze.Letter?.IsReminder() ?? false
+                    ? "BetterLetters_SnoozedReminderButtonTooltip"
+                    : "BetterLetters_SnoozedButtonTooltip", end, remaining);
         }
 
         /// <summary>
         /// Ticks the timer, handling what happens if the letter is invalid or if the timer finishes.
         /// </summary>
         /// <returns>true if the timer is complete or invalid. false if the timer is still running</returns>
-        public bool TickIntervalDelta()
+        internal bool TickIntervalDelta()
         {
             if (Letter is null)
             {
                 Log.Warning("Snooze reference to its letter was lost!");
                 Messages.Message(
                     "BetterLetters_SnoozeExpired".Translate(),
-                    LookTargets.Invalid,
-                    MessageTypeDefOf.RejectInput,
+                    LookTargets.Invalid!,
+                    MessageTypeDefOf.RejectInput!,
                     historical: false
                 );
                 return true;
             }
+
             _elapsed = GenTicks.TicksGame - _start;
             if (Finished)
             {
                 Finish();
             }
+
             return Finished;
         }
 
-        public void Finish()
+        internal void Finish()
         {
+            if (Letter is null)
+            {
+                Log.Warning("Tried to finish a snooze with a null letter.");
+                return;
+            }
             if (_pinWhenFinished)
             {
-                Letter?.Pin(suppressSnoozeCanceledMessage: true);
+                Letter.Pin(suppressSnoozeCanceledMessage: true);
             }
             else
             {
-                Find.LetterStack.ReceiveLetter(Letter);
+                Find.LetterStack?.ReceiveLetter(Letter);
             }
         }
-        
+
+        [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue")]
         public void ExposeData()
         {
             if (Scribe.mode == LoadSaveMode.Saving && Letter is null)
@@ -122,14 +144,13 @@ public class SnoozeManager : WorldComponent
                 Log.Warning("Tried to save a snooze with an expired letter.");
                 return;
             }
-            // ReSharper disable RedundantArgumentDefaultValue
+
             Scribe_References.Look(ref Letter!, "letter", false);
             Scribe_Values.Look(ref _elapsed, "elapsed", 0, false);
             Scribe_Values.Look(ref _duration, "duration", 0, false);
             Scribe_Values.Look(ref _start, "start", 0, false);
             Scribe_Values.Look(ref _pinWhenFinished, "pinWhenFinished", false, false);
             Scribe_Values.Look(ref SnoozeType, "snoozeType", SnoozeTypes.Letter, false);
-            // ReSharper restore RedundantArgumentDefaultValue
             if (Scribe.mode == LoadSaveMode.PostLoadInit && !Finished)
             {
                 _start = GenTicks.TicksGame;
@@ -154,22 +175,25 @@ public class SnoozeManager : WorldComponent
             Log.Warning("Tried to add a snooze with a null letter. Skipping.");
             return false;
         }
+
         if (NumSnoozes >= MaxNumSnoozes)
         {
             Log.Warning("Tried to add a snooze but there are already too many. Skipping.");
             Messages.Message(
                 "BetterLetters_TooManySnoozes".Translate(),
-                LookTargets.Invalid,
-                MessageTypeDefOf.RejectInput,
+                LookTargets.Invalid!,
+                MessageTypeDefOf.RejectInput!,
                 historical: false
             );
             return false;
         }
+
         if (Snoozes.ContainsKey(snooze.Letter))
         {
             Log.Warning("Tried to add a snooze for a letter that already has one.");
             return false;
         }
+
         Snoozes.Add(snooze.Letter, snooze);
         snooze.Letter.Unpin();
         Log.Trace("Added snooze for letter " + snooze.Letter);
@@ -177,18 +201,20 @@ public class SnoozeManager : WorldComponent
         {
             Messages.Message(
                 "BetterLetters_SnoozeAdded".Translate(snooze.Duration.ToStringTicksToPeriod()),
-                LookTargets.Invalid,
-                MessageTypeDefOf.PositiveEvent,
+                LookTargets.Invalid!,
+                MessageTypeDefOf.PositiveEvent!,
                 historical: false
             );
         }
-        if (Find.LetterStack.LettersListForReading.Contains(snooze.Letter))
+
+        if (Find.LetterStack?.LettersListForReading?.Contains(snooze.Letter) ?? false)
         {
             Find.LetterStack.RemoveLetter(snooze.Letter);
         }
+
         return true;
     }
-    
+
     /// <summary>
     /// Helper method to create a snooze for a letter and add it to the dictionary.
     /// </summary>
@@ -199,7 +225,7 @@ public class SnoozeManager : WorldComponent
     public static Snooze? AddSnooze(Letter letter, int durationTicks, bool pinned = false)
     {
         AddSnooze(new Snooze(letter, durationTicks, Settings.SnoozePinned || pinned));
-        
+
         return Snoozes[letter];
     }
 
@@ -210,6 +236,7 @@ public class SnoozeManager : WorldComponent
             Log.Warning("Tried to remove a null snooze. Skipping.");
             return false;
         }
+
         if (Snoozes.Remove(letter))
         {
 #if v1_4 || v1_5 || v1_6
@@ -221,25 +248,26 @@ public class SnoozeManager : WorldComponent
             {
                 Messages.Message(
                     "BetterLetters_SnoozeRemoved".Translate(label),
-                    LookTargets.Invalid,
-                    MessageTypeDefOf.PositiveEvent,
+                    LookTargets.Invalid!,
+                    MessageTypeDefOf.PositiveEvent!,
                     historical: false
                 );
             }
+
             return true;
         }
 
         return false;
     }
-    
+
     public override void WorldComponentTick()
     {
         base.WorldComponentTick();
-        
+
         var allSnoozes = new Dictionary<Letter?, Snooze>(Snoozes);
         foreach (var snooze in allSnoozes)
         {
-            if (snooze.Key != null && snooze.Value.TickIntervalDelta())
+            if (snooze.Key != null && (snooze.Value?.TickIntervalDelta() ?? true))
             {
                 Snoozes.Remove(snooze.Key);
             }
@@ -259,16 +287,17 @@ public class SnoozeManager : WorldComponent
             var snooze = AddSnooze(letter, duration);
             onSnooze?.Invoke(snooze);
         });
-        Find.WindowStack.Add(snoozeDialog);
+        Find.WindowStack?.Add(snoozeDialog);
     }
 
     // Used just for reassembling the dictionary when a save is loaded
     private static List<Letter>? _letterList;
     private static List<Snooze>? _snoozeList;
+
     public override void ExposeData()
     {
         base.ExposeData();
-        
+
         Scribe_Collections.Look(
             ref _snoozes!,
             "Snoozes",
@@ -289,18 +318,21 @@ public class SnoozeManager : WorldComponent
                     Snoozes.Remove(null!);
                     continue;
                 }
+
                 if (Snoozes[letter] == null)
                 {
                     Log.Warning("Found a null snooze reference for letter " + letter + ". Removing.");
                     Snoozes.Remove(letter);
                     continue;
                 }
-                if (Snoozes[letter].Letter != letter)
+
+                if (Snoozes[letter]?.Letter != letter)
                 {
                     Log.Warning("Found a mismatched snooze reference for letter " + letter + ". Removing.");
                     Snoozes.Remove(letter);
                 }
             }
+
             _letterList = null;
             _snoozeList = null;
         }

@@ -97,9 +97,7 @@
     <Compile Include="Dialog_Reminder.cs" />
     <Compile Include="Dialog_Snooze.cs" />
     <Compile Include="GlobalUsings.cs" />
-    <Compile Include="LegacySupport.cs" />
     <Compile Include="LogPrefixed.cs" />
-    <Compile Include="LetterUtils.cs" />
     <Compile Include="Patches\Patch_HistoryTab_DoArchivableRow.cs" />
     <Compile Include="Patches\Patch_HistoryTab_FilteringButtons.cs" />
     <Compile Include="Patches\Patch_Letter_CanCull_KeepSnoozes.cs" />
@@ -116,6 +114,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="SnoozeManager.cs" />
+    <Compile Include="Utils\CustomWidgets.cs" />
+    <Compile Include="Utils\LegacySupport.cs" />
+    <Compile Include="Utils\LetterUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="About\About.xml" />

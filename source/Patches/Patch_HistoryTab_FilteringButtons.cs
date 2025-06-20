@@ -16,8 +16,10 @@ namespace BetterLetters.Patches;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class Patch_HistoryTab_FilteringButtons
 {
+#if !(v1_1 || v1_2 || v1_3) // Only works on RimWorld 1.4+
     static bool showRemindersFilter = true;
     static bool showSnoozesFilter = true;
+#endif
 
     /// Patch that adds buttons to the messages tab to create a new reminder and to filter snoozes and reminders.
     [HarmonyPatch(typeof(MainTabWindow_History), "DoMessagesPage")]
@@ -36,30 +38,24 @@ internal static class Patch_HistoryTab_FilteringButtons
         if (Widgets.ButtonText(buttonRect, label))
         {
             var reminderDialog = new Dialog_Reminder();
-            Find.WindowStack.Add(reminderDialog);
+            Find.WindowStack?.Add(reminderDialog);
         }
 
 #if !(v1_1 || v1_2 || v1_3) // Only works on RimWorld 1.4+
         // Draw the checkboxes for filtering letters
         var checkboxesRect = rowRect.LeftPartPixels(rowRect.width - labelSize.x);
-        
+
         Widgets.CheckboxLabeled(
             checkboxesRect.LeftHalf(),
             "BetterLetters_ShowSnoozes".Translate(),
             ref showSnoozesFilter,
-            false,
-            null,
-            null,
-            true
+            placeCheckboxNearText: true
         );
         Widgets.CheckboxLabeled(
             checkboxesRect.RightHalf(),
             "BetterLetters_ShowReminders".Translate(),
             ref showRemindersFilter,
-            false,
-            null,
-            null,
-            true
+            placeCheckboxNearText: true
         );
 #endif
     }
@@ -79,26 +75,32 @@ internal static class Patch_HistoryTab_FilteringButtons
     static IEnumerable<CodeInstruction> FilterSnoozesAndReminders(IEnumerable<CodeInstruction> instructions,
         ILGenerator generator)
     {
+        if (ShowLettersAnchor == null)
+            throw new InvalidOperationException(
+                $"Couldn't find {nameof(ShowLettersAnchor)} method for {nameof(Patch_HistoryTab_FilteringButtons)}.{MethodBase.GetCurrentMethod()} patch");
+        if (ShowMessagesAnchor == null)
+            throw new InvalidOperationException(
+                $"Couldn't find {nameof(ShowMessagesAnchor)} method for {nameof(Patch_HistoryTab_FilteringButtons)}.{MethodBase.GetCurrentMethod()} patch");
+
         var codes = new List<CodeInstruction>(instructions);
-        // The label branched to if the conditions determine that DoArchivableRow should be SKIPPED 
+        // The label branched to if the conditions determine that DoArchivableRow should be SKIPPED
         Label? conditionIsTrueLabel = null;
         Label? conditionIsFalseLabel = null;
         for (int i = 0; i < codes.Count; i++)
         {
             // PATCH 1:
             // Add conditions to skip or not skip DoArchivableRow based on snooze/reminder checkboxes
-            if (codes[i].LoadsField(ShowLettersAnchor) && i < codes.Count - 1 &&
-                codes[i + 1].opcode == OpCodes.Brtrue_S)
+            if (codes[i]!.LoadsField(ShowLettersAnchor) && i + 1 < codes.Count && codes[i + 1]!.opcode == OpCodes.Brtrue_S)
             {
                 // Save the original start of the condition since we're going to replace it but we need its label
-                var conditionStart = codes[i];
+                var conditionStart = codes[i]!;
 
                 // Search ahead for the end of the LOOP to find the label to skip to (if it's evaluated as false)
                 for (int j = i; j < codes.Count; j++)
                 {
-                    if (codes[j].opcode == OpCodes.Isinst && codes[j].operand is Type type && type == typeof(Letter))
+                    if (codes[j]!.opcode == OpCodes.Isinst && codes[j]!.operand is Type type && type == typeof(Letter))
                     {
-                        conditionIsFalseLabel = codes[j + 1].operand as Label?;
+                        conditionIsFalseLabel = codes[j + 1]!.operand as Label?;
                         break;
                     }
                 }
@@ -106,10 +108,10 @@ internal static class Patch_HistoryTab_FilteringButtons
                 // Search ahead for the end of the conditions to find the label they skip to (if it's evaluated as true)
                 for (int j = i; j < codes.Count; j++)
                 {
-                    if (codes[j].LoadsField(ShowMessagesAnchor) && j < codes.Count &&
-                        codes[j + 1].opcode == OpCodes.Brtrue_S)
+                    if (codes[j]!.LoadsField(ShowMessagesAnchor) && j < codes.Count &&
+                        codes[j + 1]!.opcode == OpCodes.Brtrue_S)
                     {
-                        conditionIsTrueLabel = codes[j + 1].operand as Label?;
+                        conditionIsTrueLabel = codes[j + 1]!.operand as Label?;
                         break;
                     }
                 }
@@ -117,62 +119,61 @@ internal static class Patch_HistoryTab_FilteringButtons
                 if (conditionIsTrueLabel is null || conditionIsFalseLabel is null)
                 {
                     Log.Error("Failed transpiling DoMessagesPage. Couldn't find IL Labels.");
-                    yield return codes[i];
+                    yield return codes[i]!;
                     continue;
                 }
 
                 // Search ahead for the end of the original condition so we can skip past it
                 for (int j = i; j < codes.Count; j++)
                 {
-                    if (codes[j].opcode == OpCodes.Isinst && codes[j].operand is Type type && type == typeof(Message) &&
-                        j + 2 < codes.Count && codes[j + 1].opcode == OpCodes.Brtrue_S)
+                    if (codes[j]!.opcode == OpCodes.Isinst && codes[j]!.operand is Type type && type == typeof(Message) &&
+                        j + 2 < codes.Count && codes[j + 1]!.opcode == OpCodes.Brtrue_S)
                     {
                         // Found the end of the original condition, jump ahead to skip past it.
                         i = j + 1; // New current IL is: IL_01a9: brtrue.s IL_0224
                         break;
                     }
                 }
-                
+
                 // Load the List<IArchivable>
-                yield return new CodeInstruction(OpCodes.Ldloc_S, 4).MoveLabelsFrom(conditionStart);
+                yield return new CodeInstruction(OpCodes.Ldloc_S, 4).MoveLabelsFrom(conditionStart)!;
                 // Load the index of the loop
                 yield return new CodeInstruction(OpCodes.Ldloc_S, 8);
                 // Load the IArchivable at that index
-                yield return new CodeInstruction(OpCodes.Callvirt, typeof(List<IArchivable>).GetMethod("get_Item"));
+                yield return new CodeInstruction(OpCodes.Callvirt, typeof(List<IArchivable>).GetMethod("get_Item")!);
                 // Run our replacer condition
                 yield return CodeInstruction.CallClosure<Func<IArchivable, bool>>(archivable =>
                 {
                     // If this condition returns TRUE, then the row will be SKIPPED (the reverse of the original C# code)
-                    bool showLetters = new Traverse(typeof(MainTabWindow_History)).Field("showLetters").GetValue<bool>();
-                    bool showMessages = new Traverse(typeof(MainTabWindow_History)).Field("showMessages").GetValue<bool>();
-                    if (archivable is Letter letter)
+                    var showLetters = new Traverse(typeof(MainTabWindow_History)).Field("showLetters")?.GetValue<bool>();
+                    var showMessages = new Traverse(typeof(MainTabWindow_History)).Field("showMessages")?.GetValue<bool>();
+                    switch (archivable)
                     {
-                        if (letter.IsSnoozed(true))
+                        case Letter letter:
                         {
-                            return !showSnoozesFilter;
-                        }
+                            if (letter.IsSnoozed(true))
+                            {
+                                return !showSnoozesFilter;
+                            }
 
-                        if (letter.IsReminder())
-                        {
-                            return !showRemindersFilter;
-                        }
+                            if (letter.IsReminder())
+                            {
+                                return !showRemindersFilter;
+                            }
 
-                        return !showLetters;
+                            return !showLetters ?? false;
+                        }
+                        case ArchivedDialog:
+                            return true;
+                        case Message:
+                            return !showMessages ?? false;
+                        default:
+                            return false;
                     }
-                    
-                    if (archivable is ArchivedDialog)
-                    {
-                        return true;
-                    }
-                    if (archivable is Message)
-                    {
-                        return !showMessages;
-                    }
-                    return true;
-                });
+                })!;
             }
 
-            yield return codes[i];
+            yield return codes[i]!;
         }
     }
 #endif

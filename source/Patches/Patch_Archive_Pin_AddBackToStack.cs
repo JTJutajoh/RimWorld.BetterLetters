@@ -19,9 +19,8 @@ namespace BetterLetters.Patches
         static void Pin(IArchivable archivable)
         {
             if (archivable is not Letter letter) return;
-            
-            var letterStack = Find.LetterStack;
-            if (!letterStack.LettersListForReading.Contains(letter))
+
+            if (Find.LetterStack is { } letterStack && (!letterStack.LettersListForReading?.Contains(letter) ?? false))
             {
                 letterStack.ReceiveLetter(letter);
             }

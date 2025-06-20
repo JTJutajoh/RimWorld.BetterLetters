@@ -87,17 +87,17 @@ Default: {0}</BetterLetters_Settings_DefaultSuffix>
   <BetterLetters_Settings_DisableFlashIfPinned_Desc>Letters in vanilla flash at you to get your attention. Turn this on to disable flashing for pinned letters so they aren't distracting.</BetterLetters_Settings_DisableFlashIfPinned_Desc>
   <BetterLetters_Settings_DisableFlashAlways>Disable flash for ALL letters</BetterLetters_Settings_DisableFlashAlways>
   <BetterLetters_Settings_DisableFlashAlways_Desc>Letters in vanilla flash at you to get your attention. Turn this on to disable that vanilla feature entirely.</BetterLetters_Settings_DisableFlashAlways_Desc>
-  <BetterLetters_Settings_PinTexture>Texture style for pinned letter dialogs:</BetterLetters_Settings_PinTexture>
+  <BetterLetters_Settings_PinTexture>Texture style for pinned letter dialogs</BetterLetters_Settings_PinTexture>
   <BetterLetters_Settings_PinTexture_Disabled>Disabled</BetterLetters_Settings_PinTexture_Disabled>
   <BetterLetters_Settings_PinTexture_Round>Simple</BetterLetters_Settings_PinTexture_Round>
   <BetterLetters_Settings_PinTexture_Alt>Pushpin</BetterLetters_Settings_PinTexture_Alt>
-  <BetterLetters_Settings_TextureInDialogSize>Pinned/snoozed texture size: {0} pixels</BetterLetters_Settings_TextureInDialogSize>
+  <BetterLetters_Settings_TextureInDialogSize>Pinned/snoozed texture size</BetterLetters_Settings_TextureInDialogSize>
   <BetterLetters_Settings_TextureInDialogSize_Desc>Size, in pixels, of the texture in the top right of the dialog that opens when you click on a letter.</BetterLetters_Settings_TextureInDialogSize_Desc>
-  <BetterLetters_Settings_MaxNumSnoozes>Snoozed letters limit: {0}</BetterLetters_Settings_MaxNumSnoozes>
+  <BetterLetters_Settings_MaxNumSnoozes>Snoozed letters limit</BetterLetters_Settings_MaxNumSnoozes>
   <BetterLetters_Settings_MaxNumSnoozes_Desc>The maximum number of letters that are allowed to be snoozed at a time. Large numbers of snoozed letters could negatively impact performance slightly.
 
 Also includes reminders.</BetterLetters_Settings_MaxNumSnoozes_Desc>
-  <BetterLetters_Settings_MaxSnoozeDuration>Max Snooze/Reminder Duration: {0}</BetterLetters_Settings_MaxSnoozeDuration>
+  <BetterLetters_Settings_MaxSnoozeDuration>Max Snooze/Reminder Duration</BetterLetters_Settings_MaxSnoozeDuration>
   <BetterLetters_Settings_MaxSnoozeDuration_Desc>Determines the longest allowed snooze in the "Snooze for..." dialog. Measured in days.
 Note that letters that are snoozed for a very long time may expire before the snooze finishes.</BetterLetters_Settings_MaxSnoozeDuration_Desc>
   <BetterLetters_Settings_SnoozePinned>Automatically pin snoozed letters</BetterLetters_Settings_SnoozePinned>

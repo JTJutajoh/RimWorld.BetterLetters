@@ -34,7 +34,7 @@ namespace BetterLetters.Patches
             var tex = CurrentLetter.IsPinned() ? LetterUtils.Icons.PinIcon : CurrentLetter.IsReminder() ? LetterUtils.Icons.Reminder : LetterUtils.Icons.SnoozeIcon;
             Graphics.DrawTexture(rect, tex);
         }
-        
+
         /// When a new letter dialog is created/opened, clear the reference we keep to the letter<br />
         /// Basically prevents the main patch from running on dialogs that shouldn't get an icon
         [HarmonyPatch(typeof(Dialog_NodeTree), MethodType.Constructor, typeof(DiaNode), typeof(bool), typeof(bool), typeof(string))]
