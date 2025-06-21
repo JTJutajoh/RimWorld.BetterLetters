@@ -53,11 +53,16 @@ internal class WorldComponent_SnoozeManager : WorldComponent
         /// will expire itself on the next tick.
         internal Letter? Letter;
 
+        internal bool IsReminder => SnoozeType == SnoozeTypes.Reminder;
+
         /// If true, the letter will automatically be pinned when the snooze finishes
         private bool _pinWhenFinished;
 
         /// Defines the behavior of this snooze and used by UI to distinguish it
         internal SnoozeTypes SnoozeType = SnoozeTypes.Letter;
+
+        private static int TickPeriod => Settings.SnoozeTickPeriod;
+        private readonly int _tickOffset;
 
         /// Empty constructor for scribe.
         /// This is only used when loading existing save files.
@@ -70,13 +75,24 @@ internal class WorldComponent_SnoozeManager : WorldComponent
         internal Snooze(Letter letter, int durationTicks, bool pinWhenFinished = false,
             SnoozeTypes snoozeType = SnoozeTypes.Letter)
         {
-            Log.Trace("Creating new snooze");
             Letter = letter;
             _duration = durationTicks;
             _start = GenTicks.TicksGame;
             _elapsed = 0;
             _pinWhenFinished = pinWhenFinished;
             SnoozeType = snoozeType;
+
+            // Since this is being cached, it won't properly update if the user changes the MaxNumSnoozes setting in an ongoing game...
+            // but it won't really matter much. Worst case, multiple snoozes tick close together until they load a save
+            _tickOffset =
+                GenTicks.GetTickIntervalOffset(
+                    NumSnoozes,
+                    Settings.MaxNumSnoozes,
+                    Settings.SnoozeTickPeriod
+                );
+
+            Log.Trace(
+                $"Created a new snooze for letter {letter} with duration {durationTicks} and tick offset {_tickOffset}");
         }
 
         internal void DoTipRegion(Rect rect)
@@ -96,8 +112,14 @@ internal class WorldComponent_SnoozeManager : WorldComponent
         /// Ticks the timer, handling what happens if the letter is invalid or if the timer finishes.
         /// </summary>
         /// <returns>true if the timer is complete or invalid. false if the timer is still running</returns>
-        internal bool TickIntervalDelta()
+        internal bool Tick()
         {
+            if (!GenTicks.IsTickInterval(_tickOffset, TickPeriod)) return false;
+
+#if DEBUG // Redundant but just to make sure
+            Log.Trace("Ticking snooze for letter " + Letter);
+#endif
+
             if (Letter is null)
             {
                 Log.Warning("Snooze reference to its letter was lost!");
@@ -126,6 +148,7 @@ internal class WorldComponent_SnoozeManager : WorldComponent
                 Log.Warning("Tried to finish a snooze with a null letter.");
                 return;
             }
+
             if (_pinWhenFinished)
             {
                 Letter.Pin(suppressSnoozeCanceledMessage: true);
@@ -267,7 +290,7 @@ internal class WorldComponent_SnoozeManager : WorldComponent
         var allSnoozes = new Dictionary<Letter?, Snooze>(Snoozes);
         foreach (var snooze in allSnoozes)
         {
-            if (snooze.Key != null && (snooze.Value?.TickIntervalDelta() ?? true))
+            if (snooze.Key != null && (snooze.Value?.Tick() ?? true))
             {
                 Snoozes.Remove(snooze.Key);
             }

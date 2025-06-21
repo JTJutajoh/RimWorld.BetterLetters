@@ -63,7 +63,8 @@ namespace BetterLetters.Utils
             if (ignoreReminders)
             {
                 return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter) &&
-                       WorldComponent_SnoozeManager.Snoozes[letter]?.SnoozeType != WorldComponent_SnoozeManager.SnoozeTypes.Reminder;
+                       WorldComponent_SnoozeManager.Snoozes[letter]?.SnoozeType !=
+                       WorldComponent_SnoozeManager.SnoozeTypes.Reminder;
             }
 
             return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter);
@@ -119,7 +120,8 @@ namespace BetterLetters.Utils
 
         public static void AddReminder(this Letter letter, int durationTicks, bool isPinned = false)
         {
-            WorldComponent_SnoozeManager.AddSnooze(new WorldComponent_SnoozeManager.Snooze(letter, durationTicks, isPinned,
+            WorldComponent_SnoozeManager.AddSnooze(new WorldComponent_SnoozeManager.Snooze(letter, durationTicks,
+                isPinned,
                 WorldComponent_SnoozeManager.SnoozeTypes.Reminder), suppressMessage: true);
             if (durationTicks > 0)
             {
@@ -150,7 +152,7 @@ namespace BetterLetters.Utils
         public static bool IsReminder(this Letter letter)
         {
             return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter) &&
-                   WorldComponent_SnoozeManager.Snoozes[letter]?.SnoozeType == WorldComponent_SnoozeManager.SnoozeTypes.Reminder;
+                   (WorldComponent_SnoozeManager.Snoozes[letter]?.IsReminder ?? false);
         }
 
         private static readonly FieldInfo? LettersField =
@@ -307,9 +309,18 @@ namespace BetterLetters.Utils
 
             if ((years == 0 && quadrums == 0 && days == 0) || hours > 0)
             {
-                ticksToPeriodVeryVerbose += Mathf.Approximately(hoursFloat % 1, 0f)
-                    ? (string)("Period1Hour".Translate())
-                    : (string)("PeriodHours".Translate(hoursFloat.ToString("F1")));
+                if (Mathf.Approximately(hoursFloat % 1, 0f))
+                {
+                    ticksToPeriodVeryVerbose += hours == 1
+                        ? (string)("Period1Hour".Translate())
+                        : (string)("PeriodHours".Translate(hours));
+                }
+                else
+                {
+                    ticksToPeriodVeryVerbose += Mathf.Approximately(hoursFloat, 1f)
+                        ? (string)("Period1Hour".Translate())
+                        : (string)("PeriodHours".Translate(hoursFloat.ToString("F1")));
+                }
             }
 
             return color != null ? ticksToPeriodVeryVerbose.Colorize(color.Value)! : ticksToPeriodVeryVerbose;

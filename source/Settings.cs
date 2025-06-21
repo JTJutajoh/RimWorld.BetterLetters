@@ -22,13 +22,15 @@ internal class Settings : ModSettings
     // ReSharper disable RedundantDefaultMemberInitializer
     [Setting] internal static PinTextureMode PinTexture = PinTextureMode.Alt;
 
+    [Setting] internal static int MaxNumSnoozes = 15;
+    [Setting] internal static int SnoozeTickPeriod = GenTicks.TicksPerRealSecond / 3;
+
     [Setting] internal static bool DisableRightClickPinnedLetters = false;
     [Setting] internal static bool DisableBounceIfPinned = true;
     [Setting] internal static bool DisableBounceAlways = false;
     [Setting] internal static bool DisableFlashIfPinned = true;
     [Setting] internal static bool DisableFlashAlways = false;
     [Setting] internal static int TextureInDialogSize = 56;
-    [Setting] internal static int MaxNumSnoozes = 15;
     [Setting] internal static int MaxSnoozeDuration = GenDate.TicksPerYear * 5;
     [Setting] internal static bool SnoozePinned = true;
     [Setting] internal static bool DismissedQuestsDismissLetters = true;
@@ -295,6 +297,7 @@ internal class Settings : ModSettings
     }
 
     private static string _editBufferMaxNumSnoozes = MaxNumSnoozes.ToString();
+    private static string _editBufferMaxSnoozeDuration = SnoozeTickPeriod.ToString();
 
     private static void DoTabSnoozing(Rect inRect)
     {
@@ -304,23 +307,49 @@ internal class Settings : ModSettings
         listingStandard.CheckboxLabeled(GetSettingLabel("SnoozePinned"), ref SnoozePinned,
             GetSettingTooltip("SnoozePinned"), 28f, 0.9f);
 
-        listingStandard.Gap();
+        listingStandard.GapLine(20f);
 
         listingStandard.IntSetting(ref MaxNumSnoozes, "MaxNumSnoozes", ref _editBufferMaxNumSnoozes, null, min: 1,
             max: 200);
 
-        listingStandard.Gap(20f);
+        listingStandard.GapLine(20f);
 
+        listingStandard.Label(GetSettingLabel("MaxSnoozeDuration", true));
         var snoozesRect = listingStandard.GetRect(0f, 0.5f);
         var curY = snoozesRect.yMin;
         CustomWidgets.SnoozeSettings(snoozesRect.xMin, ref curY, snoozesRect.width, ref MaxSnoozeDuration,
             maxDurationOverride: GenDate.TicksPerYear * 100, showEndDate: false);
         MaxSnoozeDuration = Mathf.Clamp(MaxSnoozeDuration, GenDate.TicksPerHour, GenDate.TicksPerYear * 100);
         listingStandard.GetRect(curY - snoozesRect.yMin);
-        if (listingStandard.ButtonText("Default".Translate(), widthPct: 0.5f))
+        listingStandard.Indent(48);
+        if (listingStandard.ButtonText("Default".Translate(), widthPct: 0.47f))
         {
             MaxSnoozeDuration = DefaultSettings["MaxSnoozeDuration"] as int? ?? GenDate.TicksPerYear * 5;
         }
+        listingStandard.Outdent(48);
+
+        listingStandard.GapLine();
+
+        var periodLabelRect = listingStandard.GetRect(1f, 0.5f);
+        curY = periodLabelRect.yMin;
+        Widgets.Label(periodLabelRect.xMin, ref curY, periodLabelRect.width, GetSettingLabel("SnoozeTickPeriod", true));
+        listingStandard.GetRect(curY - periodLabelRect.yMin);
+
+        var periodRect = listingStandard.GetRect(1f, 0.5f);
+        CustomWidgets.SnoozeSettings(periodRect.xMin, ref curY, periodRect.width, ref SnoozeTickPeriod,
+            maxDurationOverride: GenDate.TicksPerHour, showEndDate: false);
+        SnoozeTickPeriod = Mathf.Max(SnoozeTickPeriod, GenTicks.TicksPerRealSecond); // Minimum
+        listingStandard.GetRect(curY - periodRect.yMin);
+        listingStandard.Indent(48);
+        if (listingStandard.ButtonText("Default".Translate(), widthPct: 0.47f))
+        {
+            SnoozeTickPeriod = DefaultSettings["SnoozeTickPeriod"] as int? ?? GenTicks.TicksPerRealSecond / 3;
+        }
+        listingStandard.Outdent(48);
+
+        listingStandard.SubLabel(GetSettingTooltip("SnoozeTickPeriod"), 1f);
+
+        listingStandard.GapLine();
 
         listingStandard.End();
     }
@@ -363,7 +392,8 @@ internal class Settings : ModSettings
         listingStandard.Indent();
         listingStandard.GapLine();
         listingStandard.Label(
-            "BetterLetters_Settings_CurrentlySnoozed".Translate(WorldComponent_SnoozeManager.NumSnoozes, WorldComponent_SnoozeManager.MaxNumSnoozes));
+            "BetterLetters_Settings_CurrentlySnoozed".Translate(WorldComponent_SnoozeManager.NumSnoozes,
+                WorldComponent_SnoozeManager.MaxNumSnoozes));
 
         var snoozedLetters = WorldComponent_SnoozeManager.Snoozes;
         if (snoozedLetters.Count == 0)
@@ -377,8 +407,9 @@ internal class Settings : ModSettings
         foreach (var snooze in snoozedLetters)
         {
             var remainingTime = snooze.Value?.RemainingTicks.ToStringTicksToPeriodVerbose();
-            var rect = listingStandard.GetRect(30f, 0.9f);
+            var rect = listingStandard.GetRect(34f, 0.9f);
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.5f));
+            rect = rect.ContractedBy(8f, 2f);
             var buttonRemoveText = "BetterLetters_Settings_Unsnooze".Translate();
             var buttonFireText = "BetterLetters_Settings_Fire".Translate();
             var buttonsRect =
@@ -425,6 +456,7 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref TextureInDialogSize, "TextureInDialogSize", 56);
         Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration", GenDate.TicksPerYear * 5);
         Scribe_Values.Look(ref MaxNumSnoozes, "MaxNumSnoozes", 15);
+        Scribe_Values.Look(ref SnoozeTickPeriod, "SnoozeTickPeriod", GenTicks.TickLongInterval);
         Scribe_Values.Look(ref DisableRightClickPinnedLetters, "DisableRightClickPinnedLetters", false);
         Scribe_Values.Look(ref DisableBounceIfPinned, "DisableBounceIfPinned", true);
         Scribe_Values.Look(ref DisableBounceAlways, "DisableBounceAlways", false);
