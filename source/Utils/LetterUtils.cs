@@ -261,5 +261,68 @@ namespace BetterLetters.Utils
                 iconColor: Color.white
             );
         }
+
+        internal static float TicksToTimeUnit(this int numTicks, TimeUnits timeUnit)
+        {
+            return (float)numTicks / (float)timeUnit;
+        }
+
+        internal static string ToStringTicksToPeriodVeryVerbose(this int numTicks, Color? color = null)
+        {
+            if (numTicks <= 0)
+                return "BetterLetters_Immediately".Translate();
+
+            int years;
+            int quadrums;
+            int days;
+            float hoursFloat;
+            numTicks.TicksToPeriod(out years, out quadrums, out days, out hoursFloat);
+            int hours = Mathf.RoundToInt(hoursFloat);
+
+            var ticksToPeriodVeryVerbose = "";
+
+            if (years > 0)
+            {
+                ticksToPeriodVeryVerbose += years != 1
+                    ? (string)"PeriodYears".Translate(years)
+                    : (string)"Period1Year".Translate();
+                ticksToPeriodVeryVerbose += ", ";
+            }
+
+            if (quadrums > 0 || years > 0)
+            {
+                ticksToPeriodVeryVerbose += quadrums != 1
+                    ? (string)("BetterLetters_PeriodSeasons".Translate(quadrums))
+                    : (string)("BetterLetters_Period1Season".Translate());
+                ticksToPeriodVeryVerbose += ", ";
+            }
+
+            if (days > 0 || quadrums > 0 || years > 0)
+            {
+                ticksToPeriodVeryVerbose += days != 1
+                    ? (string)("PeriodDays".Translate(days))
+                    : (string)("Period1Day".Translate());
+                if (!Mathf.Approximately(hoursFloat, 0f)) ticksToPeriodVeryVerbose += ", ";
+            }
+
+            if ((years == 0 && quadrums == 0 && days == 0) || hours > 0)
+            {
+                ticksToPeriodVeryVerbose += Mathf.Approximately(hoursFloat % 1, 0f)
+                    ? (string)("Period1Hour".Translate())
+                    : (string)("PeriodHours".Translate(hoursFloat.ToString("F1")));
+            }
+
+            return color != null ? ticksToPeriodVeryVerbose.Colorize(color.Value)! : ticksToPeriodVeryVerbose;
+        }
+
+        internal enum TimeUnits
+        {
+            Ticks = 1,
+            Hours = GenDate.TicksPerHour,
+            Days = GenDate.TicksPerDay,
+            Seasons = GenDate.TicksPerSeason,
+            Years = GenDate.TicksPerYear,
+            Decades = GenDate.TicksPerYear * 10
+        }
     }
 }

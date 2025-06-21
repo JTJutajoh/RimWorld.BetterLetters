@@ -29,7 +29,7 @@ internal class Settings : ModSettings
     [Setting] internal static bool DisableFlashAlways = false;
     [Setting] internal static int TextureInDialogSize = 56;
     [Setting] internal static int MaxNumSnoozes = 15;
-    [Setting] internal static float MaxSnoozeDuration = 60f;
+    [Setting] internal static int MaxSnoozeDuration = GenDate.TicksPerYear * 5;
     [Setting] internal static bool SnoozePinned = true;
     [Setting] internal static bool DismissedQuestsDismissLetters = true;
     [Setting] internal static bool KeepQuestLettersOnStack = true;
@@ -45,7 +45,8 @@ internal class Settings : ModSettings
         Main,
         Pinning,
         Snoozing,
-        Reminders
+        Reminders,
+        Cache
     }
 
     private SettingsTab _currentTab = SettingsTab.Main;
@@ -113,6 +114,11 @@ internal class Settings : ModSettings
             new TabRecord("BetterLetters_Settings_Tab_Reminders".Translate(), () => _currentTab = SettingsTab.Reminders,
                 () => _currentTab == SettingsTab.Reminders),
         };
+        if (Prefs.DevMode && SnoozeManager.Instance is not null)
+        {
+            tabs.Add(new TabRecord("BetterLetters_Settings_Tab_Cache".Translate(),
+                () => _currentTab = SettingsTab.Cache, () => _currentTab == SettingsTab.Cache));
+        }
 #if v1_5 || v1_6
         TabDrawer.DrawTabsOverflow(inRect.TopPartPixels(TabHeight), tabs, 80f, 200f);
 #elif v1_1 || v1_2 || v1_3 || v1_4
@@ -169,6 +175,18 @@ internal class Settings : ModSettings
                 catch (Exception e)
                 {
                     Log.Exception(e, "Error drawing snooze settings tab.", true);
+                    _currentTab = SettingsTab.Main;
+                }
+
+                break;
+            case SettingsTab.Cache:
+                try
+                {
+                    DoTabCache(tabRect);
+                }
+                catch (Exception e)
+                {
+                    Log.Exception(e, "Error drawing cache tab.", true);
                     _currentTab = SettingsTab.Main;
                 }
 
@@ -276,32 +294,37 @@ internal class Settings : ModSettings
         listingStandard.End();
     }
 
+    private static string _editBufferMaxNumSnoozes = MaxNumSnoozes.ToString();
+
     private static void DoTabSnoozing(Rect inRect)
     {
         var listingStandard = new Listing_Standard();
         listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
 
-        MaxNumSnoozes = (int)listingStandard.SliderLabeled(
-            GetSettingLabel("MaxNumSnoozes", true),
-            MaxNumSnoozes, 1, 200, 0.4f, GetSettingTooltip("MaxNumSnoozes"));
-
-        MaxSnoozeDuration = listingStandard.SliderLabeled(
-            GetSettingLabel("MaxSnoozeDuration", true),
-            Mathf.RoundToInt(MaxSnoozeDuration), 1, 300, 0.4f,
-            GetSettingTooltip("MaxSnoozeDuration"));
-
         listingStandard.CheckboxLabeled(GetSettingLabel("SnoozePinned"), ref SnoozePinned,
             GetSettingTooltip("SnoozePinned"), 28f, 0.9f);
 
-        if (SnoozeManager.Instance is not null)
+        listingStandard.Gap();
+
+        listingStandard.IntSetting(ref MaxNumSnoozes, "MaxNumSnoozes", ref _editBufferMaxNumSnoozes, null, min: 1,
+            max: 200);
+
+        listingStandard.Gap(20f);
+
+        var snoozesRect = listingStandard.GetRect(0f, 0.5f);
+        var curY = snoozesRect.yMin;
+        CustomWidgets.SnoozeSettings(snoozesRect.xMin, ref curY, snoozesRect.width, ref MaxSnoozeDuration,
+            maxDurationOverride: GenDate.TicksPerYear * 100, showEndDate: false);
+        MaxSnoozeDuration = Mathf.Clamp(MaxSnoozeDuration, GenDate.TicksPerHour, GenDate.TicksPerYear * 100);
+        listingStandard.GetRect(curY - snoozesRect.yMin);
+        if (listingStandard.ButtonText("Default".Translate(), widthPct: 0.5f))
         {
-            // If in-game, show a list of currently snoozed letters here
-            //TODO: Move this to a devmode-only tab
-            DoSnoozesListing(listingStandard);
+            MaxSnoozeDuration = DefaultSettings["MaxSnoozeDuration"] as int? ?? GenDate.TicksPerYear * 5;
         }
 
         listingStandard.End();
     }
+
 
     private static void DoTabReminders(Rect inRect)
     {
@@ -313,6 +336,17 @@ internal class Settings : ModSettings
 
         listingStandard.CheckboxLabeled(GetSettingLabel("AutoSelectThingForReminders"),
             ref AutoSelectThingForReminders, GetSettingTooltip("AutoSelectThingForReminders"), 32f, 0.9f);
+
+        listingStandard.End();
+    }
+
+    private static void DoTabCache(Rect inRect)
+    {
+        var listingStandard = new Listing_Standard();
+        listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
+
+        // If in-game, show a list of currently snoozed letters here
+        DoSnoozesListing(listingStandard);
 
         listingStandard.End();
     }
@@ -389,7 +423,7 @@ internal class Settings : ModSettings
         // ReSharper disable RedundantArgumentDefaultValue
         Scribe_Values.Look(ref PinTexture, "PinTexture", PinTextureMode.Alt);
         Scribe_Values.Look(ref TextureInDialogSize, "TextureInDialogSize", 56);
-        Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration", 60f);
+        Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration", GenDate.TicksPerYear * 5);
         Scribe_Values.Look(ref MaxNumSnoozes, "MaxNumSnoozes", 15);
         Scribe_Values.Look(ref DisableRightClickPinnedLetters, "DisableRightClickPinnedLetters", false);
         Scribe_Values.Look(ref DisableBounceIfPinned, "DisableBounceIfPinned", true);

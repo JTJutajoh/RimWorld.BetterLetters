@@ -21,14 +21,9 @@
   <BetterLetters_TooManySnoozes>Too many snoozed letters already! Un-snooze some letters or raise the limit in the mod settings.</BetterLetters_TooManySnoozes>
   <BetterLetters_SnoozeUntil>Until: {0}</BetterLetters_SnoozeUntil>
   <BetterLetters_SnoozeFor>Duration: {0}</BetterLetters_SnoozeFor>
-  <BetterLetters_SliderLabel>{0}</BetterLetters_SliderLabel>
-  <BetterLetters_SliderRightLabel>{0}</BetterLetters_SliderRightLabel>
   <BetterLetters_Immediately>Immediately</BetterLetters_Immediately>
-  <BetterLetters_DecDay>-1 D</BetterLetters_DecDay>
-  <BetterLetters_DecHour>-1 H</BetterLetters_DecHour>
-  <BetterLetters_IncDay>+1 D</BetterLetters_IncDay>
-  <BetterLetters_IncHour>+1 H</BetterLetters_IncHour>
   <BetterLetters_JumpToColon>Jump to:</BetterLetters_JumpToColon>
+  <BetterLetters_JumpToColonTooltip>Choose a Thing to set as this reminder's Jump To Target, which adds an option in the letter to quickly jump to it when it fires.</BetterLetters_JumpToColonTooltip>
   <BetterLetters_NothingSelected>Nothing</BetterLetters_NothingSelected>
   <BetterLetters_SelectSomething>Select Thing...</BetterLetters_SelectSomething>
   <BetterLetters_SnoozedButtonTooltip>Snoozed until {0}.
@@ -112,4 +107,15 @@ Note that letters that are snoozed for a very long time may expire before the sn
   <BetterLetters_Settings_DoCreateReminderPlaySetting_Desc>Adds a button to the bottom left buttons that can be used as a shortcut to create a new reminder.</BetterLetters_Settings_DoCreateReminderPlaySetting_Desc>
   <BetterLetters_Settings_AutoSelectThingForReminders>Automatically target any selected Things</BetterLetters_Settings_AutoSelectThingForReminders>
   <BetterLetters_Settings_AutoSelectThingForReminders_Desc>Anything that you have selected when the reminder dialog is opened will be automatically chosen as the "Jump To" target for the reminder by default.</BetterLetters_Settings_AutoSelectThingForReminders_Desc>
+
+  <BetterLetters_TimeUnitTooltip>Choose the unit of time to adjust.</BetterLetters_TimeUnitTooltip>
+  <BetterLetters_Ticks>Ticks</BetterLetters_Ticks>
+  <BetterLetters_Hours>Hours</BetterLetters_Hours>
+  <BetterLetters_Days>Days</BetterLetters_Days>
+  <BetterLetters_Seasons>Seasons</BetterLetters_Seasons>
+  <BetterLetters_Years>Years</BetterLetters_Years>
+  <BetterLetters_Decades>Decades</BetterLetters_Decades>
+
+  <BetterLetters_Period1Season>1 season</BetterLetters_Period1Season>
+  <BetterLetters_PeriodSeasons>{0} seasons</BetterLetters_PeriodSeasons>
 </LanguageData>

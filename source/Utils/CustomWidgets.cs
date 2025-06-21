@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using RimWorld;
+using UnityEngine;
+using Verse.Sound;
 
 namespace BetterLetters.Utils;
 
@@ -9,81 +13,133 @@ namespace BetterLetters.Utils;
 /// </summary>
 internal static class CustomWidgets
 {
-#if !(v1_1 || v1_2 || v1_3) // HSVColorWheel was added in RW 1.4+
-    private static bool _currentlyDraggingHSVWheel;
-#endif
+    private static string SliderMaxLabel => "BetterLetters_SliderRightLabel".Translate(
+        Mathf.RoundToInt(MaxDuration * GenDate.TicksPerDay).ToStringTicksToPeriod());
 
-    /// <summary>
-    ///     Creates an HSV color picker along with HSVA sliders.<br />
-    ///     Uses the HSV color wheel widget added in RW 1.4. If using an older version, the wheel will simply be skipped.
-    /// </summary>
-    internal static void ColorPicker(Rect rect, ref Color color, bool windowBackground = true)
+    private static string SliderDurationLabel(float durationDays) =>
+        "BetterLetters_SliderLabel".Translate(Mathf.RoundToInt(durationDays * GenDate.TicksPerDay)
+            .ToStringTicksToPeriod());
+
+    private static string _editBufferSnooze = "";
+
+    internal static LetterUtils.TimeUnits SnoozeTimeUnit = LetterUtils.TimeUnits.Hours;
+
+    private static void RefreshEditBuffer(int durationTicks)
     {
-        if (windowBackground)
-        {
-            Widgets.DrawWindowBackground(rect);
-            rect = rect.ContractedBy(4f);
-        }
-
-        //TODO: Remove (or make use of) vertical layout support from the ColorPicker. It's a bunch of extra logic that isn't doing anything
-        var horizontalLayout = rect.width >= rect.height;
-
-        var curY = rect.yMin;
-        Rect hsvRect;
-        Rect slidersRect;
-        if (horizontalLayout)
-        {
-            rect.height = Mathf.Min(rect.height, 200f);
-            hsvRect = rect.LeftPartPixels(rect.height);
-            slidersRect = rect.RightPartPixels(rect.width - hsvRect.width - 8f);
-            slidersRect.yMin += 8f;
-        }
-        else
-        {
-            rect.width = Mathf.Min(rect.width, 200f);
-            hsvRect = rect.TopPartPixels(rect.width);
-            curY += hsvRect.height + 4f;
-            slidersRect = new Rect(rect.xMin, curY, rect.width, rect.height - hsvRect.height - 4f);
-        }
-
-#if !(v1_1 || v1_2 || v1_3) // HSVColorWheel was added in RW 1.4+
-        Widgets.HSVColorWheel(hsvRect, ref color, ref _currentlyDraggingHSVWheel);
-#elif v1_3 // DrawBoxSolidWithOutline was added in RW 1.3
-        // For legacy RW versions: Just draw a box with the color. The sliders still work to actually adjust it.
-        Widgets.DrawBoxSolidWithOutline(hsvRect, color, Widgets.SeparatorLineColor);
-#else
-        Widgets.DrawBoxSolid(hsvRect, color);
-#endif
-        Color.RGBToHSV(color, out var hue, out var saturation, out var value);
-
-        curY += 4f;
-
-// RW 1.4 marked this Widgets.HorizontalSlider overload obsolete for some reason. Ignore the warning.
-#pragma warning disable CS0612 // Type or member is obsolete
-        hue =
-            Widgets.HorizontalSlider(new Rect(slidersRect.xMin, curY, slidersRect.width, 24f), hue, 0f, 1f, true,
-                "JobInBar_Hue".Translate());
-        curY += 24f + 2f;
-
-        saturation =
-            Widgets.HorizontalSlider(new Rect(slidersRect.xMin, curY, slidersRect.width, 24f), saturation, 0f, 1f,
-                true, "JobInBar_Saturation".Translate());
-        curY += 24f + 2f;
-
-        value =
-            Widgets.HorizontalSlider(new Rect(slidersRect.xMin, curY, slidersRect.width, 24f), value, 0f, 1f, true,
-                "JobInBar_Value".Translate());
-        curY += 24f + 2f;
-
-        var oldAlpha = color.a;
-        color = Color.HSVToRGB(hue, saturation, value);
-        color.a = oldAlpha;
-
-        color.a =
-            Widgets.HorizontalSlider(new Rect(slidersRect.xMin, curY, slidersRect.width, 24f), color.a, 0f, 1f,
-                true, "JobInBar_Alpha".Translate());
-#pragma warning restore CS0612 // Type or member is obsolete
+        _editBufferSnooze =
+            durationTicks == 0 ? "" : ((int)Math.Floor(durationTicks / (float)SnoozeTimeUnit)).ToStringCached()!;
     }
+
+    internal static void SnoozeSettings(float x,
+        ref float y,
+        float width,
+        ref int durationTicks,
+        float paddingLeft = 32f,
+        float paddingRight = 32f,
+        float paddingTop = 8f,
+        int? maxDurationOverride = null,
+        bool showEndDate = true
+    )
+    {
+        const float minWidth = 400f;
+        const float maxWidth = 600f;
+        // When the chosen unit is Ticks, the buttons change to adjust by this amount.
+        // Used the TPS of max 3x speed
+        const int ticksMultiplier = 180;
+        const float intEntryWidth = 240f;
+        const float unitButtonWidth = 90f;
+        const float buttonRowHeight = 32f;
+        const float spacing = 8f;
+
+
+        int years;
+        int quadrums;
+        int days;
+        float hoursFloat;
+        durationTicks.TicksToPeriod(out years, out quadrums, out days, out hoursFloat);
+        int hours = (int)hoursFloat;
+
+        RefreshEditBuffer(durationTicks);
+
+        // Cap the widget width and center it within the supplied width
+        if (width > maxWidth)
+        {
+            x += (width - maxWidth) / 2f;
+            width = maxWidth;
+        }
+
+        width = Mathf.Max(width, minWidth);
+
+        // Apply padding
+        x += paddingLeft;
+        width -= paddingLeft + paddingRight;
+        y += paddingTop;
+
+        // Duration label
+        Text.Anchor = TextAnchor.UpperCenter;
+        var durationString = durationTicks.ToStringTicksToPeriodVeryVerbose(Color.cyan);
+        Widgets.Label(x, ref y, width, "BetterLetters_SnoozeFor".Translate(durationString));
+        Text.Anchor = TextAnchor.UpperLeft;
+
+        // End date label
+        if (showEndDate)
+        {
+            Text.Anchor = TextAnchor.UpperCenter;
+            var endDateString =
+                GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + durationTicks, QuestUtility.GetLocForDates());
+            Text.Font = GameFont.Tiny;
+            GUI.color = ColorLibrary.Beige;
+            Widgets.Label(x, ref y, width, "BetterLetters_SnoozeUntil".Translate(endDateString));
+            Text.Font = GameFont.Small;
+            GUI.color = Color.white;
+            Text.Anchor = TextAnchor.UpperLeft;
+        }
+
+        // Create the rects for the buttons
+        var centeredRect =
+            new Rect(x, y, width, buttonRowHeight).MiddlePartPixels(unitButtonWidth + intEntryWidth + spacing,
+                buttonRowHeight);
+        var unitButtonRect = centeredRect.LeftPartPixels(unitButtonWidth);
+        var intEntryRect = centeredRect.RightPartPixels(intEntryWidth);
+        unitButtonRect.xMax -= spacing / 2;
+        intEntryRect.xMin += spacing / 2;
+
+        // Button to switch which unit is being controlled by the adjustment widget(s)
+        if (Widgets.ButtonText(unitButtonRect, SnoozeTimeUnit.ToString()))
+        {
+            var floatMenuOptions = new List<FloatMenuOption>()
+            {
+                new("BetterLetters_Ticks".Translate(), () => SnoozeTimeUnit = LetterUtils.TimeUnits.Ticks),
+                new("BetterLetters_Hours".Translate(), () => SnoozeTimeUnit = LetterUtils.TimeUnits.Hours),
+                new("BetterLetters_Days".Translate(), () => SnoozeTimeUnit = LetterUtils.TimeUnits.Days),
+                new("BetterLetters_Seasons".Translate(), () => SnoozeTimeUnit = LetterUtils.TimeUnits.Seasons),
+                new("BetterLetters_Years".Translate(), () => SnoozeTimeUnit = LetterUtils.TimeUnits.Years),
+                new("BetterLetters_Decades".Translate(), () => SnoozeTimeUnit = LetterUtils.TimeUnits.Decades),
+            };
+            Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
+            SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();
+        }
+
+        TooltipHandler.TipRegion(unitButtonRect, "BetterLetters_TimeUnitTooltip".Translate(SnoozeTimeUnit.ToString()));
+
+        // Parse the text input field into the number of the currently chosen unit
+        var numOfUnit = _editBufferSnooze.Length != 0 ? Math.Max(0, int.Parse(_editBufferSnooze)) : 0;
+        var remainderTicks = durationTicks % (int)SnoozeTimeUnit;
+
+        // Adjustment widget(s)
+        Widgets.IntEntry(intEntryRect, ref numOfUnit, ref _editBufferSnooze,
+            SnoozeTimeUnit == LetterUtils.TimeUnits.Ticks ? ticksMultiplier : 1);
+
+        y += intEntryRect.height;
+
+        // The resulting number of ticks is:
+        // (X <unit> + Y <remainder>)
+        // ex: (3 hours + 500 ticks) or (7 days + 38,477 ticks)
+        // This way the user can adjust a unit without losing the smaller units that they've already set
+        durationTicks = (int)Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks, 0,
+            maxDurationOverride ?? Settings.MaxSnoozeDuration);
+    }
+
 
     /// <summary>
     ///     Extension method for <see cref="Listing_Standard" />.<br />
@@ -103,7 +159,7 @@ internal static class CustomWidgets
         ref int value,
         string settingName,
         ref string editBuffer,
-        string? label,
+        string? label = null,
         int multiplier = 1,
         int min = 0,
         int max = 999999,
@@ -157,43 +213,10 @@ internal static class CustomWidgets
 #else
         listingStandard.IntEntryWithNegative(ref value, ref editBuffer, multiplier, min);
 #endif
-        listingStandard.IntSetter(ref value, defaultValue, "JobInBar_Settings_Default".Translate());
+        listingStandard.IntSetter(ref value, defaultValue, "Default".Translate());
 
         value = Mathf.Clamp(value, min, max);
     }
 
-    // // Half-baked implementation of color preset selection. Currently replaced with the color wheel.
-    // private static void ColorSelector(string label, Rect rect, ref Color color, float maxHeight = 120f,
-    //     Texture? icon = null,
-    //     int colorSize = 22, int colorPadding = 2, float paddingLeft = 32f, float paddingRight = 32f)
-    // {
-    //     rect.xMin += paddingLeft;
-    //     rect.xMax -= paddingRight;
-    //     Widgets.DrawWindowBackground(rect);
-    //     rect = rect.ContractedBy(4f);
-    //
-    //     GUI.color = color;
-    //     var labelRect = rect.TopPartPixels(Text.CalcHeight(label, rect.width - 8f));
-    //     Widgets.Label(labelRect, label);
-    //     GUI.color = Color.white;
-    //
-    //     var colSelRect = rect.BottomPartPixels(maxHeight - labelRect.height - 4f);
-    //     var colSelRectScroll = new Rect(colSelRect);
-    //     var colSelRectScrollView = new Rect(colSelRect);
-    //     Widgets.AdjustRectsForScrollView(colSelRect, ref colSelRectScroll, ref colSelRectScrollView);
-    //     Widgets.BeginScrollView(colSelRectScroll, ref _scrollPositionColors, colSelRectScrollView);
-    //
-    //     // Widgets.ColorSelector(colSelRectScrollView, ref color, AllColors, out var colorsHeight, icon, colorSize,
-    //     //     colorPadding);
-    //
-    //     Widgets.EndScrollView();
-    // }
-    //
-    // private static void ColorSelector(string label, ref Listing_Standard listingStandard, ref Color color,
-    //     float maxHeight = 120f, Texture? icon = null,
-    //     int colorSize = 22, int colorPadding = 2, float paddingLeft = 32f, float paddingRight = 32f)
-    // {
-    //     var rect = listingStandard.GetRect(maxHeight);
-    //     ColorSelector(label, rect, ref color, maxHeight, icon, colorSize, colorPadding, paddingLeft, paddingRight);
-    // }
+    private static float MaxDuration => Settings.MaxSnoozeDuration;
 }
