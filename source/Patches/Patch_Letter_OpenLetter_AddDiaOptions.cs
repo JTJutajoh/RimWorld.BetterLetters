@@ -32,9 +32,6 @@ namespace BetterLetters.Patches
         private static readonly MethodInfo? AnchorMethodAddRange =
             typeof(List<DiaOption>).GetMethod(nameof(List<DiaOption>.AddRange));
 
-        private static readonly MethodInfo? AnchorMethodAddToStack =
-            typeof(WindowStack).GetMethod(nameof(WindowStack.Add));
-
         /// General-purpose transpiler that can be applied to all vanilla implementations of Letter.OpenLetter
         /// Intercepts the list of choices sent to the dialog and adds a "Pin" option to the end of the list
         /// This transpiler should be applicable to any subclass of Letter as long as it uses the same basic logic for adding options to the dialog.
@@ -46,16 +43,12 @@ namespace BetterLetters.Patches
             if (AnchorMethodAddRange == null)
                 throw new InvalidOperationException(
                     $"Couldn't find {nameof(AnchorMethodAddRange)} method for {nameof(Patch_Letter_OpenLetter_AddDiaOptions)}.{MethodBase.GetCurrentMethod()} patch");
-            if (AnchorMethodAddToStack == null)
-                throw new InvalidOperationException(
-                    $"Couldn't find {nameof(AnchorMethodAddToStack)} method for {nameof(Patch_Letter_OpenLetter_AddDiaOptions)}.{MethodBase.GetCurrentMethod()} patch");
 
             var codes = new List<CodeInstruction>(instructions);
 
             // ReSharper disable once ForCanBeConvertedToForeach
             for (int i = 0; i < codes.Count; i++)
             {
-                // PATCH 1:
                 // Add choices to the dialog
                 if (codes[i]!.Calls(AnchorMethodAddRange))
                 {
@@ -66,22 +59,6 @@ namespace BetterLetters.Patches
                     yield return CodeInstruction
                         .CallClosure<Func<IEnumerable<DiaOption>, Letter, IEnumerable<DiaOption>>>((options, letter) =>
                             options.Prepend(Option_Pin(letter)))!;
-                }
-
-                //TODO: Extract this to a transpiler in Patch_Dialog_NodeTree_DoWindowContents_AddDialogIcon, which is where it's relevant
-
-                // PATCH 2:
-                // Save a reference to the letter this dialog is related to
-                if (codes[i]!.Calls(AnchorMethodAddToStack))
-                {
-                    // Save a reference to the current letter
-                    // Do this last so that the constructor for the dialog (which just ran) can clear the reference
-                    yield return new CodeInstruction(OpCodes.Ldarg_0); // Load a "this" reference onto the stack
-                    // Send the reference to the current letter to the dialog patch
-                    yield return CodeInstruction.CallClosure<Action<Letter>>((letter) =>
-                    {
-                        Patch_Dialog_NodeTree_DoWindowContents_AddDialogIcon.CurrentLetter = letter;
-                    })!;
                 }
 
                 yield return codes[i]!;
