@@ -2,7 +2,7 @@
 using System.Reflection;
 
 // ReSharper disable once CheckNamespace
-namespace BetterLetters.DarkLog;
+namespace BetterLetters.Utils.DarkLog;
 
 /// <summary>
 /// A utility class for my mods that helps automate some debug logging stuff.
