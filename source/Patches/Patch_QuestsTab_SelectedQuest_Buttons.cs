@@ -149,13 +149,13 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         {
             if (snoozed)
             {
-                SnoozeManager.RemoveSnooze(choiceLetter);
+                WorldComponent_SnoozeManager.RemoveSnooze(choiceLetter);
                 SoundDefOf.Tick_Low!.PlayOneShotOnCamera();
                 snoozed = false;
             }
             else
             {
-                void OnSnooze(SnoozeManager.Snooze? snooze)
+                void OnSnooze(WorldComponent_SnoozeManager.Snooze? snooze)
                 {
                     SoundDefOf.Tick_High!.PlayOneShotOnCamera();
                     snoozed = true;
@@ -177,7 +177,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         {
             if (snoozed)
             {
-                SnoozeManager.Snoozes[choiceLetter]?.DoTipRegion(rect);
+                WorldComponent_SnoozeManager.Snoozes[choiceLetter]?.DoTipRegion(rect);
             }
             else
             {

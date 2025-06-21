@@ -114,7 +114,7 @@ internal class Settings : ModSettings
             new TabRecord("BetterLetters_Settings_Tab_Reminders".Translate(), () => _currentTab = SettingsTab.Reminders,
                 () => _currentTab == SettingsTab.Reminders),
         };
-        if (Prefs.DevMode && SnoozeManager.Instance is not null)
+        if (Prefs.DevMode && WorldComponent_SnoozeManager.Instance is not null)
         {
             tabs.Add(new TabRecord("BetterLetters_Settings_Tab_Cache".Translate(),
                 () => _currentTab = SettingsTab.Cache, () => _currentTab == SettingsTab.Cache));
@@ -357,15 +357,15 @@ internal class Settings : ModSettings
     /// </summary>
     private static void DoSnoozesListing(Listing_Standard listingStandard)
     {
-        if (SnoozeManager.Instance == null)
+        if (WorldComponent_SnoozeManager.Instance == null)
             return;
 
         listingStandard.Indent();
         listingStandard.GapLine();
         listingStandard.Label(
-            "BetterLetters_Settings_CurrentlySnoozed".Translate(SnoozeManager.NumSnoozes, SnoozeManager.MaxNumSnoozes));
+            "BetterLetters_Settings_CurrentlySnoozed".Translate(WorldComponent_SnoozeManager.NumSnoozes, WorldComponent_SnoozeManager.MaxNumSnoozes));
 
-        var snoozedLetters = SnoozeManager.Snoozes;
+        var snoozedLetters = WorldComponent_SnoozeManager.Snoozes;
         if (snoozedLetters.Count == 0)
         {
             listingStandard.Label("BetterLetters_Settings_NoSnoozedLetters".Translate());
@@ -404,13 +404,13 @@ internal class Settings : ModSettings
 
         if (snoozeToFire is not null)
         {
-            if (SnoozeManager.Snoozes[snoozeToFire]?.Letter is { } letter)
+            if (WorldComponent_SnoozeManager.Snoozes[snoozeToFire]?.Letter is { } letter)
                 Find.LetterStack?.ReceiveLetter(letter);
         }
 
         if (snoozeToRemove is not null)
         {
-            SnoozeManager.RemoveSnooze(snoozeToRemove);
+            WorldComponent_SnoozeManager.RemoveSnooze(snoozeToRemove);
         }
 
 #if !(v1_1)

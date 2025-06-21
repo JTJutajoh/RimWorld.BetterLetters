@@ -62,11 +62,11 @@ namespace BetterLetters.Utils
         {
             if (ignoreReminders)
             {
-                return SnoozeManager.Snoozes.ContainsKey(letter) &&
-                       SnoozeManager.Snoozes[letter]?.SnoozeType != SnoozeManager.SnoozeTypes.Reminder;
+                return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter) &&
+                       WorldComponent_SnoozeManager.Snoozes[letter]?.SnoozeType != WorldComponent_SnoozeManager.SnoozeTypes.Reminder;
             }
 
-            return SnoozeManager.Snoozes.ContainsKey(letter);
+            return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter);
         }
 
         public static void Pin(this Letter letter, bool suppressSnoozeCanceledMessage = false)
@@ -77,7 +77,7 @@ namespace BetterLetters.Utils
             }
 
             Find.Archive?.Pin(letter);
-            SnoozeManager.RemoveSnooze(letter, suppressSnoozeCanceledMessage);
+            WorldComponent_SnoozeManager.RemoveSnooze(letter, suppressSnoozeCanceledMessage);
             SortLetterStackByPinned();
             if (letter is ChoiceLetter { quest: not null } choiceLetter
 #if !(v1_1 || v1_2)
@@ -109,18 +109,18 @@ namespace BetterLetters.Utils
 
         public static void Snooze(this Letter letter, int durationTicks, bool isPinned = false)
         {
-            SnoozeManager.AddSnooze(letter, durationTicks, isPinned);
+            WorldComponent_SnoozeManager.AddSnooze(letter, durationTicks, isPinned);
         }
 
         public static bool UnSnooze(this Letter letter)
         {
-            return SnoozeManager.RemoveSnooze(letter);
+            return WorldComponent_SnoozeManager.RemoveSnooze(letter);
         }
 
         public static void AddReminder(this Letter letter, int durationTicks, bool isPinned = false)
         {
-            SnoozeManager.AddSnooze(new SnoozeManager.Snooze(letter, durationTicks, isPinned,
-                SnoozeManager.SnoozeTypes.Reminder), suppressMessage: true);
+            WorldComponent_SnoozeManager.AddSnooze(new WorldComponent_SnoozeManager.Snooze(letter, durationTicks, isPinned,
+                WorldComponent_SnoozeManager.SnoozeTypes.Reminder), suppressMessage: true);
             if (durationTicks > 0)
             {
                 Messages.Message(new Message(
@@ -149,8 +149,8 @@ namespace BetterLetters.Utils
 
         public static bool IsReminder(this Letter letter)
         {
-            return SnoozeManager.Snoozes.ContainsKey(letter) &&
-                   SnoozeManager.Snoozes[letter]?.SnoozeType == SnoozeManager.SnoozeTypes.Reminder;
+            return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter) &&
+                   WorldComponent_SnoozeManager.Snoozes[letter]?.SnoozeType == WorldComponent_SnoozeManager.SnoozeTypes.Reminder;
         }
 
         private static readonly FieldInfo? LettersField =
@@ -222,13 +222,13 @@ namespace BetterLetters.Utils
         }
 
         public static FloatMenuOption Snooze1HrFloatMenuOption(Letter letter,
-            Action<SnoozeManager.Snooze?>? onClicked = null)
+            Action<WorldComponent_SnoozeManager.Snooze?>? onClicked = null)
         {
             return MakeFloatMenuOption(
                 "BetterLetters_SnoozeFor1Hour".Translate(),
                 action: () =>
                 {
-                    var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerHour);
+                    var snooze = WorldComponent_SnoozeManager.AddSnooze(letter, GenDate.TicksPerHour);
                     onClicked?.Invoke(snooze);
                 },
                 iconTex: Icons.SnoozeFloatMenu,
@@ -237,13 +237,13 @@ namespace BetterLetters.Utils
         }
 
         public static FloatMenuOption Snooze1DayFloatMenuOption(Letter letter,
-            Action<SnoozeManager.Snooze?>? onClicked = null)
+            Action<WorldComponent_SnoozeManager.Snooze?>? onClicked = null)
         {
             return MakeFloatMenuOption(
                 "BetterLetters_SnoozeFor1Day".Translate(),
                 action: () =>
                 {
-                    var snooze = SnoozeManager.AddSnooze(letter, GenDate.TicksPerDay);
+                    var snooze = WorldComponent_SnoozeManager.AddSnooze(letter, GenDate.TicksPerDay);
                     onClicked?.Invoke(snooze);
                 },
                 iconTex: Icons.SnoozeFloatMenu,
@@ -252,11 +252,11 @@ namespace BetterLetters.Utils
         }
 
         public static FloatMenuOption SnoozeDialogFloatMenuOption(Letter letter,
-            Action<SnoozeManager.Snooze?>? onSnoozed = null)
+            Action<WorldComponent_SnoozeManager.Snooze?>? onSnoozed = null)
         {
             return MakeFloatMenuOption(
                 "BetterLetters_SnoozeForFloatMenuOption".Translate(),
-                action: () => { SnoozeManager.ShowSnoozeDialog(letter, onSnoozed); },
+                action: () => { WorldComponent_SnoozeManager.ShowSnoozeDialog(letter, onSnoozed); },
                 iconTex: Icons.SnoozeFloatMenu,
                 iconColor: Color.white
             );

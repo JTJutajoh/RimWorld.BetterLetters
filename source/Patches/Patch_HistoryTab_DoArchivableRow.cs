@@ -140,7 +140,7 @@ internal static class Patch_HistoryTab_DoArchivableRow
                     }
                     else
                     {
-                        var snooze = SnoozeManager.Snoozes[letter];
+                        var snooze = WorldComponent_SnoozeManager.Snoozes[letter];
                         snooze?.DoTipRegion(rect);
                     }
                 })!;
@@ -170,7 +170,7 @@ internal static class Patch_HistoryTab_DoArchivableRow
                 {
                     if (archivable is not Letter letter || !letter.IsSnoozed()) return false; // Don't branch
 
-                    SnoozeManager.RemoveSnooze(letter);
+                    WorldComponent_SnoozeManager.RemoveSnooze(letter);
                     SoundDefOf.Checkbox_TurnedOff!.PlayOneShotOnCamera();
 
                     return true; // Branch over the next ILs

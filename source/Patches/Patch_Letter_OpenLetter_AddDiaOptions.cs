@@ -102,12 +102,12 @@ namespace BetterLetters.Patches
             }
             else if (__instance.IsReminder())
             {
-                optionText = "BetterLetters_CancelReminder".Translate(SnoozeManager.Snoozes[__instance]?
+                optionText = "BetterLetters_CancelReminder".Translate(WorldComponent_SnoozeManager.Snoozes[__instance]?
                     .Duration.ToStringTicksToPeriodVague(vagueMin: false));
             }
             else if (__instance.IsSnoozed())
             {
-                optionText = "BetterLetters_CancelSnooze".Translate(SnoozeManager.Snoozes[__instance]?
+                optionText = "BetterLetters_CancelSnooze".Translate(WorldComponent_SnoozeManager.Snoozes[__instance]?
                     .Duration.ToStringTicksToPeriodVague(vagueMin: false));
             }
             else
@@ -129,14 +129,14 @@ namespace BetterLetters.Patches
                 }
                 else if (__instance.IsSnoozed())
                 {
-                    SnoozeManager.RemoveSnooze(__instance);
+                    WorldComponent_SnoozeManager.RemoveSnooze(__instance);
                     option.SetText(defaultText);
                     option.clickSound = SoundDefOf.Checkbox_TurnedOn!;
                 }
                 else
                 {
                     // Not pinned or snoozed, show a float menu to pin or snooze it
-                    var updateDiaOptionText = (SnoozeManager.Snooze? snooze) =>
+                    var updateDiaOptionText = (WorldComponent_SnoozeManager.Snooze? snooze) =>
                     {
                         if (snooze == null)
                             option.SetText(pinnedText);

@@ -9,14 +9,14 @@ using UnityEngine;
 namespace BetterLetters;
 
 [UsedImplicitly]
-internal class SnoozeManager : WorldComponent
+internal class WorldComponent_SnoozeManager : WorldComponent
 {
-    public static SnoozeManager? Instance { get; private set; }
+    public static WorldComponent_SnoozeManager? Instance { get; private set; }
 
     public static int MaxNumSnoozes => Settings.MaxNumSnoozes;
     public static int NumSnoozes => Snoozes.Count;
 
-    public SnoozeManager(World world) : base(world)
+    public WorldComponent_SnoozeManager(World world) : base(world)
     {
         Instance = this;
     }
