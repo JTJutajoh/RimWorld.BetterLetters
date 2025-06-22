@@ -26,6 +26,7 @@ internal static class CustomWidgets
 
     private static void RefreshEditBuffer(int durationTicks)
     {
+        if (_editBufferSnooze == "") return;
         _editBufferSnooze =
             durationTicks == 0 ? "" : ((int)Math.Floor(durationTicks / (float)SnoozeTimeUnit)).ToStringCached()!;
     }
