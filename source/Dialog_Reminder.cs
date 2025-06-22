@@ -9,7 +9,7 @@ namespace BetterLetters;
 
 public class Dialog_Reminder : Window
 {
-    private const int MaxTitleLength = 48; //MAYBE: Make this a setting?
+    private const int MaxTitleLength = 32;
     public override Vector2 InitialSize => new(500f, Mathf.Min(400f, UI.screenHeight));
 
     private Vector2 LetterIconSize => new Vector2(_letterDef.Icon?.width ?? 64f, _letterDef.Icon?.height ?? 64f) * 0.5f;
