@@ -140,6 +140,7 @@ public class Dialog_Reminder : Window
         closeOnAccept = false;
         closeOnClickedOutside = true;
         doCloseButton = false;
+        doCloseX = true;
         soundAppear = SoundDefOf.CommsWindow_Open!;
         soundClose = SoundDefOf.CommsWindow_Close!;
         _selectedThing = thing ?? FindSelectedThing();
@@ -163,11 +164,9 @@ public class Dialog_Reminder : Window
 #endif
         DoTitleRow(innerRect, ref curY);
         DoBodyTextEntry(innerRect, ref curY);
-        Widgets.DrawLineHorizontal(inRect.xMin, curY, inRect.width);
         curY += 3f;
         DoReminderSettings(innerRect, ref curY);
-        curY += 16f;
-        Widgets.DrawLineHorizontal(inRect.xMin, curY, inRect.width);
+        curY += 4f;
 
         DoCloseButtons(innerRect);
 #if !(v1_1 || v1_2)
@@ -193,7 +192,7 @@ public class Dialog_Reminder : Window
 
         // Pin button
         Widgets.Checkbox(pinIconRect.xMin, pinIconRect.yMin, ref _pinned, pinButtonSize,
-            texChecked: LetterUtils.Icons.PinIcon, texUnchecked: LetterUtils.Icons.PinOutline);
+            texChecked: Icons.PinIcon, texUnchecked: Icons.PinOutline);
         TooltipHandler.TipRegionByKey(pinIconRect, "BetterLetters_PinReminder");
 
         curY += titleRowRect.height + 4f;
@@ -274,9 +273,13 @@ public class Dialog_Reminder : Window
         if (!clicked)
             return;
 
-
+#if !(v1_1 || v1_2 || v1_3 || v1_4 || v1_5)
         var floatMenuOptions = ValidLetterDefs.Select(letterDef => new FloatMenuOption(label: letterDef.defName!,
             () => _letterDef = letterDef, iconTex: letterDef.Icon!, iconColor: letterDef.color)).ToList();
+#else
+        var floatMenuOptions = ValidLetterDefs.Select(letterDef => new FloatMenuOption(label: letterDef.defName!,
+            () => _letterDef = letterDef)).ToList();
+#endif
 
         Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
         SoundDefOf.FloatMenu_Open?.PlayOneShotOnCamera();
@@ -307,7 +310,7 @@ public class Dialog_Reminder : Window
 #else
         if (_selectedThing is not null)
         {
-            Widgets.ThingIcon(thingIconRect, _selectedThing);
+            Widgets.ThingIcon(iconRect, _selectedThing);
         }
 #endif
         if (clicked)
@@ -365,7 +368,7 @@ public class Dialog_Reminder : Window
 
         // Bottom buttons
         GUI.color = Color.white; // RW version < 1.4 Widgets.ButtonImage has a bug that fails to reset the GUI color
-        if (Widgets.ButtonText(buttonsRect.RightPartPixels(buttonsSize.x), "Confirm".Translate()))
+        if (Widgets.ButtonText(buttonsRect.MiddlePartPixels(buttonsSize.x, buttonsSize.y), "Confirm".Translate()))
         {
             LookTargets? lookTargets = null;
             if (_selectedThing is not null)
@@ -375,11 +378,6 @@ public class Dialog_Reminder : Window
 
             LetterUtils.AddReminder(SanitizeText(_reminderTitle), SanitizeText(_reminderText), _letterDef,
                 _durationTicks, _pinned, lookTargets);
-            Close();
-        }
-
-        if (Widgets.ButtonText(buttonsRect.LeftPartPixels(buttonsSize.x), "Cancel".Translate()))
-        {
             Close();
         }
     }

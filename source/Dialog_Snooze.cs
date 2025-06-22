@@ -6,7 +6,7 @@ namespace BetterLetters;
 
 public class Dialog_Snooze : Window
 {
-    public override Vector2 InitialSize => new Vector2(480, 170);
+    public override Vector2 InitialSize => new Vector2(440, 170);
 
     private static Dialog_Snooze? _instance;
 
@@ -25,6 +25,7 @@ public class Dialog_Snooze : Window
         closeOnClickedOutside = true;
         absorbInputAroundWindow = true;
         doCloseButton = false;
+        doCloseX = true;
 
         CustomWidgets.SnoozeTimeUnit = LetterUtils.TimeUnits.Hours;
     }
@@ -43,14 +44,9 @@ public class Dialog_Snooze : Window
 
         var buttonsRect = inRect.BottomPartPixels(buttonsSize.y + 10);
 
-        if (Widgets.ButtonText(buttonsRect.RightPartPixels(buttonsSize.x), "BetterLetters_Snooze".Translate()))
+        if (Widgets.ButtonText(buttonsRect.MiddlePartPixels(buttonsSize.x, buttonsSize.y), "BetterLetters_Snooze".Translate()))
         {
             _onConfirmed(DurationTicks);
-            Close();
-        }
-
-        if (Widgets.ButtonText(buttonsRect.LeftPartPixels(buttonsSize.x), "Cancel".Translate()))
-        {
             Close();
         }
     }
