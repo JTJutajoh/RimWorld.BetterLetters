@@ -142,7 +142,7 @@ internal static class CustomWidgets
         // (X <unit> + Y <remainder>)
         // ex: (3 hours + 500 ticks) or (7 days + 38,477 ticks)
         // This way the user can adjust a unit without losing the smaller units that they've already set
-        durationTicks = (int)Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks, Settings.SnoozeTickPeriod,
+        durationTicks = (int)Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks, 0,
             maxDurationOverride ?? Settings.MaxSnoozeDuration);
     }
 
