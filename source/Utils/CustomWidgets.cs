@@ -79,6 +79,11 @@ internal static class CustomWidgets
         // Duration label
         Text.Anchor = TextAnchor.UpperCenter;
         var durationString = durationTicks.ToStringTicksToPeriodVeryVerbose(Color.cyan);
+        if (durationTicks <= Settings.SnoozeTickPeriod)
+        {
+            durationString = durationString + " " + "BetterLetters_MinimumDuration".Translate(durationTicks);
+            TooltipHandler.TipRegionByKey(new Rect(x, y, width, 32f), "BetterLetters_MinimumDuration_Tooltip");
+        }
         Widgets.Label(x, ref y, width, "BetterLetters_SnoozeFor".Translate(durationString));
         Text.Anchor = TextAnchor.UpperLeft;
 
@@ -137,7 +142,7 @@ internal static class CustomWidgets
         // (X <unit> + Y <remainder>)
         // ex: (3 hours + 500 ticks) or (7 days + 38,477 ticks)
         // This way the user can adjust a unit without losing the smaller units that they've already set
-        durationTicks = (int)Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks, 0,
+        durationTicks = (int)Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks, Settings.SnoozeTickPeriod,
             maxDurationOverride ?? Settings.MaxSnoozeDuration);
     }
 

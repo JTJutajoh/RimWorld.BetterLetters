@@ -21,6 +21,8 @@
   <BetterLetters_TooManySnoozes>Too many snoozed letters already! Un-snooze some letters or raise the limit in the mod settings.</BetterLetters_TooManySnoozes>
   <BetterLetters_SnoozeUntil>Until: {0}</BetterLetters_SnoozeUntil>
   <BetterLetters_SnoozeFor>Duration: {0}</BetterLetters_SnoozeFor>
+  <BetterLetters_MinimumDuration>(Minimum, {0} ticks)</BetterLetters_MinimumDuration>
+  <BetterLetters_MinimumDuration_Tooltip>Cannot set snooze duration to less than the "Snooze Tick Period" option in mod settings.</BetterLetters_MinimumDuration_Tooltip>
   <BetterLetters_Immediately>Immediately</BetterLetters_Immediately>
   <BetterLetters_JumpToColon>Jump to:</BetterLetters_JumpToColon>
   <BetterLetters_JumpToColonTooltip>Choose a Thing to set as this reminder's Jump To Target, which adds an option in the letter to quickly jump to it when it fires.</BetterLetters_JumpToColonTooltip>
@@ -93,12 +95,12 @@ Default: {0}</BetterLetters_Settings_DefaultSuffix>
   <BetterLetters_Settings_MaxNumSnoozes_Desc>The maximum number of letters that are allowed to be snoozed at a time. Large numbers of snoozed letters could negatively impact performance slightly.
 
 Also includes reminders.</BetterLetters_Settings_MaxNumSnoozes_Desc>
-  <BetterLetters_Settings_SnoozeTickPeriod>Snooze tick period</BetterLetters_Settings_SnoozeTickPeriod>
+  <BetterLetters_Settings_SnoozeTickPeriod>Snooze tick period (ticks)</BetterLetters_Settings_SnoozeTickPeriod>
   <BetterLetters_Settings_SnoozeTickPeriod_Desc>Number of game ticks between when snoozes check if they are complete.
 Larger values reduce performance impact but reduce accuracy for when they actually fire relative to the time that you set.
 
 You probably don't need to change this unless you keep a LOT of active snoozes.</BetterLetters_Settings_SnoozeTickPeriod_Desc>
-  <BetterLetters_Settings_MaxSnoozeDuration>Max Snooze/Reminder Duration</BetterLetters_Settings_MaxSnoozeDuration>
+  <BetterLetters_Settings_MaxSnoozeDuration>Max Snooze/Reminder Duration (ticks)</BetterLetters_Settings_MaxSnoozeDuration>
   <BetterLetters_Settings_MaxSnoozeDuration_Desc>Determines the longest allowed snooze in the "Snooze for..." dialog. Measured in days.
 Note that letters that are snoozed for a very long time may expire before the snooze finishes.</BetterLetters_Settings_MaxSnoozeDuration_Desc>
   <BetterLetters_Settings_SnoozePinned>Automatically pin snoozed letters</BetterLetters_Settings_SnoozePinned>
@@ -122,6 +124,8 @@ Note that letters that are snoozed for a very long time may expire before the sn
   <BetterLetters_Years>Years</BetterLetters_Years>
   <BetterLetters_Decades>Decades</BetterLetters_Decades>
 
+  <BetterLetters_Period1Tick>1 tick</BetterLetters_Period1Tick>
+  <BetterLetters_PeriodTicks>{0} ticks</BetterLetters_PeriodTicks>
   <BetterLetters_Period1Season>1 season</BetterLetters_Period1Season>
   <BetterLetters_PeriodSeasons>{0} seasons</BetterLetters_PeriodSeasons>
 </LanguageData>
