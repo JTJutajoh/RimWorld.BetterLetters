@@ -185,8 +185,10 @@ public class Dialog_Reminder : Window
 
         Widgets.Label(new Rect(titleRowRect.xMin, titleRowRect.yMin + 4f, Text.CalcSize("Title".Translate()).x, 32f),
             "Title".Translate());
-        _reminderTitle = Widgets.TextField(titleTextEntryRect, _reminderTitle, MaxTitleLength, new Regex("^[^<>]*$")) ??
-                         _reminderTitle;
+        _reminderTitle =
+            // ReSharper disable once RedundantArgumentDefaultValue
+            Widgets.TextField(titleTextEntryRect, _reminderTitle, MaxTitleLength, null!)
+            ?? _reminderTitle;
         _reminderTitle = SanitizeText(_reminderTitle);
 
         // Pin button
@@ -199,7 +201,14 @@ public class Dialog_Reminder : Window
 
     private void DoBodyTextEntry(Rect innerRect, ref float curY)
     {
+        const float paddingLeft = 16f;
+        innerRect.xMin += paddingLeft;
+
+        curY += 4f;
+
+        Text.Font = GameFont.Tiny;
         Widgets.Label(innerRect.xMin, ref curY, innerRect.width, "BetterLetters_ReminderTextLabel".Translate());
+        Text.Font = GameFont.Small;
 
         var reminderTextRect = new Rect(innerRect.xMin, curY, innerRect.width, 80f);
 
