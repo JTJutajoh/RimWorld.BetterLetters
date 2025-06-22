@@ -311,7 +311,13 @@ namespace BetterLetters.Utils
 
             if ((years == 0 && quadrums == 0 && days == 0) || hours > 0)
             {
-                if (Mathf.Approximately(hoursFloat % 1, 0f))
+                if (hoursFloat < 0.1f)
+                {
+                    ticksToPeriodVeryVerbose += numTicks == 1
+                        ? (string)("BetterLetters_Period1Tick".Translate())
+                        : (string)("BetterLetters_PeriodTicks".Translate(numTicks));
+                }
+                else if (Mathf.Approximately(hoursFloat % 1, 0f))
                 {
                     ticksToPeriodVeryVerbose += hours == 1
                         ? (string)("Period1Hour".Translate())
