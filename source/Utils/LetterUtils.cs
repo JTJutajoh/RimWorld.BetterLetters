@@ -52,6 +52,8 @@ namespace BetterLetters.Utils
             // ReSharper restore AssignNullToNotNullAttribute
         }
 
+        internal static readonly LetterDef ReminderLetterDef = DefDatabase<LetterDef>.GetNamed("Reminder")!;
+
 
         public static bool IsPinned(this Letter letter)
         {

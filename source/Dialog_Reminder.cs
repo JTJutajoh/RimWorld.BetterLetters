@@ -24,10 +24,11 @@ public class Dialog_Reminder : Window
 
     private bool _pinned;
 
-    private LetterDef _letterDef = LetterDefOf.PositiveEvent!;
+    private LetterDef _letterDef = LetterUtils.ReminderLetterDef;
 
     private static readonly List<LetterDef> ValidLetterDefs = new()
     {
+        LetterUtils.ReminderLetterDef,
         LetterDefOf.PositiveEvent,
         LetterDefOf.NeutralEvent,
         LetterDefOf.NegativeEvent,

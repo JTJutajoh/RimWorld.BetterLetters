@@ -122,6 +122,7 @@
     <Content Include="About\About.xml" />
     <Content Include="About\Preview.png" />
     <Content Include="BetterLetters.csproj.user" />
+    <Content Include="Defs\Misc\LetterDefs\BetterLettersLetters.xml" />
     <Content Include="Languages\English\Keyed\BetterLetters_Keys.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -183,6 +184,15 @@
     <Copy
             SourceFiles="@(Patches)"
             DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\Patches\%(RecursiveDir)"
+            SkipUnchangedFiles="true" />
+
+    <ItemGroup>
+      <Defs Include="$(ProjectDir)\Defs\**\*.xml" />
+    </ItemGroup>
+
+    <Copy
+            SourceFiles="@(Defs)"
+            DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\Defs\%(RecursiveDir)"
             SkipUnchangedFiles="true" />
 
     <ItemGroup>
