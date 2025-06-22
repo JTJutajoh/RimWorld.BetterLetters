@@ -225,4 +225,74 @@ internal static class CustomWidgets
     }
 
     private static float MaxDuration => Settings.MaxSnoozeDuration;
+
+    internal static void SnoozeIconButton(Letter letter, Rect rect)
+    {
+        var snoozed = letter.IsSnoozed();
+        var tex = snoozed ? Icons.SnoozeIcon : Icons.SnoozeOutline;
+        if (Widgets.ButtonImage(rect, tex))
+        {
+            if (snoozed)
+            {
+                WorldComponent_SnoozeManager.RemoveSnooze(letter);
+                SoundDefOf.Tick_Low!.PlayOneShotOnCamera();
+                snoozed = false;
+            }
+            else
+            {
+                void OnSnooze(WorldComponent_SnoozeManager.Snooze? snooze)
+                {
+                    SoundDefOf.Tick_High!.PlayOneShotOnCamera();
+                    snoozed = true;
+                }
+
+                var floatMenuOptions = new List<FloatMenuOption>
+                {
+                    LetterUtils.Snooze1HrFloatMenuOption(letter, OnSnooze),
+                    LetterUtils.Snooze1DayFloatMenuOption(letter, OnSnooze),
+                    LetterUtils.SnoozeDialogFloatMenuOption(letter, OnSnooze)
+                };
+
+                Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
+                SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();
+            }
+        }
+
+        if (Mouse.IsOver(rect))
+        {
+            if (snoozed)
+            {
+                WorldComponent_SnoozeManager.Snoozes[letter]?.DoTipRegion(rect);
+            }
+            else
+            {
+                TooltipHandler.TipRegionByKey(rect, "BetterLetters_SnoozeQuestTooltip");
+            }
+        }
+    }
+
+    internal static void PinIconButton(Letter letter, Rect rect)
+    {
+        var pinned = letter.IsPinned();
+        var tex = pinned ? Icons.PinIcon : Icons.PinOutline;
+        if (Widgets.ButtonImage(rect, tex))
+        {
+            if (pinned)
+            {
+                letter.Unpin();
+                SoundDefOf.Tick_Low!.PlayOneShotOnCamera();
+            }
+            else
+            {
+                letter.Pin();
+                SoundDefOf.Tick_High!.PlayOneShotOnCamera();
+            }
+        }
+
+        if (Mouse.IsOver(rect))
+        {
+            var key = pinned ? "BetterLetters_UnPinQuestTooltip" : "BetterLetters_PinQuestTooltip";
+            TooltipHandler.TipRegionByKey(rect, key);
+        }
+    }
 }

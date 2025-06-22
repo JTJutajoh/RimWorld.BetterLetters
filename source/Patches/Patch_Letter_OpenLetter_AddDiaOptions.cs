@@ -9,6 +9,13 @@ using JetBrains.Annotations;
 using RimWorld;
 using Verse.Sound;
 
+//MAYBE: Replace this entire patch with buttons in the corner of letters instead?
+// Rather than adding DiaOptions to letters with float menus, maybe just mirror the buttons added to the Quest tab for letters?
+// Could even use literally the same exact buttons with callbacks to make them generic.
+// Less clicking, harder to miss, less clutter if a letter has a lot of options already.
+// Where would the float menu go though? Would the snooze button always open a float menu? Would it have right click behavior?
+// Alternately, could make it an option to choose between them. Potentially even switching which patch is patched and requiring a restart.
+
 namespace BetterLetters.Patches
 {
     /// Patches for all the vanilla Letter.OpenLetter implementations that add option(s) to the dialog for
@@ -58,7 +65,7 @@ namespace BetterLetters.Patches
                     // Modify the list of options
                     yield return CodeInstruction
                         .CallClosure<Func<IEnumerable<DiaOption>, Letter, IEnumerable<DiaOption>>>((options, letter) =>
-                            options.Prepend(Option_Pin(letter)))!;
+                            !Settings.DiaOptionButtonsEnabled ? options : options.Prepend(Option_Pin(letter)))!;
                 }
 
                 yield return codes[i]!;

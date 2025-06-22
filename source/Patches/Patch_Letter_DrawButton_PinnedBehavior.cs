@@ -57,7 +57,7 @@ namespace BetterLetters.Patches
             }
 
             var position = pinButtonRect.Rounded();
-            GUI.DrawTexture(position, LetterUtils.Icons.PinLetterStack);
+            GUI.DrawTexture(position, Icons.PinLetterStack);
             GUI.color = Color.white;
         }
 
@@ -182,19 +182,19 @@ namespace BetterLetters.Patches
                 floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_Unpin".Translate(),
                     () => { letter.Unpin(); },
-                    iconTex: LetterUtils.Icons.Dismiss,
+                    iconTex: Icons.Dismiss,
                     iconColor: Color.white
                 ));
                 floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_UnpinAndDismiss".Translate(),
                     () => { letter.Unpin(true); },
-                    iconTex: LetterUtils.Icons.Dismiss,
+                    iconTex: Icons.Dismiss,
                     iconColor: Color.red
                 ));
                 floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
                     "BetterLetters_DismissButStayPinned".Translate(),
                     () => { Find.LetterStack?.RemoveLetter(letter); },
-                    iconTex: LetterUtils.Icons.Dismiss,
+                    iconTex: Icons.Dismiss,
                     iconColor: Color.gray
                 ));
                 floatMenuOptions.Add(LetterUtils.Snooze1HrFloatMenuOption(letter));

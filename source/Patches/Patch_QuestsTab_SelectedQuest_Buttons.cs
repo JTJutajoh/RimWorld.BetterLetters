@@ -99,27 +99,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
             return;
         }
 
-        var pinned = choiceLetter.IsPinned();
-        var tex = pinned ? LetterUtils.Icons.PinIcon : LetterUtils.Icons.PinOutline;
-        if (Widgets.ButtonImage(rect, tex))
-        {
-            if (pinned)
-            {
-                choiceLetter.Unpin();
-                SoundDefOf.Tick_Low!.PlayOneShotOnCamera();
-            }
-            else
-            {
-                choiceLetter.Pin();
-                SoundDefOf.Tick_High!.PlayOneShotOnCamera();
-            }
-        }
-
-        if (Mouse.IsOver(rect))
-        {
-            var key = pinned ? "BetterLetters_UnPinQuestTooltip" : "BetterLetters_PinQuestTooltip";
-            TooltipHandler.TipRegionByKey(rect, key);
-        }
+        CustomWidgets.PinIconButton(choiceLetter, rect);
     }
 
     /// <summary>
@@ -133,7 +113,6 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
             return;
         }
 
-        var rect = new Rect(innerRect.xMax - 96f - 6f, innerRect.y, 32f, 32f);
 
         var choiceLetter = quest.GetLetter();
         if (choiceLetter is null)
@@ -143,47 +122,8 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
             return;
         }
 
-        var snoozed = choiceLetter.IsSnoozed();
-        var tex = snoozed ? LetterUtils.Icons.SnoozeIcon : LetterUtils.Icons.SnoozeOutline;
-        if (Widgets.ButtonImage(rect, tex))
-        {
-            if (snoozed)
-            {
-                WorldComponent_SnoozeManager.RemoveSnooze(choiceLetter);
-                SoundDefOf.Tick_Low!.PlayOneShotOnCamera();
-                snoozed = false;
-            }
-            else
-            {
-                void OnSnooze(WorldComponent_SnoozeManager.Snooze? snooze)
-                {
-                    SoundDefOf.Tick_High!.PlayOneShotOnCamera();
-                    snoozed = true;
-                }
-
-                var floatMenuOptions = new List<FloatMenuOption>
-                {
-                    LetterUtils.Snooze1HrFloatMenuOption(choiceLetter, OnSnooze),
-                    LetterUtils.Snooze1DayFloatMenuOption(choiceLetter, OnSnooze),
-                    LetterUtils.SnoozeDialogFloatMenuOption(choiceLetter, OnSnooze)
-                };
-
-                Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
-                SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();
-            }
-        }
-
-        if (Mouse.IsOver(rect))
-        {
-            if (snoozed)
-            {
-                WorldComponent_SnoozeManager.Snoozes[choiceLetter]?.DoTipRegion(rect);
-            }
-            else
-            {
-                TooltipHandler.TipRegionByKey(rect, "BetterLetters_SnoozeQuestTooltip");
-            }
-        }
+        var rect = new Rect(innerRect.xMax - 96f - 6f, innerRect.y, 32f, 32f);
+        CustomWidgets.SnoozeIconButton(choiceLetter, rect);
     }
 
 #if !(v1_1 || v1_2 || v1_3 || v1_4)

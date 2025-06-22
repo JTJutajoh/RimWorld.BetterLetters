@@ -105,14 +105,29 @@ You probably don't need to change this unless you keep a LOT of active snoozes.<
 Note that letters that are snoozed for a very long time may expire before the snooze finishes.</BetterLetters_Settings_MaxSnoozeDuration_Desc>
   <BetterLetters_Settings_SnoozePinned>Automatically pin snoozed letters</BetterLetters_Settings_SnoozePinned>
   <BetterLetters_Settings_SnoozePinned_Desc>If enabled, when a snoozed letter finishes its snooze timer, the letter will show up already pinned so you're less likely to miss it.</BetterLetters_Settings_SnoozePinned_Desc>
-  
+  <BetterLetters_Settings_LetterButtonsPosition>Button placement in Letters</BetterLetters_Settings_LetterButtonsPosition>
+  <BetterLetters_Settings_LetterButtonsPosition_Desc>Pin/Snooze buttons will be added to the dialog when you open a letter. Use this setting to choose which part of the window they are placed in.</BetterLetters_Settings_LetterButtonsPosition_Desc>
+  <BetterLetters_Settings_TopLeft>Top left</BetterLetters_Settings_TopLeft>
+  <BetterLetters_Settings_TopMiddle>Top middle</BetterLetters_Settings_TopMiddle>
+  <BetterLetters_Settings_TopRight>Top right</BetterLetters_Settings_TopRight>
+  <BetterLetters_Settings_BottomLeft>Bottom left</BetterLetters_Settings_BottomLeft>
+  <BetterLetters_Settings_BottomMiddle>Bottom middle</BetterLetters_Settings_BottomMiddle>
+  <BetterLetters_Settings_BottomRight>Bottom right</BetterLetters_Settings_BottomRight>
+  <BetterLetters_Settings_LetterButtonTypes>Pin/Snooze button types</BetterLetters_Settings_LetterButtonTypes>
+  <BetterLetters_Settings_LetterButtonTypes_Desc>Dialog options adds a new option above the vanilla choices that is used for both pinning and snoozing.
+Icons adds an icon for pinning and an icon for snoozing to the corner of letter dialog windows.
+
+You can enable both or neither if you do not want this feature.</BetterLetters_Settings_LetterButtonTypes_Desc>
+  <BetterLetters_Settings_LetterButtonTypes_DiaOptions>Dialog Options</BetterLetters_Settings_LetterButtonTypes_DiaOptions>
+  <BetterLetters_Settings_LetterButtonTypes_Icons>Icons</BetterLetters_Settings_LetterButtonTypes_Icons>
+
   <BetterLetters_Settings_CurrentlySnoozed>Snoozed letters in the current game ({0}/{1}):</BetterLetters_Settings_CurrentlySnoozed>
   <BetterLetters_Settings_NoSnoozedLetters>None</BetterLetters_Settings_NoSnoozedLetters>
   <BetterLetters_Settings_Unsnooze>Cancel snooze</BetterLetters_Settings_Unsnooze>
   <BetterLetters_Settings_Fire>Trigger now</BetterLetters_Settings_Fire>
   
   <BetterLetters_Settings_DoCreateReminderPlaySetting>Add Create Reminder button to the bottom play controls</BetterLetters_Settings_DoCreateReminderPlaySetting>
-  <BetterLetters_Settings_DoCreateReminderPlaySetting_Desc>Adds a button to the bottom left buttons that can be used as a shortcut to create a new reminder.</BetterLetters_Settings_DoCreateReminderPlaySetting_Desc>
+  <BetterLetters_Settings_DoCreateReminderPlaySetting_Desc>Adds a button to the bottom right buttons that can be used as a shortcut to create a new reminder.</BetterLetters_Settings_DoCreateReminderPlaySetting_Desc>
   <BetterLetters_Settings_AutoSelectThingForReminders>Automatically target any selected Things</BetterLetters_Settings_AutoSelectThingForReminders>
   <BetterLetters_Settings_AutoSelectThingForReminders_Desc>Anything that you have selected when the reminder dialog is opened will be automatically chosen as the "Jump To" target for the reminder by default.</BetterLetters_Settings_AutoSelectThingForReminders_Desc>
 

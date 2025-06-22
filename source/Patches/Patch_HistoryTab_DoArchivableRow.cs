@@ -95,8 +95,8 @@ internal static class Patch_HistoryTab_DoArchivableRow
 
                         GUI.DrawTexture(rect,
                             letter.IsReminder()
-                                ? LetterUtils.Icons.ReminderFloatMenu
-                                : LetterUtils.Icons.SnoozeFloatMenu);
+                                ? Icons.ReminderFloatMenu
+                                : Icons.SnoozeFloatMenu);
                         GUI.color = Color.white; // Probably redundant, but just in case
 
                         return true; // Causes the vanilla pin icon to be skipped

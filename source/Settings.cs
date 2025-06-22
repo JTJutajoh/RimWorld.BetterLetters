@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BetterLetters.Patches;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -10,9 +11,25 @@ internal class Settings : ModSettings
 {
     internal enum PinTextureMode
     {
-        Disabled = 0,
         Round = 1,
         Alt = 2
+    }
+
+    internal enum ButtonPlacement
+    {
+        TopLeft,
+        TopMiddle,
+        TopRight,
+        BottomLeft,
+        BottomMiddle,
+        BottomRight
+    }
+
+    [Flags]
+    internal enum LetterButtonsType
+    {
+        DiaOptions = 2,
+        Icons = 4
     }
 
     private class SettingAttribute : Attribute
@@ -21,6 +38,11 @@ internal class Settings : ModSettings
 
     // ReSharper disable RedundantDefaultMemberInitializer
     [Setting] internal static PinTextureMode PinTexture = PinTextureMode.Alt;
+    [Setting] internal static ButtonPlacement LetterButtonsPosition = ButtonPlacement.BottomRight;
+    [Setting] internal static LetterButtonsType LetterButtonsEnabledTypes =
+        LetterButtonsType.Icons & LetterButtonsType.DiaOptions;
+    internal static bool IconButtonsEnabled => LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.Icons);
+    internal static bool DiaOptionButtonsEnabled => LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.DiaOptions);
 
     [Setting] internal static int MaxNumSnoozes = 30;
     [Setting] internal static int SnoozeTickPeriod = GenTicks.TicksPerRealSecond / 3;
@@ -30,7 +52,6 @@ internal class Settings : ModSettings
     [Setting] internal static bool DisableBounceAlways = false;
     [Setting] internal static bool DisableFlashIfPinned = true;
     [Setting] internal static bool DisableFlashAlways = false;
-    [Setting] internal static int TextureInDialogSize = 56;
     [Setting] internal static int MaxSnoozeDuration = GenDate.TicksPerYear * 5;
     [Setting] internal static bool SnoozePinned = true;
     [Setting] internal static bool DismissedQuestsDismissLetters = true;
@@ -241,9 +262,12 @@ internal class Settings : ModSettings
     private static void DoTabPinning(Rect inRect)
     {
         var listingStandard = new Listing_Standard();
-        listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
+        var lsRect = inRect.MiddlePart(0.85f, 1f);
+        listingStandard.Begin(lsRect);
+        var leftColWidth = lsRect.width / 2.05f;
+        var rightColWidth = lsRect.width / 2.05f;
+        listingStandard.ColumnWidth = leftColWidth;
 
-        listingStandard.Indent(inRect.width * 0.1f);
 
         listingStandard.CheckboxLabeled(GetSettingLabel("DisableRightClickPinnedLetters"),
             ref DisableRightClickPinnedLetters,
@@ -251,46 +275,60 @@ internal class Settings : ModSettings
 
         listingStandard.Gap(8f);
 
-        if (PinTexture != PinTextureMode.Disabled)
-        {
-            var labelRect = listingStandard.Label(GetSettingLabel("TextureInDialogSize", true),
-                tooltip: GetSettingTooltip("TextureInDialogSize"));
-            listingStandard.IntAdjuster(ref TextureInDialogSize, 8, 16);
-
-            Texture2D? pinTex = null;
-            if (PinTexture == PinTextureMode.Round)
-            {
-                pinTex = LetterUtils.Icons.PinRound;
-            }
-            else if (PinTexture == PinTextureMode.Alt)
-            {
-                pinTex = LetterUtils.Icons.PinAlt;
-            }
-
-            if (pinTex is not null)
-            {
-                var pinTexRectRow = listingStandard.GetRect(TextureInDialogSize, 0.75f);
-                var pinTexRect = new Rect(pinTexRectRow.xMin + 96f + (TextureInDialogSize / 2f), labelRect.y + 24f,
-                    TextureInDialogSize, TextureInDialogSize);
-                GUI.DrawTexture(pinTexRect, pinTex);
-            }
-        }
-
-        listingStandard.Label(GetSettingLabel("PinTexture"));
-        if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Disabled".Translate(),
-                PinTexture == PinTextureMode.Disabled, 0f, 200f, null!, null, false))
-        {
-            PinTexture = PinTextureMode.Disabled;
-        }
-        else if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Round".Translate(),
-                     PinTexture == PinTextureMode.Round, 0f, 200f, null!, null, false))
+        var buttonSize = Patch_Dialog_NodeTree_DoWindowContents_AddPinSnoozeButtons.ButtonSize;
+        var labelRect = listingStandard.Label(GetSettingLabel("PinTexture"));
+        var tabIn = buttonSize + 4f;
+        var tabInRight = leftColWidth * 0.2f;
+        if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Round".Translate(),
+                PinTexture == PinTextureMode.Round, tabIn, tabInRight, null!, null, false))
         {
             PinTexture = PinTextureMode.Round;
         }
         else if (listingStandard.RadioButton("BetterLetters_Settings_PinTexture_Alt".Translate(),
-                     PinTexture == PinTextureMode.Alt, 0f, 200f, null!, null, false))
+                     PinTexture == PinTextureMode.Alt, tabIn, tabInRight, null!, null, false))
         {
             PinTexture = PinTextureMode.Alt;
+        }
+
+        var pinTexRect = labelRect with { y = labelRect.yMax + 2f, width = buttonSize, height = buttonSize };
+        GUI.DrawTexture(pinTexRect, Icons.PinRound);
+        pinTexRect.y += 24f;
+        GUI.DrawTexture(pinTexRect, Icons.PinAlt);
+
+        // RIGHT COLUMN
+        listingStandard.NewColumn();
+
+        listingStandard.Label(GetSettingLabel("LetterButtonTypes"),
+            tipSignal: new TipSignal(GetSettingTooltip("LetterButtonTypes")));
+
+        var buttonTypeDiaOptions = LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.DiaOptions);
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_DiaOptions".Translate(),
+            ref buttonTypeDiaOptions, tabIn);
+        if (buttonTypeDiaOptions)
+            LetterButtonsEnabledTypes |= LetterButtonsType.DiaOptions;
+        else
+            LetterButtonsEnabledTypes &= ~LetterButtonsType.DiaOptions;
+
+        var buttonTypeIcons = LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.Icons);
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_Icons".Translate(),
+            ref buttonTypeIcons, tabIn);
+        if (buttonTypeIcons)
+            LetterButtonsEnabledTypes |= LetterButtonsType.Icons;
+        else
+            LetterButtonsEnabledTypes &= ~LetterButtonsType.Icons;
+
+
+        listingStandard.Label(GetSettingLabel("LetterButtonsPosition"),
+            tipSignal: new TipSignal(GetSettingTooltip("LetterButtonsPosition")));
+
+        foreach (ButtonPlacement placement in Enum.GetValues(typeof(ButtonPlacement)))
+        {
+            var disabled = !LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.Icons);
+            if (listingStandard.RadioButton(GetSettingLabel(placement.ToString()),
+                    placement == LetterButtonsPosition, 0f, tabInRight: 0.6f, null!, null, disabled))
+            {
+                LetterButtonsPosition = placement;
+            }
         }
 
         listingStandard.End();
@@ -326,6 +364,7 @@ internal class Settings : ModSettings
         {
             MaxSnoozeDuration = DefaultSettings["MaxSnoozeDuration"] as int? ?? GenDate.TicksPerYear * 5;
         }
+
         listingStandard.Outdent(48);
 
         listingStandard.GapLine();
@@ -345,6 +384,7 @@ internal class Settings : ModSettings
         {
             SnoozeTickPeriod = DefaultSettings["SnoozeTickPeriod"] as int? ?? GenTicks.TicksPerRealSecond / 3;
         }
+
         listingStandard.Outdent(48);
 
         listingStandard.SubLabel(GetSettingTooltip("SnoozeTickPeriod"), 1f);
@@ -453,7 +493,9 @@ internal class Settings : ModSettings
     {
         // ReSharper disable RedundantArgumentDefaultValue
         Scribe_Values.Look(ref PinTexture, "PinTexture", PinTextureMode.Alt);
-        Scribe_Values.Look(ref TextureInDialogSize, "TextureInDialogSize", 56);
+        Scribe_Values.Look(ref LetterButtonsPosition, "LetterButtonsPosition", ButtonPlacement.BottomRight);
+        Scribe_Values.Look(ref LetterButtonsEnabledTypes, "LetterButtonsEnabledTypes",
+            LetterButtonsType.Icons & LetterButtonsType.DiaOptions);
         Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration", GenDate.TicksPerYear * 5);
         Scribe_Values.Look(ref MaxNumSnoozes, "MaxNumSnoozes", 30);
         Scribe_Values.Look(ref SnoozeTickPeriod, "SnoozeTickPeriod", GenTicks.TickLongInterval);
