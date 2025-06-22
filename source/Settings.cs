@@ -22,7 +22,7 @@ internal class Settings : ModSettings
     // ReSharper disable RedundantDefaultMemberInitializer
     [Setting] internal static PinTextureMode PinTexture = PinTextureMode.Alt;
 
-    [Setting] internal static int MaxNumSnoozes = 15;
+    [Setting] internal static int MaxNumSnoozes = 30;
     [Setting] internal static int SnoozeTickPeriod = GenTicks.TicksPerRealSecond / 3;
 
     [Setting] internal static bool DisableRightClickPinnedLetters = false;
@@ -455,7 +455,7 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref PinTexture, "PinTexture", PinTextureMode.Alt);
         Scribe_Values.Look(ref TextureInDialogSize, "TextureInDialogSize", 56);
         Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration", GenDate.TicksPerYear * 5);
-        Scribe_Values.Look(ref MaxNumSnoozes, "MaxNumSnoozes", 15);
+        Scribe_Values.Look(ref MaxNumSnoozes, "MaxNumSnoozes", 30);
         Scribe_Values.Look(ref SnoozeTickPeriod, "SnoozeTickPeriod", GenTicks.TickLongInterval);
         Scribe_Values.Look(ref DisableRightClickPinnedLetters, "DisableRightClickPinnedLetters", false);
         Scribe_Values.Look(ref DisableBounceIfPinned, "DisableBounceIfPinned", true);

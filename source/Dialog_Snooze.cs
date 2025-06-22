@@ -6,7 +6,7 @@ namespace BetterLetters;
 
 public class Dialog_Snooze : Window
 {
-    public override Vector2 InitialSize => new Vector2(400, 170);
+    public override Vector2 InitialSize => new Vector2(480, 170);
 
     private static Dialog_Snooze? _instance;
 
