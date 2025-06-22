@@ -66,7 +66,10 @@ Current setting: {0} days</BetterLetters_MaxDurationTooltip>
   <BetterLetters_Settings_Tab_Snoozing>Snoozing</BetterLetters_Settings_Tab_Snoozing>
   <BetterLetters_Settings_Tab_Reminders>Reminders</BetterLetters_Settings_Tab_Reminders>
   <BetterLetters_Settings_Tab_Cache>Cache</BetterLetters_Settings_Tab_Cache>
-  <BetterLetters_Settings_SnoozeSettings>Snooze settings</BetterLetters_Settings_SnoozeSettings>
+  <BetterLetters_OpenSettingsTooltip>Open Better Letters mod settings to configure the appearance and placement of these buttons.
+
+(Takes effect the NEXT time you open a letter)</BetterLetters_OpenSettingsTooltip>
+
   <BetterLetters_Settings_DefaultSuffix>
 
 Default: {0}</BetterLetters_Settings_DefaultSuffix>

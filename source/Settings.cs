@@ -63,7 +63,7 @@ internal class Settings : ModSettings
     internal static Dictionary<string, object> DefaultSettings = new();
 
     // GUI Stuff
-    private enum SettingsTab
+    internal enum SettingsTab
     {
         Main,
         Pinning,
@@ -72,7 +72,7 @@ internal class Settings : ModSettings
         Cache
     }
 
-    private SettingsTab _currentTab = SettingsTab.Main;
+    internal static SettingsTab CurrentTab = SettingsTab.Main;
     private const float TabHeight = 32f;
 
     public Settings()
@@ -128,19 +128,19 @@ internal class Settings : ModSettings
     {
         var tabs = new List<TabRecord>
         {
-            new TabRecord("BetterLetters_Settings_Tab_Main".Translate(), () => _currentTab = SettingsTab.Main,
-                () => _currentTab == SettingsTab.Main),
-            new TabRecord("BetterLetters_Settings_Tab_Pinning".Translate(), () => _currentTab = SettingsTab.Pinning,
-                () => _currentTab == SettingsTab.Pinning),
-            new TabRecord("BetterLetters_Settings_Tab_Snoozing".Translate(), () => _currentTab = SettingsTab.Snoozing,
-                () => _currentTab == SettingsTab.Snoozing),
-            new TabRecord("BetterLetters_Settings_Tab_Reminders".Translate(), () => _currentTab = SettingsTab.Reminders,
-                () => _currentTab == SettingsTab.Reminders),
+            new TabRecord("BetterLetters_Settings_Tab_Main".Translate(), () => CurrentTab = SettingsTab.Main,
+                () => CurrentTab == SettingsTab.Main),
+            new TabRecord("BetterLetters_Settings_Tab_Pinning".Translate(), () => CurrentTab = SettingsTab.Pinning,
+                () => CurrentTab == SettingsTab.Pinning),
+            new TabRecord("BetterLetters_Settings_Tab_Snoozing".Translate(), () => CurrentTab = SettingsTab.Snoozing,
+                () => CurrentTab == SettingsTab.Snoozing),
+            new TabRecord("BetterLetters_Settings_Tab_Reminders".Translate(), () => CurrentTab = SettingsTab.Reminders,
+                () => CurrentTab == SettingsTab.Reminders),
         };
         if (Prefs.DevMode && WorldComponent_SnoozeManager.Instance is not null)
         {
             tabs.Add(new TabRecord("BetterLetters_Settings_Tab_Cache".Translate(),
-                () => _currentTab = SettingsTab.Cache, () => _currentTab == SettingsTab.Cache));
+                () => CurrentTab = SettingsTab.Cache, () => CurrentTab == SettingsTab.Cache));
         }
 #if v1_5 || v1_6
         TabDrawer.DrawTabsOverflow(inRect.TopPartPixels(TabHeight), tabs, 80f, 200f);
@@ -152,7 +152,7 @@ internal class Settings : ModSettings
         Widgets.DrawLineHorizontal(inRect.xMin, inRect.yMin + TabHeight, inRect.width);
 
         var tabRect = inRect.BottomPartPixels(inRect.height - TabHeight - 32f);
-        switch (_currentTab)
+        switch (CurrentTab)
         {
             case SettingsTab.Main:
                 try
@@ -162,7 +162,7 @@ internal class Settings : ModSettings
                 catch (Exception e)
                 {
                     Log.Exception(e, "Error drawing main settings tab.", true);
-                    _currentTab = SettingsTab.Pinning;
+                    CurrentTab = SettingsTab.Pinning;
                 }
 
                 break;
@@ -174,7 +174,7 @@ internal class Settings : ModSettings
                 catch (Exception e)
                 {
                     Log.Exception(e, "Error drawing pin settings tab.", true);
-                    _currentTab = SettingsTab.Main;
+                    CurrentTab = SettingsTab.Main;
                 }
 
                 break;
@@ -186,7 +186,7 @@ internal class Settings : ModSettings
                 catch (Exception e)
                 {
                     Log.Exception(e, "Error drawing reminders settings tab.", true);
-                    _currentTab = SettingsTab.Main;
+                    CurrentTab = SettingsTab.Main;
                 }
 
                 break;
@@ -198,7 +198,7 @@ internal class Settings : ModSettings
                 catch (Exception e)
                 {
                     Log.Exception(e, "Error drawing snooze settings tab.", true);
-                    _currentTab = SettingsTab.Main;
+                    CurrentTab = SettingsTab.Main;
                 }
 
                 break;
@@ -210,12 +210,12 @@ internal class Settings : ModSettings
                 catch (Exception e)
                 {
                     Log.Exception(e, "Error drawing cache tab.", true);
-                    _currentTab = SettingsTab.Main;
+                    CurrentTab = SettingsTab.Main;
                 }
 
                 break;
             default:
-                _currentTab = SettingsTab.Main;
+                CurrentTab = SettingsTab.Main;
                 break;
         }
     }
@@ -328,6 +328,10 @@ internal class Settings : ModSettings
                     placement == LetterButtonsPosition, 0f, tabInRight: 0.6f, null!, null, disabled))
             {
                 LetterButtonsPosition = placement;
+                if (Patch_Dialog_NodeTree_DoWindowContents_AddPinSnoozeButtons.CurrentLetter is not null)
+                {
+                    Patch_Dialog_NodeTree_DoWindowContents_AddPinSnoozeButtons.CalcButtonPositions();
+                }
             }
         }
 

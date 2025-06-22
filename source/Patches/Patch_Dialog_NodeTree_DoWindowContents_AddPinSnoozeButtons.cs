@@ -115,7 +115,7 @@ namespace BetterLetters.Patches
         /// Square size of buttons
         internal const float ButtonSize = 24f;
 
-        private const int NumButtons = 2;
+        private const int NumButtons = 3;
         private const float ButtonsPadding = 0f;
         private const float ButtonsSpacing = 6f;
 
@@ -136,16 +136,18 @@ namespace BetterLetters.Patches
         /// </summary>
         private static Rect _buttonsRect;
 
+        private static Vector2 _windowSize;
+
         /// <summary>
         /// Once the window's initial size has been modified by <see cref="ExpandWindowInitialSizeVertically"/>,
         /// set the values of <see cref="_buttonsRect"/> based on the <see cref="Settings.LetterButtonsPosition"/> setting.
         /// </summary>
         /// <param name="initialSize"></param>
-        static void CalcButtonPositions(Vector2 initialSize)
+        internal static void CalcButtonPositions()
         {
             // Calculate the actual rect inside the window that we can draw within.
             // The widgets will be drawn inside a Group, so (0,0) is the top left of the WINDOW, not the screen.
-            var innerRect = new Rect(0, 0, initialSize.x, initialSize.y).ContractedBy(WindowMargin).AtZero();
+            var innerRect = new Rect(0, 0, _windowSize.x, _windowSize.y).ContractedBy(WindowMargin).AtZero();
 
             var buttonsPos = Settings.LetterButtonsPosition switch
             {
@@ -211,7 +213,9 @@ namespace BetterLetters.Patches
                     break;
             }
 
-            CalcButtonPositions(__result);
+            _windowSize = __result;
+
+            CalcButtonPositions();
         }
 
 
@@ -421,19 +425,49 @@ namespace BetterLetters.Patches
 
             var innerButtonsRect = _buttonsRect.ContractedBy(ButtonsPadding);
 
+            // Switch the order of buttons so the gear button is always on the "inside"
+            List<Action<Letter, Rect>> buttons;
+            switch (Settings.LetterButtonsPosition)
+            {
+                case Settings.ButtonPlacement.TopRight:
+                case Settings.ButtonPlacement.BottomRight:
+                    buttons = new List<Action<Letter, Rect>>(NumButtons)
+                    {
+                        CustomWidgets.GearIconButton,
+                        CustomWidgets.SnoozeIconButton,
+                        CustomWidgets.PinIconButton,
+                    };
+                    break;
+                case Settings.ButtonPlacement.TopMiddle:
+                case Settings.ButtonPlacement.BottomMiddle:
+                    buttons = new List<Action<Letter, Rect>>(NumButtons)
+                    {
+                        CustomWidgets.GearIconButton,
+                        CustomWidgets.PinIconButton,
+                        CustomWidgets.SnoozeIconButton,
+                    };
+                    break;
+                case Settings.ButtonPlacement.TopLeft:
+                case Settings.ButtonPlacement.BottomLeft:
+                default:
+                    buttons = new List<Action<Letter, Rect>>(NumButtons)
+                    {
+                        CustomWidgets.PinIconButton,
+                        CustomWidgets.SnoozeIconButton,
+                        CustomWidgets.GearIconButton,
+                    };
+                    break;
+            }
+
             // Widgets.DrawWindowBackground(_buttonsRect);
-
-            var snoozeIconButtonRect = innerButtonsRect with
+            var curX = innerButtonsRect.xMin;
+            var buttonRect = innerButtonsRect with { x = curX, width = ButtonSize };
+            foreach (var button in buttons)
             {
-                x = innerButtonsRect.xMin + ButtonsPadding, width = ButtonSize
-            };
-            var pinIconButtonRect = innerButtonsRect with
-            {
-                x = innerButtonsRect.xMax - ButtonsPadding - ButtonSize, width = ButtonSize
-            };
-
-            CustomWidgets.SnoozeIconButton(letter, snoozeIconButtonRect);
-            CustomWidgets.PinIconButton(letter, pinIconButtonRect);
+                buttonRect.x = curX;
+                button(letter, buttonRect);
+                curX += ButtonsSpacing + ButtonSize;
+            }
         }
     }
 }

@@ -84,6 +84,7 @@ internal static class CustomWidgets
             durationString = durationString + " " + "BetterLetters_MinimumDuration".Translate(durationTicks);
             TooltipHandler.TipRegionByKey(new Rect(x, y, width, 32f), "BetterLetters_MinimumDuration_Tooltip");
         }
+
         Widgets.Label(x, ref y, width, "BetterLetters_SnoozeFor".Translate(durationString));
         Text.Anchor = TextAnchor.UpperLeft;
 
@@ -293,6 +294,23 @@ internal static class CustomWidgets
         {
             var key = pinned ? "BetterLetters_UnPinQuestTooltip" : "BetterLetters_PinQuestTooltip";
             TooltipHandler.TipRegionByKey(rect, key);
+        }
+    }
+
+    internal static void GearIconButton(Letter _, Rect rect)
+    {
+        if (!Mouse.IsOver(rect.ExpandedBy(4f))) return;
+
+        var tex = Icons.Gear;
+        if (Widgets.ButtonImage(rect, tex))
+        {
+            Settings.CurrentTab = Settings.SettingsTab.Pinning;
+            Find.WindowStack!.Add(new Dialog_ModSettings(BetterLettersMod.Instance!));
+        }
+
+        if (Mouse.IsOver(rect))
+        {
+            TooltipHandler.TipRegionByKey(rect, "BetterLetters_OpenSettingsTooltip");
         }
     }
 }
