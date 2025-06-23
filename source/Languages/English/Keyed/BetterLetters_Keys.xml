@@ -70,6 +70,11 @@ Current setting: {0} days</BetterLetters_MaxDurationTooltip>
   <BetterLetters_BundleLetter_SnoozeAll>Snooze {0} not pinned</BetterLetters_BundleLetter_SnoozeAll>
 
 
+  <!-- Quest snooze FloatMenu options -->
+  <BetterLetters_Quest_SnoozeUntil1HrBeforeExpiration>Snooze until 1 hour before expiration</BetterLetters_Quest_SnoozeUntil1HrBeforeExpiration>
+  <BetterLetters_Quest_SnoozeUntil1DayBeforeExpiration>Snooze until 1 day before expiration</BetterLetters_Quest_SnoozeUntil1DayBeforeExpiration>
+
+
   <!-- SETTINGS -->
 
   <BetterLetters_SettingsCategory>Better Letters</BetterLetters_SettingsCategory>

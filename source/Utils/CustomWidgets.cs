@@ -234,6 +234,11 @@ internal static class CustomWidgets
 
     internal static void SnoozeIconButton(Letter letter, Rect rect)
     {
+        SnoozeIconButton(letter, rect, null);
+    }
+
+    internal static void SnoozeIconButton(Letter letter, Rect rect, List<FloatMenuOption>? extraFloatMenuOptions)
+    {
         var snoozed = letter.IsSnoozed();
         var tex = snoozed ? Icons.SnoozeIcon : Icons.SnoozeOutline;
         if (Widgets.ButtonImage(rect, tex))
@@ -256,8 +261,13 @@ internal static class CustomWidgets
                 {
                     LetterUtils.Snooze1HrFloatMenuOption(letter, OnSnooze),
                     LetterUtils.Snooze1DayFloatMenuOption(letter, OnSnooze),
-                    LetterUtils.SnoozeDialogFloatMenuOption(letter, OnSnooze)
                 };
+                if (extraFloatMenuOptions != null)
+                {
+                    floatMenuOptions.AddRange(extraFloatMenuOptions);
+                }
+
+                floatMenuOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(letter, OnSnooze));
 
                 Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
                 SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();

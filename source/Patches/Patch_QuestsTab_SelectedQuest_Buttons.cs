@@ -123,7 +123,32 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         }
 
         var rect = new Rect(innerRect.xMax - 96f - 6f, innerRect.y, 32f, 32f);
-        CustomWidgets.SnoozeIconButton(choiceLetter, rect);
+        var extraFloatMenuOptions = new List<FloatMenuOption>();
+        if (quest.TicksUntilExpiry > GenDate.TicksPerHour)
+        {
+            // Snooze until 1 hr before expiration
+            extraFloatMenuOptions.Add(new FloatMenuOption(
+                "BetterLetters_Quest_SnoozeUntil1HrBeforeExpiration".Translate(),
+                () => { choiceLetter.Snooze(quest.TicksUntilExpiry - GenDate.TicksPerHour); }
+#if !(v1_1 || v1_2 || v1_3 || v1_4 || v1_5)
+                , Icons.SnoozeFloatMenu, ColorLibrary.Gold
+#endif
+            ));
+        }
+
+        if (quest.TicksUntilExpiry > GenDate.TicksPerDay)
+        {
+            // Snooze until 1 day before expiration
+            extraFloatMenuOptions.Add(new FloatMenuOption(
+                "BetterLetters_Quest_SnoozeUntil1DayBeforeExpiration".Translate(),
+                () => { choiceLetter.Snooze(quest.TicksUntilExpiry - GenDate.TicksPerDay); }
+#if !(v1_1 || v1_2 || v1_3 || v1_4 || v1_5)
+                , Icons.SnoozeFloatMenu, ColorLibrary.Gold
+#endif
+            ));
+        }
+
+        CustomWidgets.SnoozeIconButton(choiceLetter, rect, extraFloatMenuOptions);
     }
 
 #if !(v1_1 || v1_2 || v1_3 || v1_4)
