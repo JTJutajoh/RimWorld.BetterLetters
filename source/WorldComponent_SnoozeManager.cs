@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
 using RimWorld.Planet;
@@ -57,6 +58,9 @@ internal class WorldComponent_SnoozeManager : WorldComponent
 
         /// If true, the letter will automatically be pinned when the snooze finishes
         private bool _pinWhenFinished;
+        internal bool PinWhenFinished => _pinWhenFinished;
+
+        //TODO: Open when finished
 
         /// Defines the behavior of this snooze and used by UI to distinguish it
         internal SnoozeTypes SnoozeType = SnoozeTypes.Letter;
@@ -221,6 +225,20 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             return false;
         }
 
+        if (snooze.Letter is BundleLetter bundleLetter)
+        {
+            // Snooze each individual letter contained by the BundleLetter instead of the bundle itself
+            var bundledLetters = Traverse.Create(bundleLetter)?.Field("bundledLetters")?.GetValue<List<Letter>>() ?? new List<Letter>();
+            foreach (var letter in bundledLetters)
+            {
+                // Recursively snooze each bundled letter
+                letter.Snooze(snooze.Duration, snooze.PinWhenFinished);
+            }
+
+            // Return early to avoid snoozing the BundleLetter itself
+            return true;
+        }
+
         Snoozes.Add(snooze.Letter, snooze);
         snooze.Letter.Unpin();
         Log.Trace("Added snooze for letter " + snooze.Letter);
@@ -251,9 +269,8 @@ internal class WorldComponent_SnoozeManager : WorldComponent
     /// <returns>Newly-created instance of the snooze for this letter, or null if it failed.</returns>
     public static Snooze? AddSnooze(Letter letter, int durationTicks, bool pinned = false)
     {
-        AddSnooze(new Snooze(letter, durationTicks, Settings.SnoozePinned || pinned));
-
-        return Snoozes[letter];
+        var success = AddSnooze(new Snooze(letter, durationTicks, Settings.SnoozePinned || pinned));
+        return success ? Snoozes[letter] : null;
     }
 
     public static bool RemoveSnooze(Letter? letter, bool suppressSnoozeCanceledMessage = false)

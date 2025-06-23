@@ -104,6 +104,7 @@ namespace BetterLetters
             PatchCategory("PlaySettings_CreateReminderButton");
             PatchCategory("HistoryFiltersAndButtons");
             PatchCategory("ExpireQuestLetters");
+            PatchCategory("BundleLetters");
 
 #if !(v1_1 || v1_2 || v1_3)
             PatchCategory("HistoryArchivableRow");

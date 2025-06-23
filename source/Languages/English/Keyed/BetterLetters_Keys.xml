@@ -61,8 +61,17 @@ Currently selected thing(s) can be automatically used as the reminder's "Jump To
   <BetterLetters_MaxDurationTooltip>Maximum is modifiable in Better Letters mod settings.
 
 Current setting: {0} days</BetterLetters_MaxDurationTooltip>
-  
-  
+
+
+  <!-- BundleLetter FloatMenu options -->
+  <BetterLetters_BundleLetter_UnpinAll>Unpin {0} pinned</BetterLetters_BundleLetter_UnpinAll>
+  <BetterLetters_BundleLetter_UnpinAndDismissAll>Unpin &amp; dismiss {0} pinned</BetterLetters_BundleLetter_UnpinAndDismissAll>
+  <BetterLetters_BundleLetter_DismissAll>Dismiss all {0} not pinned</BetterLetters_BundleLetter_DismissAll>
+  <BetterLetters_BundleLetter_SnoozeAll>Snooze {0} not pinned</BetterLetters_BundleLetter_SnoozeAll>
+
+
+  <!-- SETTINGS -->
+
   <BetterLetters_SettingsCategory>Better Letters</BetterLetters_SettingsCategory>
   <BetterLetters_Settings_Tab_Main>Main</BetterLetters_Settings_Tab_Main>
   <BetterLetters_Settings_Tab_Pinning>Pinning</BetterLetters_Settings_Tab_Pinning>

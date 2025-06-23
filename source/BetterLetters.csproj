@@ -97,6 +97,7 @@
     <Compile Include="Dialog_Reminder.cs" />
     <Compile Include="Dialog_Snooze.cs" />
     <Compile Include="GlobalUsings.cs" />
+    <Compile Include="Patches\Patch_BundleLetter_SetLetters_AddOptions.cs" />
     <Compile Include="Patches\Patch_HistoryTab_DoArchivableRow.cs" />
     <Compile Include="Patches\Patch_HistoryTab_FilteringButtons.cs" />
     <Compile Include="Patches\Patch_Letter_CanCull_KeepSnoozes.cs" />
