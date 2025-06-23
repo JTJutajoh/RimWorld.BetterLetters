@@ -65,6 +65,7 @@ internal class Settings : ModSettings
     [Setting] internal static bool DisableFlashAlways = false;
     [Setting] internal static int MaxSnoozeDuration = GenDate.TicksPerYear * 5;
     [Setting] internal static bool SnoozePinned = true;
+    [Setting] internal static bool SnoozeOpen = false;
     [Setting] internal static bool DoCreateReminderPlaySetting = true;
     [Setting] internal static bool AutoSelectThingForReminders = true;
 
@@ -95,6 +96,7 @@ internal class Settings : ModSettings
         HarvestSettingsDefaults(out DefaultSettings);
         Log.Trace("Default settings loaded");
     }
+
 
     private void HarvestSettingsDefaults(out Dictionary<string, object> settings, Type? owningType = null)
     {
@@ -299,7 +301,8 @@ internal class Settings : ModSettings
         foreach (QuestExpirationSounds soundOption in Enum.GetValues(typeof(QuestExpirationSounds)))
         {
             var disabled = !ChangeExpiredQuestLetters;
-            if (listingStandard.RadioButton($"BetterLetters_Settings_QuestExpirationSound_{soundOption.ToString()}".Translate(),
+            if (listingStandard.RadioButton(
+                    $"BetterLetters_Settings_QuestExpirationSound_{soundOption.ToString()}".Translate(),
                     soundOption == QuestExpirationSound, 0f, tabInRight: 0.6f, null!, null, disabled))
             {
                 QuestExpirationSound = soundOption;
@@ -309,7 +312,7 @@ internal class Settings : ModSettings
         }
 
         TooltipHandler.TipRegion(
-            expirationSoundLabelRect with { height = expirationSoundLabelRect .height + extraHeight },
+            expirationSoundLabelRect with { height = expirationSoundLabelRect.height + extraHeight },
             "BetterLetters_Settings_QuestExpirationSound_Desc".Translate());
 
         listingStandard.End();
@@ -414,7 +417,6 @@ internal class Settings : ModSettings
     }
 
     private static string _editBufferMaxNumSnoozes = MaxNumSnoozes.ToString();
-    private static string _editBufferMaxSnoozeDuration = SnoozeTickPeriod.ToString();
 
     private static void DoTabSnoozing(Rect inRect)
     {
@@ -423,6 +425,9 @@ internal class Settings : ModSettings
 
         listingStandard.CheckboxLabeled(GetSettingLabel("SnoozePinned"), ref SnoozePinned,
             GetSettingTooltip("SnoozePinned"), 28f, 0.9f);
+
+        listingStandard.CheckboxLabeled(GetSettingLabel("SnoozeOpen"), ref SnoozeOpen,
+            null!, 28f, 0.9f);
 
         listingStandard.GapLine(20f);
 
@@ -592,6 +597,7 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref DisableFlashIfPinned, "DisableFlashIfPinned", true);
         Scribe_Values.Look(ref DisableFlashAlways, "DisableFlashAlways", false);
         Scribe_Values.Look(ref SnoozePinned, "SnoozePinned", true);
+        Scribe_Values.Look(ref SnoozeOpen, "SnoozeOpen", false);
         Scribe_Values.Look(ref DoCreateReminderPlaySetting, "DoCreateReminderPlaySetting", true);
         Scribe_Values.Look(ref AutoSelectThingForReminders, "AutoSelectThingForReminders", true);
 

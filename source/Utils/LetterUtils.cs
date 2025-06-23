@@ -77,9 +77,10 @@ namespace BetterLetters.Utils
             return WorldComponent_SnoozeManager.RemoveSnooze(letter);
         }
 
-        public static void AddReminder(this Letter letter, int durationTicks, bool isPinned = false)
+        public static void AddReminder(this Letter letter, int durationTicks, bool isPinned = false, bool openWhenFinished = false)
         {
             WorldComponent_SnoozeManager.AddSnooze(new WorldComponent_SnoozeManager.Snooze(letter, durationTicks,
+                openWhenFinished,
                 isPinned,
                 WorldComponent_SnoozeManager.SnoozeTypes.Reminder), suppressMessage: true);
             if (durationTicks > 0)
@@ -91,7 +92,7 @@ namespace BetterLetters.Utils
         }
 
         public static void AddReminder(string label, string text, LetterDef def, int durationTicks,
-            bool isPinned = false, LookTargets? lookTargets = null)
+            bool isPinned = false, bool openWhenFinished = false, LookTargets? lookTargets = null)
         {
             if (text.Length == 0)
             {
@@ -105,7 +106,7 @@ namespace BetterLetters.Utils
             )!;
             letter.lookTargets = lookTargets!;
             Find.Archive?.Add(letter);
-            letter.AddReminder(durationTicks, isPinned);
+            letter.AddReminder(durationTicks, isPinned, openWhenFinished);
         }
 
         public static bool IsReminder(this Letter letter)

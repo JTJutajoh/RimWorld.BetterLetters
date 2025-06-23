@@ -6,7 +6,7 @@ namespace BetterLetters;
 
 public class Dialog_Snooze : Window
 {
-    public override Vector2 InitialSize => new Vector2(440, 170);
+    public override Vector2 InitialSize => new Vector2(440, 200);
 
     private static Dialog_Snooze? _instance;
 
@@ -17,6 +17,7 @@ public class Dialog_Snooze : Window
 
     // Maximum duration in days set in settings
     private int? _maxDurationOverride;
+    private bool _openWhenFinished;
 
     public Dialog_Snooze(Action<int> onConfirmedAction, int? maxDurationOverride = null)
     {
@@ -41,12 +42,21 @@ public class Dialog_Snooze : Window
         var labelsRect = mainRect.BottomPart(0.3f);
 
         var curY = upperRect.yMin;
-        CustomWidgets.SnoozeSettings(upperRect.x, ref curY, upperRect.width, ref _durationTicks, maxDurationOverride: _maxDurationOverride);
+        CustomWidgets.SnoozeSettings(upperRect.x, ref curY, upperRect.width, ref _durationTicks,
+            maxDurationOverride: _maxDurationOverride);
 
+        var checkboxLabelString = "BetterLetters_OpenWhenFinished".Translate();
+        var checkboxLabelSize = Text.CalcSize(checkboxLabelString);
+        checkboxLabelSize.x += 32f;
+        Widgets.CheckboxLabeled(
+            new Rect(upperRect.xMin + (upperRect.width - checkboxLabelSize.x) / 2f, curY, checkboxLabelSize.x, 32f),
+            "BetterLetters_OpenWhenFinished".Translate(),
+            ref _openWhenFinished, placeCheckboxNearText: true);
 
         var buttonsRect = inRect.BottomPartPixels(buttonsSize.y + 10);
 
-        if (Widgets.ButtonText(buttonsRect.MiddlePartPixels(buttonsSize.x, buttonsSize.y), "BetterLetters_Snooze".Translate()))
+        if (Widgets.ButtonText(buttonsRect.MiddlePartPixels(buttonsSize.x, buttonsSize.y),
+                "BetterLetters_Snooze".Translate()))
         {
             _onConfirmed(DurationTicks);
             Close();

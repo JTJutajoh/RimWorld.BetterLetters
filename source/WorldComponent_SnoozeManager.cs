@@ -60,7 +60,7 @@ internal class WorldComponent_SnoozeManager : WorldComponent
         private bool _pinWhenFinished;
         internal bool PinWhenFinished => _pinWhenFinished;
 
-        //TODO: Open when finished
+        private bool _openWhenFinished;
 
         /// Defines the behavior of this snooze and used by UI to distinguish it
         internal SnoozeTypes SnoozeType = SnoozeTypes.Letter;
@@ -76,7 +76,7 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             Log.Trace("Creating new empty snooze data");
         }
 
-        internal Snooze(Letter letter, int durationTicks, bool pinWhenFinished = false,
+        internal Snooze(Letter letter, int durationTicks, bool openWhenFinished, bool pinWhenFinished = false,
             SnoozeTypes snoozeType = SnoozeTypes.Letter)
         {
             Letter = letter;
@@ -84,6 +84,7 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             _start = GenTicks.TicksGame;
             _elapsed = 0;
             _pinWhenFinished = pinWhenFinished;
+            _openWhenFinished = openWhenFinished;
             SnoozeType = snoozeType;
 
 #if !(v1_1 || v1_2 || v1_3 || v1_4)
@@ -164,6 +165,12 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             else
             {
                 Find.LetterStack?.ReceiveLetter(Letter);
+            }
+
+            if (_openWhenFinished)
+            {
+                Letter.UnSnooze();
+                Letter.OpenLetter();
             }
         }
 
@@ -265,11 +272,12 @@ internal class WorldComponent_SnoozeManager : WorldComponent
     /// </summary>
     /// <param name="letter">The letter that will be snoozed</param>
     /// <param name="durationTicks">How long the snooze will last</param>
-    /// <param name="pinned">If true, the letter will be automatically pinned when the snooze finishes</param>
+    /// <param name="pinWhenFinished">If true, the letter will be automatically pinned when the snooze finishes</param>
+    /// <param name="openWhenFinished">If true, the letter will be automatically opened when the snooze finishes</param>
     /// <returns>Newly-created instance of the snooze for this letter, or null if it failed.</returns>
-    public static Snooze? AddSnooze(Letter letter, int durationTicks, bool pinned = false)
+    public static Snooze? AddSnooze(Letter letter, int durationTicks, bool pinWhenFinished = false, bool openWhenFinished = false)
     {
-        var success = AddSnooze(new Snooze(letter, durationTicks, Settings.SnoozePinned || pinned));
+        var success = AddSnooze(new Snooze(letter, durationTicks, Settings.SnoozePinned || pinWhenFinished, Settings.SnoozeOpen || openWhenFinished));
         return success ? Snoozes[letter] : null;
     }
 

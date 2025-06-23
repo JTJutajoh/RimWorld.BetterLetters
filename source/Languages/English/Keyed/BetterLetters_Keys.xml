@@ -58,6 +58,7 @@ Currently selected thing(s) can be automatically used as the reminder's "Jump To
   <BetterLetters_ShowReminders>Show Reminders</BetterLetters_ShowReminders>
   <BetterLetters_LetterTypeLabel>Letter Type:</BetterLetters_LetterTypeLabel>
   <BetterLetters_PinReminder>Should this reminder automatically get pinned when it fires?</BetterLetters_PinReminder>
+  <BetterLetters_OpenWhenFinished>Open when finished</BetterLetters_OpenWhenFinished>
   <BetterLetters_MaxDurationTooltip>Maximum is modifiable in Better Letters mod settings.
 
 Current setting: {0} days</BetterLetters_MaxDurationTooltip>
@@ -125,7 +126,8 @@ You probably don't need to change this unless you keep a LOT of active snoozes.<
   <BetterLetters_Settings_MaxSnoozeDuration_Desc>Determines the longest allowed snooze in the "Snooze for..." dialog. Measured in days.
 Note that letters that are snoozed for a very long time may expire before the snooze finishes.</BetterLetters_Settings_MaxSnoozeDuration_Desc>
   <BetterLetters_Settings_SnoozePinned>Automatically pin snoozed letters</BetterLetters_Settings_SnoozePinned>
-  <BetterLetters_Settings_SnoozePinned_Desc>If enabled, when a snoozed letter finishes its snooze timer, the letter will show up already pinned so you're less likely to miss it.</BetterLetters_Settings_SnoozePinned_Desc>
+  <BetterLetters_Settings_SnoozePinned_Desc>When a snoozed letter finishes its snooze timer, the letter will show up already pinned so you're less likely to miss it.</BetterLetters_Settings_SnoozePinned_Desc>
+  <BetterLetters_Settings_SnoozeOpen>Automatically open snoozed letters</BetterLetters_Settings_SnoozeOpen>
   <BetterLetters_Settings_LetterButtonsPosition>Button placement in Letters</BetterLetters_Settings_LetterButtonsPosition>
   <BetterLetters_Settings_LetterButtonsPosition_Desc>Pin/Snooze buttons will be added to the dialog when you open a letter. Use this setting to choose which part of the window they are placed in.</BetterLetters_Settings_LetterButtonsPosition_Desc>
   <BetterLetters_Settings_TopLeft>Top left</BetterLetters_Settings_TopLeft>

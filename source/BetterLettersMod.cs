@@ -4,17 +4,6 @@ using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
 
-//TODO: Patch to remove/change quest letters upon expiry/completion
-
-//TODO: FEATURE to change severity of individual letters
-
-//TODO: FEATURE custom reminder-specific LetterDef
-
-//TODO: FEATURE alert that shows number of snoozes
-
-//TODO: Auto-set maximum snooze duration for quests with an expiration (Expired letters that are snoozed too long just awkwardly never fire)
-//Additionally: Quest add a float menu option to snooze it for the expiration, expiration / 2, etc.
-
 namespace BetterLetters
 {
     [UsedImplicitly]

@@ -10,7 +10,7 @@ namespace BetterLetters;
 public class Dialog_Reminder : Window
 {
     private const int MaxTitleLength = 32;
-    public override Vector2 InitialSize => new(500f, Mathf.Min(400f, UI.screenHeight));
+    public override Vector2 InitialSize => new(500f, Mathf.Min(440f, UI.screenHeight));
 
     private Vector2 LetterIconSize => new Vector2(_letterDef.Icon?.width ?? 64f, _letterDef.Icon?.height ?? 64f) * 0.5f;
 
@@ -22,7 +22,9 @@ public class Dialog_Reminder : Window
 
     private string _reminderText = "";
 
-    private bool _pinned;
+    private bool _pinWhenFinished;
+
+    private bool _openWhenFinished;
 
     private LetterDef _letterDef = LetterUtils.ReminderLetterDef;
 
@@ -84,7 +86,8 @@ public class Dialog_Reminder : Window
         var selectedThing = Instance._selectedThing;
         var title = Instance._reminderTitle;
         var text = Instance._reminderText;
-        var pinned = Instance._pinned;
+        var pinWhenFinished = Instance._pinWhenFinished;
+        var openWhenFinished = Instance._openWhenFinished;
         var letterDef = Instance._letterDef;
         var durationTicks = Instance._durationTicks;
         Instance.Close();
@@ -102,7 +105,8 @@ public class Dialog_Reminder : Window
                         targetInfo.Thing ?? selectedThing,
                         title,
                         text,
-                        pinned,
+                        pinWhenFinished,
+                        openWhenFinished,
                         letterDef,
                         durationTicks
                     ));
@@ -121,15 +125,15 @@ public class Dialog_Reminder : Window
         return text;
     }
 
-    public Dialog_Reminder(
-        Thing? thing = null,
-        string? title = null,
+    public Dialog_Reminder(Thing? thing = null, string? title = null,
         string? text = null,
-        bool pinned = true,
+        bool pinWhenFinished = true,
+        bool openWhenFinished = false,
         LetterDef? letterDef = null,
         int durationTicks = -1
     )
     {
+        _openWhenFinished = openWhenFinished;
         _selectedThing = thing;
 
         Instance?.Close();
@@ -146,7 +150,7 @@ public class Dialog_Reminder : Window
         _selectedThing = thing ?? FindSelectedThing();
         _reminderTitle = title ?? _reminderTitle;
         _reminderText = text ?? _reminderText;
-        _pinned = pinned;
+        _pinWhenFinished = pinWhenFinished;
         _letterDef = letterDef ?? _letterDef;
         _durationTicks = durationTicks >= 0 ? durationTicks : _durationTicks;
 
@@ -191,7 +195,7 @@ public class Dialog_Reminder : Window
         _reminderTitle = SanitizeText(_reminderTitle);
 
         // Pin button
-        Widgets.Checkbox(pinIconRect.xMin, pinIconRect.yMin, ref _pinned, pinButtonSize,
+        Widgets.Checkbox(pinIconRect.xMin, pinIconRect.yMin, ref _pinWhenFinished, pinButtonSize,
             texChecked: Icons.PinIcon, texUnchecked: Icons.PinOutline);
         TooltipHandler.TipRegionByKey(pinIconRect, "BetterLetters_PinReminder");
 
@@ -254,6 +258,13 @@ public class Dialog_Reminder : Window
         var jumpToSelectorRect = new Rect(innerRect.xMin + snoozeSettingsLeftMargin, curY, snoozeSettingsWidth,
             extraSettingsRowHeight).MiddlePart(0.8f, 1.0f);
         DoJumpToSelector(jumpToSelectorRect);
+        curY += extraSettingsRowHeight;
+
+        var openWhenFinishedCheckboxRect = new Rect(innerRect.xMin + snoozeSettingsLeftMargin, curY,
+            snoozeSettingsWidth,
+            extraSettingsRowHeight).MiddlePart(0.8f, 1.0f);
+        Widgets.CheckboxLabeled(openWhenFinishedCheckboxRect, "BetterLetters_OpenWhenFinished".Translate(),
+            ref _openWhenFinished, placeCheckboxNearText: true);
         curY += extraSettingsRowHeight;
     }
 
@@ -381,7 +392,7 @@ public class Dialog_Reminder : Window
             }
 
             LetterUtils.AddReminder(SanitizeText(_reminderTitle), SanitizeText(_reminderText), _letterDef,
-                _durationTicks, _pinned, lookTargets);
+                _durationTicks, _pinWhenFinished, _openWhenFinished, lookTargets);
             Close();
         }
     }
