@@ -459,7 +459,11 @@ internal class Settings : ModSettings
 
         var periodLabelRect = listingStandard.GetRect(1f, 0.5f);
         curY = periodLabelRect.yMin;
+#if !(v1_1 || v1_2)
         Widgets.Label(periodLabelRect.xMin, ref curY, periodLabelRect.width, GetSettingLabel("SnoozeTickPeriod", true));
+#else
+        LegacySupport.Label(periodLabelRect.xMin, ref curY, periodLabelRect.width, "BetterLetters_ReminderTextLabel".Translate());
+#endif
         listingStandard.GetRect(curY - periodLabelRect.yMin);
 
         var periodRect = listingStandard.GetRect(1f, 0.5f);
@@ -541,7 +545,7 @@ internal class Settings : ModSettings
             var remainingTime = snooze.Value?.RemainingTicks.ToStringTicksToPeriodVerbose();
             var rect = listingStandard.GetRect(34f, 0.9f);
             Widgets.DrawBoxSolid(rect, new Color(0f, 0f, 0f, 0.5f));
-            rect = rect.ContractedBy(8f, 2f);
+            rect = rect.ContractedBy(4f);
             var buttonRemoveText = "BetterLetters_Settings_Unsnooze".Translate();
             var buttonFireText = "BetterLetters_Settings_Fire".Translate();
             var buttonsRect =

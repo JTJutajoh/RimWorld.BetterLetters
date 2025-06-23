@@ -24,12 +24,17 @@ internal static class Patch_Quest_CleanupQuestParts_MarkLetter
         if (!Settings.ChangeExpiredQuestLetters) return;
         // Only do the patch for quests that expired before being accepted.
         // Vanilla already handles failed timed quests after accepting
-        if (__instance.State != QuestState.EndedOfferExpired || __instance.EverAccepted || __instance.hidden || __instance.GetQuestLetter() is not Letter letter) return;
+        if (__instance.State != QuestState.EndedOfferExpired || __instance.EverAccepted || __instance.hidden ||
+            __instance.GetQuestLetter() is not Letter letter) return;
 
         // Swap the def so it changes icon colors. This feels hacky but it doesn't seem to cause any problems
         letter.def = LetterDefOf.NeutralEvent!;
         // Add "Expired" to the label
+#if !(v1_1 || v1_2 || v1_3)
         letter.Label = "BetterLetters_QuestExpiredLabel".Translate(__instance.name);
+#else
+        letter.label = "BetterLetters_QuestExpiredLabel".Translate(__instance.name);
+#endif
 
         // Only do the rest for letters that are still on the stack
         if (!Find.LetterStack!.LettersListForReading?.Contains(letter) ?? false) return;
@@ -52,9 +57,11 @@ internal static class Patch_Quest_CleanupQuestParts_MarkLetter
             case Settings.QuestExpirationSounds.BadUrgentBig:
                 expireSound = LetterDefOf.ThreatBig!.arriveSound;
                 break;
+#if !(v1_1 || v1_2)
             case Settings.QuestExpirationSounds.RitualNegative:
                 expireSound = LetterDefOf.RitualOutcomeNegative!.arriveSound;
                 break;
+#endif
             default:
                 expireSound = null;
                 break;

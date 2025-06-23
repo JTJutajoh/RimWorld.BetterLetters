@@ -4,7 +4,6 @@ using HarmonyLib;
 using JetBrains.Annotations;
 
 namespace BetterLetters.Patches;
-
 /// <summary>
 /// Simple patch that adds additional options to the float menu that comes up when you click on a <see cref="BundleLetter"/>
 /// (The special type of letter when the letter stack is full).
@@ -15,7 +14,8 @@ namespace BetterLetters.Patches;
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
 internal static class Patch_BundleLetter_SetLetters_AddOptions
 {
-    [HarmonyPatch(typeof(BundleLetter), nameof(BundleLetter.SetLetters))]
+    // Using the string type name because 1.1-1.3 don't have a BundleLetter type and it's easier to do this than an #if
+    [HarmonyPatch("BundleLetter", "SetLetters")]
     [HarmonyPrefix]
     [UsedImplicitly]
     static void CacheDidListChange(List<Letter> letters, List<Letter> ___bundledLetters)
@@ -28,11 +28,11 @@ internal static class Patch_BundleLetter_SetLetters_AddOptions
     /// <summary>
     ///
     /// </summary>
-    [HarmonyPatch(typeof(BundleLetter), nameof(BundleLetter.SetLetters))]
+    [HarmonyPatch("BundleLetter", "SetLetters")]
     [HarmonyPostfix]
     [UsedImplicitly]
     static void AddFloatMenuOptions(
-        BundleLetter __instance,
+        Letter __instance,
         ref List<Letter> ___bundledLetters,
         List<Letter> letters,
         ref List<FloatMenuOption> ___floatMenuOptions

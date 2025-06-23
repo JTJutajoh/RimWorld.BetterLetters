@@ -93,8 +93,13 @@ namespace BetterLetters
             PatchCategory("PlaySettings_CreateReminderButton");
             PatchCategory("HistoryFiltersAndButtons");
             PatchCategory("ExpireQuestLetters");
-            PatchCategory("BundleLetters");
 
+#if !(v1_1 || v1_2 || v1_3)
+            PatchCategory("BundleLetters");
+#else
+            Log.Warning("BundleLetters patch skipped, doesn't exist in 1.1-1.3");
+            _failedPatches++;
+#endif
 #if !(v1_1 || v1_2 || v1_3)
             PatchCategory("HistoryArchivableRow");
 #else

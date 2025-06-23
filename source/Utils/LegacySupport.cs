@@ -30,7 +30,7 @@ public static class LegacySupport
         Text.Anchor = TextAnchor.MiddleLeft;
         Widgets.Label(rect.LeftPart(labelPct), label);
         if (tooltip != null)
-            TooltipHandler.TipRegion(rect.LeftPart(labelPct), (TipSignal) tooltip);
+            TooltipHandler.TipRegion(rect.LeftPart(labelPct), (TipSignal)tooltip);
         Text.Anchor = TextAnchor.UpperLeft;
         var num = Widgets.HorizontalSlider(rect.RightPart(1f - labelPct), val, min, max, true);
         this_.Gap(this_.verticalSpacing);
@@ -105,7 +105,7 @@ public static class LegacySupport
     {
 #if !v1_2
         return listingStandard.RadioButton(label, active, tabIn, tooltip, tooltipDelay);
-#else// In 1.2 they marked the normal method obsolete and had the new one as "_NewTemp"
+#else // In 1.2 they marked the normal method obsolete and had the new one as "_NewTemp"
         return listingStandard.RadioButton_NewTemp(label, active, tabIn, tooltip, tooltipDelay);
 #endif
     }
@@ -142,7 +142,7 @@ public static class LegacySupport
 #if !v1_2
         if (!_this.BoundingRectCached.HasValue || rect.Overlaps(_this.BoundingRectCached.Value))
 #endif
-            IntEntryWithNegative(rect, ref val, ref editBuffer, multiplier, min); // Call the replaced bugfix version
+        IntEntryWithNegative(rect, ref val, ref editBuffer, multiplier, min); // Call the replaced bugfix version
         _this.Gap(_this.verticalSpacing);
     }
 
@@ -201,12 +201,41 @@ public static class LegacySupport
 #if v1_1 || v1_2 || v1_3 || v1_4
     internal static void AdjustRectsForScrollView(Rect parentRect, ref Rect outRect, ref Rect viewRect)
     {
-        if ((double) viewRect.height < (double) outRect.height)
+        if ((double)viewRect.height < (double)outRect.height)
             return;
         viewRect.width -= 20f;
         outRect.xMax -= 4f;
         outRect.yMin = Mathf.Max(parentRect.yMin + 6f, outRect.yMin);
         outRect.yMax = Mathf.Min(parentRect.yMax - 6f, outRect.yMax);
+    }
+#endif
+
+    internal static int GetTicksUntilExpiry(this Quest quest)
+    {
+#if v1_1 || v1_2 || v1_3 || v1_4 || v1_5
+        return quest.ticksUntilAcceptanceExpiry;
+#else
+        return quest.TicksUntilExpiry;
+#endif
+    }
+
+#if (v1_1 || v1_2)
+    internal static void Label(float x, ref float curY, float width, string text, TipSignal tip = default(TipSignal))
+    {
+        if (text.NullOrEmpty())
+            return;
+        float height = Verse.Text.CalcHeight(text, width);
+        Rect rect1 = new Rect(x, curY, width, height);
+        if (!(tip.text?.NullOrEmpty() ?? true) || tip.textGetter != null)
+        {
+            float x1 = Verse.Text.CalcSize(text).x;
+            Rect rect2 = new Rect(rect1.x, rect1.y, x1, height);
+            Widgets.DrawHighlightIfMouseover(rect2);
+            TooltipHandler.TipRegion(rect2, tip);
+        }
+
+        Widgets.Label(rect1, text);
+        curY += height;
     }
 #endif
 }

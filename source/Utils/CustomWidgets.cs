@@ -81,7 +81,11 @@ internal static class CustomWidgets
             TooltipHandler.TipRegionByKey(new Rect(x, y, width, 32f), "BetterLetters_MaximumDuration_Tooltip");
         }
 
+#if !(v1_1 || v1_2)
         Widgets.Label(x, ref y, width, "BetterLetters_SnoozeFor".Translate(durationString));
+#else
+        LegacySupport.Label(x, ref y, width, "BetterLetters_ReminderTextLabel".Translate());
+#endif
         Text.Anchor = TextAnchor.UpperLeft;
 
         // End date label
@@ -92,7 +96,11 @@ internal static class CustomWidgets
                 GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + durationTicks, QuestUtility.GetLocForDates());
             Text.Font = GameFont.Tiny;
             GUI.color = ColorLibrary.Beige;
+#if !(v1_1 || v1_2)
             Widgets.Label(x, ref y, width, "BetterLetters_SnoozeUntil".Translate(endDateString));
+#else
+            LegacySupport.Label(x, ref y, width, "BetterLetters_ReminderTextLabel".Translate());
+#endif
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
@@ -139,7 +147,8 @@ internal static class CustomWidgets
         // (X <unit> + Y <remainder>)
         // ex: (3 hours + 500 ticks) or (7 days + 38,477 ticks)
         // This way the user can adjust a unit without losing the smaller units that they've already set
-        durationTicks = Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks, minDurationOverride ?? Settings.SnoozeTickPeriod,
+        durationTicks = Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks,
+            minDurationOverride ?? Settings.SnoozeTickPeriod,
             maxDurationOverride ?? Settings.MaxSnoozeDuration);
     }
 

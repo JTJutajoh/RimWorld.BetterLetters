@@ -67,9 +67,9 @@ namespace BetterLetters.Utils
             SortLetterStackByPinned();
         }
 
-        public static void Snooze(this Letter letter, int durationTicks, bool isPinned = false)
+        public static void Snooze(this Letter letter, int durationTicks, bool pinWhenFinished = false, bool openWhenFinished = false)
         {
-            WorldComponent_SnoozeManager.AddSnooze(letter, durationTicks, isPinned);
+            WorldComponent_SnoozeManager.AddSnooze(letter, durationTicks, pinWhenFinished, openWhenFinished);
         }
 
         public static bool UnSnooze(this Letter letter)

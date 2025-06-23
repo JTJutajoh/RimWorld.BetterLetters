@@ -232,7 +232,7 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             Log.Warning("Tried to add a snooze for a letter that already has one.");
             return false;
         }
-
+#if !(v1_1 || v1_2 || v1_3)
         if (snooze.Letter is BundleLetter bundleLetter)
         {
             // Snooze each individual letter contained by the BundleLetter instead of the bundle itself
@@ -247,6 +247,7 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             // Return early to avoid snoozing the BundleLetter itself
             return false;
         }
+#endif
 
         Snoozes.Add(snooze.Letter, snooze);
         snooze.Letter.Unpin();
@@ -344,9 +345,9 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             maxDurationOverride = timedLetter.disappearAtTick - Find.TickManager?.TicksGame;
         }
 
-        if (letter is ChoiceLetter { quest.TicksUntilExpiry: > 0 } choiceLetter)
+        if (letter is ChoiceLetter choiceLetter && choiceLetter.quest?.GetTicksUntilExpiry() > 0)
         {
-            maxDurationOverride = Math.Max(choiceLetter.quest.TicksUntilExpiry, maxDurationOverride ?? 0);
+            maxDurationOverride = Math.Max(choiceLetter.quest.GetTicksUntilExpiry(), maxDurationOverride ?? 0);
         }
 
         var snoozeDialog = new Dialog_Snooze(duration =>

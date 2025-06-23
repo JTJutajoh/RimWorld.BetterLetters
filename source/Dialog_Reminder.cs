@@ -208,7 +208,11 @@ public class Dialog_Reminder : Window
         curY += 4f;
 
         Text.Font = GameFont.Tiny;
+#if !(v1_1 || v1_2)
         Widgets.Label(innerRect.xMin, ref curY, innerRect.width, "BetterLetters_ReminderTextLabel".Translate());
+#else
+        LegacySupport.Label(innerRect.xMin, ref curY, innerRect.width, "BetterLetters_ReminderTextLabel".Translate());
+#endif
         Text.Font = GameFont.Small;
 
         var reminderTextRect = new Rect(innerRect.xMin, curY, innerRect.width, 80f);
