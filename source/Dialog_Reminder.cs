@@ -213,7 +213,11 @@ public class Dialog_Reminder : Window
 
         var reminderTextOuterRect = reminderTextRect;
         var reminderTextViewRect = reminderTextRect;
+#if !(v1_1 || v1_2 || v1_3 || v1_4)
         Widgets.AdjustRectsForScrollView(reminderTextRect, ref reminderTextOuterRect, ref reminderTextViewRect);
+#else
+        LegacySupport.AdjustRectsForScrollView(reminderTextRect, ref reminderTextOuterRect, ref reminderTextViewRect);
+#endif
         var reminderTextHeight = _reminderText.Split('\n').ToList().Count * 32f;
         reminderTextViewRect.height =
             Mathf.Max(reminderTextViewRect.height, reminderTextHeight) - 12f;

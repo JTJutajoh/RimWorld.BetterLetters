@@ -115,7 +115,12 @@ namespace BetterLetters.Patches
         /// Square size of buttons
         internal const float ButtonSize = 24f;
 
+
+#if v1_1 || v1_2 || v1_3
+        private const int NumButtons = 2;
+#else
         private const int NumButtons = 3;
+#endif
         private const float ButtonsPadding = 0f;
         private const float ButtonsSpacing = 6f;
 
@@ -458,6 +463,10 @@ namespace BetterLetters.Patches
                     };
                     break;
             }
+#if v1_1 || v1_2 || v1_3
+            // RW 1.1-1.3 doesn't make it easy to open mod settings, so just remove that button.
+            buttons.Remove(CustomWidgets.GearIconButton);
+#endif
 
             // Widgets.DrawWindowBackground(_buttonsRect);
             var curX = innerButtonsRect.xMin;

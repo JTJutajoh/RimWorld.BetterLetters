@@ -82,6 +82,7 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             _pinWhenFinished = pinWhenFinished;
             SnoozeType = snoozeType;
 
+#if !(v1_1 || v1_2 || v1_3 || v1_4)
             // Since this is being cached, it won't properly update if the user changes the MaxNumSnoozes setting in an ongoing game...
             // but it won't really matter much. Worst case, multiple snoozes tick close together until they load a save
             _tickOffset =
@@ -90,6 +91,10 @@ internal class WorldComponent_SnoozeManager : WorldComponent
                     Settings.MaxNumSnoozes,
                     Settings.SnoozeTickPeriod
                 );
+#else
+            // Legacy versions just do it the lazy way and don't do an offset
+            _tickOffset = 0;
+#endif
 
             Log.Trace(
                 $"Created a new snooze for letter {letter} with duration {durationTicks} and tick offset {_tickOffset}");
@@ -114,10 +119,9 @@ internal class WorldComponent_SnoozeManager : WorldComponent
         /// <returns>true if the timer is complete or invalid. false if the timer is still running</returns>
         internal bool Tick()
         {
+#if !(v1_1 || v1_2 || v1_3 || v1_4)
+            // Legacy versions just do it the lazy way and don't do an offset
             if (!GenTicks.IsTickInterval(_tickOffset, TickPeriod)) return false;
-
-#if DEBUG // Redundant but just to make sure
-            Log.Trace("Ticking snooze for letter " + Letter);
 #endif
 
             if (Letter is null)

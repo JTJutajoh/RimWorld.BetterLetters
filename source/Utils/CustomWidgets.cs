@@ -299,6 +299,10 @@ internal static class CustomWidgets
 
     internal static void GearIconButton(Letter _, Rect rect)
     {
+#if (v1_1 || v1_2 || v1_3)
+        // Mod settings window changed in RW 1.4+ and it's not really possible to open a specific one easily in 1.1-1.3
+        return;
+#else
         if (!Mouse.IsOver(rect.ExpandedBy(4f))) return;
 
         var tex = Icons.Gear;
@@ -312,5 +316,6 @@ internal static class CustomWidgets
         {
             TooltipHandler.TipRegionByKey(rect, "BetterLetters_OpenSettingsTooltip");
         }
+#endif
     }
 }

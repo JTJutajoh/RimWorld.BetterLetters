@@ -39,8 +39,10 @@ internal class Settings : ModSettings
     // ReSharper disable RedundantDefaultMemberInitializer
     [Setting] internal static PinTextureMode PinTexture = PinTextureMode.Alt;
     [Setting] internal static ButtonPlacement LetterButtonsPosition = ButtonPlacement.BottomRight;
+
     [Setting] internal static LetterButtonsType LetterButtonsEnabledTypes =
-        LetterButtonsType.Icons & LetterButtonsType.DiaOptions;
+        LetterButtonsType.Icons | LetterButtonsType.DiaOptions;
+
     internal static bool IconButtonsEnabled => LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.Icons);
     internal static bool DiaOptionButtonsEnabled => LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.DiaOptions);
 
@@ -298,29 +300,42 @@ internal class Settings : ModSettings
         // RIGHT COLUMN
         listingStandard.NewColumn();
 
-        listingStandard.Label(GetSettingLabel("LetterButtonTypes"),
-            tipSignal: new TipSignal(GetSettingTooltip("LetterButtonTypes")));
+        var letterButtonTypesRect = listingStandard.Label(GetSettingLabel("LetterButtonTypes"));
 
         var buttonTypeDiaOptions = LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.DiaOptions);
+#if !(v1_1 || v1_2 || v1_3)
         listingStandard.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_DiaOptions".Translate(),
             ref buttonTypeDiaOptions, tabIn);
+#else
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_DiaOptions".Translate(),
+            ref buttonTypeDiaOptions);
+#endif
         if (buttonTypeDiaOptions)
             LetterButtonsEnabledTypes |= LetterButtonsType.DiaOptions;
         else
             LetterButtonsEnabledTypes &= ~LetterButtonsType.DiaOptions;
 
         var buttonTypeIcons = LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.Icons);
+#if !(v1_1 || v1_2 || v1_3)
         listingStandard.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_Icons".Translate(),
             ref buttonTypeIcons, tabIn);
+#else
+        listingStandard.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_Icons".Translate(),
+            ref buttonTypeIcons);
+#endif
         if (buttonTypeIcons)
             LetterButtonsEnabledTypes |= LetterButtonsType.Icons;
         else
             LetterButtonsEnabledTypes &= ~LetterButtonsType.Icons;
 
+        TooltipHandler.TipRegion(
+            letterButtonTypesRect with { height = letterButtonTypesRect.height + 64f },
+            GetSettingTooltip("LetterButtonTypes"));
 
-        listingStandard.Label(GetSettingLabel("LetterButtonsPosition"),
-            tipSignal: new TipSignal(GetSettingTooltip("LetterButtonsPosition")));
 
+        var letterButtonsPositionRect = listingStandard.Label(GetSettingLabel("LetterButtonsPosition"));
+
+        var extraHeight = 0f;
         foreach (ButtonPlacement placement in Enum.GetValues(typeof(ButtonPlacement)))
         {
             var disabled = !LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.Icons);
@@ -333,7 +348,13 @@ internal class Settings : ModSettings
                     Patch_Dialog_NodeTree_DoWindowContents_AddPinSnoozeButtons.CalcButtonPositions();
                 }
             }
+
+            extraHeight += 32f;
         }
+
+        TooltipHandler.TipRegion(
+            letterButtonsPositionRect with { height = letterButtonsPositionRect.height + extraHeight },
+            GetSettingTooltip("LetterButtonsPosition"));
 
         listingStandard.End();
     }
@@ -364,7 +385,11 @@ internal class Settings : ModSettings
         MaxSnoozeDuration = Mathf.Clamp(MaxSnoozeDuration, GenDate.TicksPerHour, GenDate.TicksPerYear * 100);
         listingStandard.GetRect(curY - snoozesRect.yMin);
         listingStandard.Indent(48);
+#if !(v1_1 || v1_2 || v1_3)
         if (listingStandard.ButtonText("Default".Translate(), widthPct: 0.47f))
+#else
+        if (listingStandard.ButtonText("Default".Translate()))
+#endif
         {
             MaxSnoozeDuration = DefaultSettings["MaxSnoozeDuration"] as int? ?? GenDate.TicksPerYear * 5;
         }
@@ -384,7 +409,11 @@ internal class Settings : ModSettings
         SnoozeTickPeriod = Mathf.Max(SnoozeTickPeriod, GenTicks.TicksPerRealSecond); // Minimum
         listingStandard.GetRect(curY - periodRect.yMin);
         listingStandard.Indent(48);
+#if !(v1_1 || v1_2 || v1_3)
         if (listingStandard.ButtonText("Default".Translate(), widthPct: 0.47f))
+#else
+        if (listingStandard.ButtonText("Default".Translate()))
+#endif
         {
             SnoozeTickPeriod = DefaultSettings["SnoozeTickPeriod"] as int? ?? GenTicks.TicksPerRealSecond / 3;
         }
