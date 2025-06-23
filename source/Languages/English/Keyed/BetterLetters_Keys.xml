@@ -1,24 +1,36 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <LanguageData>
+  <!-- Common -->
   <BetterLetters_Dismiss>Dismiss</BetterLetters_Dismiss>
   <BetterLetters_Pin>Pin</BetterLetters_Pin>
   <BetterLetters_Snooze>Snooze</BetterLetters_Snooze>
+  <BetterLetters_Cancel>Cancel</BetterLetters_Cancel>
+  <BetterLetters_IsSnoozed>Snoozed</BetterLetters_IsSnoozed>
+  <BetterLetters_Unpin>Unpin</BetterLetters_Unpin>
+  <BetterLetters_Reminder>Reminder</BetterLetters_Reminder>
+  <BetterLetters_Reminders>Reminders</BetterLetters_Reminders>
+
+  <!-- Snooze float menu -->
   <BetterLetters_SnoozeForFloatMenuOption>Snooze for...</BetterLetters_SnoozeForFloatMenuOption>
   <BetterLetters_SnoozeFor1Hour>Snooze for 1 hour</BetterLetters_SnoozeFor1Hour>
   <BetterLetters_SnoozeFor1Day>Snooze for 1 day</BetterLetters_SnoozeFor1Day>
-  <BetterLetters_Cancel>Cancel</BetterLetters_Cancel>
-  <BetterLetters_CancelSnooze>Cancel Snooze ({0})</BetterLetters_CancelSnooze>
-  <BetterLetters_CancelReminder>Cancel Reminder ({0})</BetterLetters_CancelReminder>
-  <BetterLetters_IsSnoozed>Snoozed</BetterLetters_IsSnoozed>
-  <BetterLetters_Unpin>Unpin</BetterLetters_Unpin>
   <BetterLetters_UnpinAndDismiss>Unpin and Dismiss</BetterLetters_UnpinAndDismiss>
   <BetterLetters_DismissButStayPinned>Dismiss (Keep pinned in Archive)</BetterLetters_DismissButStayPinned>
   <BetterLetters_DialogFloatMenuButton>Pin/Snooze</BetterLetters_DialogFloatMenuButton>
+
+  <!-- DiaOptions -->
+  <BetterLetters_CancelSnooze>Cancel Snooze ({0})</BetterLetters_CancelSnooze>
+  <BetterLetters_CancelReminder>Cancel Reminder ({0})</BetterLetters_CancelReminder>
+
+  <!-- Messages -->
   <BetterLetters_SnoozeAdded>Letter snoozed for {0}</BetterLetters_SnoozeAdded>
   <BetterLetters_SnoozeRemoved>Canceled snooze for Letter: "{0}"</BetterLetters_SnoozeRemoved>
   <BetterLetters_SnoozeExpired>Snooze expired</BetterLetters_SnoozeExpired>
   <BetterLetters_TooManySnoozes>Too many snoozed letters already! Un-snooze some letters or raise the limit in the mod settings.</BetterLetters_TooManySnoozes>
+  <BetterLetters_ReminderCreated>New reminder for {0} from now created</BetterLetters_ReminderCreated>
+
+  <!-- SnoozeSettings widget -->
   <BetterLetters_SnoozeUntil>Until: {0}</BetterLetters_SnoozeUntil>
   <BetterLetters_SnoozeFor>Duration: {0}</BetterLetters_SnoozeFor>
   <BetterLetters_MinimumDuration>(Minimum, {0} ticks)</BetterLetters_MinimumDuration>
@@ -26,10 +38,22 @@
   <BetterLetters_MaximumDuration>(Maximum)</BetterLetters_MaximumDuration>
   <BetterLetters_MaximumDuration_Tooltip>Maximum duration is either set in mod settings or if this is a letter with an expiration date (like a quest), the maximum duration is automatically set to its expiry.</BetterLetters_MaximumDuration_Tooltip>
   <BetterLetters_Immediately>Immediately</BetterLetters_Immediately>
+
+  <!-- Reminder dialog -->
   <BetterLetters_JumpToColon>Jump to:</BetterLetters_JumpToColon>
   <BetterLetters_JumpToColonTooltip>Choose a Thing to set as this reminder's Jump To Target, which adds an option in the letter to quickly jump to it when it fires.</BetterLetters_JumpToColonTooltip>
   <BetterLetters_NothingSelected>Nothing</BetterLetters_NothingSelected>
   <BetterLetters_SelectSomething>Select Thing...</BetterLetters_SelectSomething>
+  <BetterLetters_ReminderDialogTitle>New Reminder</BetterLetters_ReminderDialogTitle>
+  <BetterLetters_ReminderTextLabel>Optional reminder text:</BetterLetters_ReminderTextLabel>
+  <BetterLetters_LetterTypeLabel>Letter Type:</BetterLetters_LetterTypeLabel>
+  <BetterLetters_PinReminder>Should this reminder automatically get pinned when it fires?</BetterLetters_PinReminder>
+  <BetterLetters_OpenWhenFinished>Open when finished</BetterLetters_OpenWhenFinished>
+  <BetterLetters_MaxDurationTooltip>Maximum is modifiable in Better Letters mod settings.
+
+Current setting: {0} days</BetterLetters_MaxDurationTooltip>
+
+  <!-- History Archive main tab -->
   <BetterLetters_SnoozedButtonTooltip>Snoozed until {0}.
 Remaining: {1}
 
@@ -39,30 +63,24 @@ Remaining: {1}
 
 Click to cancel the reminder.</BetterLetters_SnoozedReminderButtonTooltip>
   <BetterLetters_NewReminderButton>New Reminder</BetterLetters_NewReminderButton>
-  <BetterLetters_ReminderCreated>New reminder for {0} from now created</BetterLetters_ReminderCreated>
+  <BetterLetters_ShowSnoozes>Show Snoozes</BetterLetters_ShowSnoozes>
+  <BetterLetters_ShowReminders>Show Reminders</BetterLetters_ShowReminders>
+
+  <!-- Quests -->
   <BetterLetters_PinQuestTooltip>Pin this quest's corresponding Letter to help keep track of it. If it is snoozed, the snooze will be canceled.</BetterLetters_PinQuestTooltip>
   <BetterLetters_UnPinQuestTooltip>Unpin this quest's corresponding letter. The letter will not be dismissed.</BetterLetters_UnPinQuestTooltip>
   <BetterLetters_SnoozeQuestTooltip>Snooze this quest until later. If it is pinned it will be unpinned.
-  
+
 You will receive the "Quest available" letter again when the snooze ends. You will still receive notifications related to this quest, unlike dismissing it.</BetterLetters_SnoozeQuestTooltip>
   <BetterLetters_QuestExpiredLabel>Quest Expired: {0}</BetterLetters_QuestExpiredLabel>
+  <!-- Quest snooze FloatMenu options -->
+  <BetterLetters_Quest_SnoozeUntil1HrBeforeExpiration>Snooze until 1 hour before expiration</BetterLetters_Quest_SnoozeUntil1HrBeforeExpiration>
+  <BetterLetters_Quest_SnoozeUntil1DayBeforeExpiration>Snooze until 1 day before expiration</BetterLetters_Quest_SnoozeUntil1DayBeforeExpiration>
+
+  <!-- PlaySettings button -->
   <BetterLetters_PlaySettingsCreateReminder>Create a new reminder.
-  
+
 Currently selected thing(s) can be automatically used as the reminder's "Jump To Location" target.</BetterLetters_PlaySettingsCreateReminder>
-  
-  <BetterLetters_Reminder>Reminder</BetterLetters_Reminder>
-  <BetterLetters_Reminders>Reminders</BetterLetters_Reminders>
-  <BetterLetters_ReminderDialogTitle>New Reminder</BetterLetters_ReminderDialogTitle>
-  <BetterLetters_ReminderTextLabel>Optional reminder text:</BetterLetters_ReminderTextLabel>
-  <BetterLetters_ShowSnoozes>Show Snoozes</BetterLetters_ShowSnoozes>
-  <BetterLetters_ShowReminders>Show Reminders</BetterLetters_ShowReminders>
-  <BetterLetters_LetterTypeLabel>Letter Type:</BetterLetters_LetterTypeLabel>
-  <BetterLetters_PinReminder>Should this reminder automatically get pinned when it fires?</BetterLetters_PinReminder>
-  <BetterLetters_OpenWhenFinished>Open when finished</BetterLetters_OpenWhenFinished>
-  <BetterLetters_MaxDurationTooltip>Maximum is modifiable in Better Letters mod settings.
-
-Current setting: {0} days</BetterLetters_MaxDurationTooltip>
-
 
   <!-- BundleLetter FloatMenu options -->
   <BetterLetters_BundleLetter_UnpinAll>Unpin {0} pinned</BetterLetters_BundleLetter_UnpinAll>
@@ -70,10 +88,21 @@ Current setting: {0} days</BetterLetters_MaxDurationTooltip>
   <BetterLetters_BundleLetter_DismissAll>Dismiss all {0} not pinned</BetterLetters_BundleLetter_DismissAll>
   <BetterLetters_BundleLetter_SnoozeAll>Snooze {0} not pinned</BetterLetters_BundleLetter_SnoozeAll>
 
+  <!-- Time -->
+  <BetterLetters_TimeUnitTooltip>Choose the unit of time to adjust.</BetterLetters_TimeUnitTooltip>
+  <BetterLetters_Ticks>Ticks</BetterLetters_Ticks>
+  <BetterLetters_Hours>Hours</BetterLetters_Hours>
+  <BetterLetters_Days>Days</BetterLetters_Days>
+  <BetterLetters_Seasons>Seasons</BetterLetters_Seasons>
+  <BetterLetters_Years>Years</BetterLetters_Years>
+  <BetterLetters_Decades>Decades</BetterLetters_Decades>
 
-  <!-- Quest snooze FloatMenu options -->
-  <BetterLetters_Quest_SnoozeUntil1HrBeforeExpiration>Snooze until 1 hour before expiration</BetterLetters_Quest_SnoozeUntil1HrBeforeExpiration>
-  <BetterLetters_Quest_SnoozeUntil1DayBeforeExpiration>Snooze until 1 day before expiration</BetterLetters_Quest_SnoozeUntil1DayBeforeExpiration>
+  <BetterLetters_Period1Tick>1 tick</BetterLetters_Period1Tick>
+  <BetterLetters_PeriodTicks>{0} ticks</BetterLetters_PeriodTicks>
+  <BetterLetters_Period1Season>1 season</BetterLetters_Period1Season>
+  <BetterLetters_PeriodSeasons>{0} seasons</BetterLetters_PeriodSeasons>
+
+
 
 
   <!-- SETTINGS -->
@@ -88,7 +117,6 @@ Current setting: {0} days</BetterLetters_MaxDurationTooltip>
   <BetterLetters_OpenSettingsTooltip>Open Better Letters mod settings to configure the appearance and placement of these buttons.
 
 (Takes effect the NEXT time you open a letter)</BetterLetters_OpenSettingsTooltip>
-
   <BetterLetters_Settings_DefaultSuffix>
 
 Default: {0}</BetterLetters_Settings_DefaultSuffix>
@@ -167,17 +195,4 @@ Quests letters that you have dismissed will not play a sound.</BetterLetters_Set
   <BetterLetters_Settings_QuestExpirationSound_BadUrgent>Threat Small</BetterLetters_Settings_QuestExpirationSound_BadUrgent>
   <BetterLetters_Settings_QuestExpirationSound_BadUrgentBig>Threat Big</BetterLetters_Settings_QuestExpirationSound_BadUrgentBig>
   <BetterLetters_Settings_QuestExpirationSound_RitualNegative>Ritual Negative Outcome</BetterLetters_Settings_QuestExpirationSound_RitualNegative>
-
-  <BetterLetters_TimeUnitTooltip>Choose the unit of time to adjust.</BetterLetters_TimeUnitTooltip>
-  <BetterLetters_Ticks>Ticks</BetterLetters_Ticks>
-  <BetterLetters_Hours>Hours</BetterLetters_Hours>
-  <BetterLetters_Days>Days</BetterLetters_Days>
-  <BetterLetters_Seasons>Seasons</BetterLetters_Seasons>
-  <BetterLetters_Years>Years</BetterLetters_Years>
-  <BetterLetters_Decades>Decades</BetterLetters_Decades>
-
-  <BetterLetters_Period1Tick>1 tick</BetterLetters_Period1Tick>
-  <BetterLetters_PeriodTicks>{0} ticks</BetterLetters_PeriodTicks>
-  <BetterLetters_Period1Season>1 season</BetterLetters_Period1Season>
-  <BetterLetters_PeriodSeasons>{0} seasons</BetterLetters_PeriodSeasons>
 </LanguageData>
