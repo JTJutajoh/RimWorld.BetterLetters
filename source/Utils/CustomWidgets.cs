@@ -39,6 +39,7 @@ internal static class CustomWidgets
         float paddingRight = 32f,
         float paddingTop = 8f,
         int? maxDurationOverride = null,
+        int? minDurationOverride = null,
         bool showEndDate = true
     )
     {
@@ -148,7 +149,7 @@ internal static class CustomWidgets
         // (X <unit> + Y <remainder>)
         // ex: (3 hours + 500 ticks) or (7 days + 38,477 ticks)
         // This way the user can adjust a unit without losing the smaller units that they've already set
-        durationTicks = (int)Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks, 0,
+        durationTicks = (int)Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks, minDurationOverride ?? Settings.SnoozeTickPeriod,
             maxDurationOverride ?? Settings.MaxSnoozeDuration);
     }
 
