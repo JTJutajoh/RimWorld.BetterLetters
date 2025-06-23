@@ -91,7 +91,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
 
         var rect = new Rect(innerRect.xMax - 64f - 6f, innerRect.y, 32f, 32f);
 
-        var choiceLetter = quest.GetLetter();
+        var choiceLetter = quest.GetQuestLetter();
         if (choiceLetter is null)
         {
             Log.WarningOnce($"Couldn't find the associated letter for quest '{quest.name}'",
@@ -114,7 +114,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         }
 
 
-        var choiceLetter = quest.GetLetter();
+        var choiceLetter = quest.GetQuestLetter();
         if (choiceLetter is null)
         {
             Log.WarningOnce($"Couldn't find the associated letter for quest '{quest.name}'",
@@ -169,7 +169,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
                         return;
                     }
 
-                    var letter = quest.GetLetter();
+                    var letter = quest.GetQuestLetter();
                     if (letter is null)
                     {
                         Log.WarningOnce(

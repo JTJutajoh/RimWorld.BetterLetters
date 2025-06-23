@@ -9,6 +9,10 @@ namespace BetterLetters;
 
 internal class Settings : ModSettings
 {
+    private class SettingAttribute : Attribute
+    {
+    }
+
     internal enum PinTextureMode
     {
         Round = 1,
@@ -32,8 +36,13 @@ internal class Settings : ModSettings
         Icons = 4
     }
 
-    private class SettingAttribute : Attribute
+    internal enum QuestExpirationSounds
     {
+        LetterArrive,
+        BadUrgentSmall,
+        BadUrgent,
+        BadUrgentBig,
+        RitualNegative,
     }
 
     // ReSharper disable RedundantDefaultMemberInitializer
@@ -56,10 +65,13 @@ internal class Settings : ModSettings
     [Setting] internal static bool DisableFlashAlways = false;
     [Setting] internal static int MaxSnoozeDuration = GenDate.TicksPerYear * 5;
     [Setting] internal static bool SnoozePinned = true;
-    [Setting] internal static bool DismissedQuestsDismissLetters = true;
-    [Setting] internal static bool KeepQuestLettersOnStack = true;
     [Setting] internal static bool DoCreateReminderPlaySetting = true;
     [Setting] internal static bool AutoSelectThingForReminders = true;
+
+    [Setting] internal static bool DismissedQuestsDismissLetters = true;
+    [Setting] internal static bool KeepQuestLettersOnStack = true;
+    [Setting] internal static bool ChangeExpiredQuestLetters = true;
+    [Setting] internal static QuestExpirationSounds QuestExpirationSound = QuestExpirationSounds.LetterArrive;
     // ReSharper restore RedundantDefaultMemberInitializer
 
     internal static Dictionary<string, object> DefaultSettings = new();
@@ -71,6 +83,7 @@ internal class Settings : ModSettings
         Pinning,
         Snoozing,
         Reminders,
+        Quests,
         Cache
     }
 
@@ -138,6 +151,8 @@ internal class Settings : ModSettings
                 () => CurrentTab == SettingsTab.Snoozing),
             new TabRecord("BetterLetters_Settings_Tab_Reminders".Translate(), () => CurrentTab = SettingsTab.Reminders,
                 () => CurrentTab == SettingsTab.Reminders),
+            new TabRecord("BetterLetters_Settings_Tab_Quests".Translate(), () => CurrentTab = SettingsTab.Quests,
+                () => CurrentTab == SettingsTab.Quests),
         };
         if (Prefs.DevMode && WorldComponent_SnoozeManager.Instance is not null)
         {
@@ -204,6 +219,18 @@ internal class Settings : ModSettings
                 }
 
                 break;
+            case SettingsTab.Quests:
+                try
+                {
+                    DoTabQuests(tabRect);
+                }
+                catch (Exception e)
+                {
+                    Log.Exception(e, "Error drawing quests settings tab.", true);
+                    CurrentTab = SettingsTab.Main;
+                }
+
+                break;
             case SettingsTab.Cache:
                 try
                 {
@@ -227,15 +254,6 @@ internal class Settings : ModSettings
         var listingStandard = new Listing_Standard();
         listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
 
-        listingStandard.CheckboxLabeled(GetSettingLabel("DismissedQuestsDismissLetters"),
-            ref DismissedQuestsDismissLetters,
-            GetSettingTooltip("DismissedQuestsDismissLetters"), 36f, 0.90f);
-
-        listingStandard.CheckboxLabeled(GetSettingLabel("KeepQuestLettersOnStack"), ref KeepQuestLettersOnStack,
-            GetSettingTooltip("KeepQuestLettersOnStack"), 36f, 0.90f);
-
-        listingStandard.Gap(20f);
-
         listingStandard.CheckboxLabeled(GetSettingLabel("DisableBounceAlways"), ref DisableBounceAlways,
             GetSettingTooltip("DisableBounceAlways"), 36f, 0.90f);
         if (!DisableBounceAlways)
@@ -257,6 +275,42 @@ internal class Settings : ModSettings
                 GetSettingTooltip("DisableFlashIfPinned"), 28f, 0.87f);
             listingStandard.Outdent();
         }
+
+        listingStandard.End();
+    }
+
+    private static void DoTabQuests(Rect inRect)
+    {
+        var listingStandard = new Listing_Standard();
+        listingStandard.Begin(inRect.MiddlePart(0.75f, 1f));
+
+        listingStandard.CheckboxLabeled(GetSettingLabel("DismissedQuestsDismissLetters"),
+            ref DismissedQuestsDismissLetters,
+            GetSettingTooltip("DismissedQuestsDismissLetters"), 36f, 0.90f);
+
+        listingStandard.CheckboxLabeled(GetSettingLabel("KeepQuestLettersOnStack"), ref KeepQuestLettersOnStack,
+            GetSettingTooltip("KeepQuestLettersOnStack"), 36f, 0.90f);
+
+        listingStandard.CheckboxLabeled(GetSettingLabel("ChangeExpiredQuestLetters"), ref ChangeExpiredQuestLetters,
+            GetSettingTooltip("ChangeExpiredQuestLetters"), 36f, 0.90f);
+
+        var expirationSoundLabelRect = listingStandard.Label(GetSettingLabel("QuestExpirationSound"));
+        var extraHeight = 0f;
+        foreach (QuestExpirationSounds soundOption in Enum.GetValues(typeof(QuestExpirationSounds)))
+        {
+            var disabled = !ChangeExpiredQuestLetters;
+            if (listingStandard.RadioButton($"BetterLetters_Settings_QuestExpirationSound_{soundOption.ToString()}".Translate(),
+                    soundOption == QuestExpirationSound, 0f, tabInRight: 0.6f, null!, null, disabled))
+            {
+                QuestExpirationSound = soundOption;
+            }
+
+            extraHeight += 32f;
+        }
+
+        TooltipHandler.TipRegion(
+            expirationSoundLabelRect with { height = expirationSoundLabelRect .height + extraHeight },
+            "BetterLetters_Settings_QuestExpirationSound_Desc".Translate());
 
         listingStandard.End();
     }
@@ -538,10 +592,13 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref DisableFlashIfPinned, "DisableFlashIfPinned", true);
         Scribe_Values.Look(ref DisableFlashAlways, "DisableFlashAlways", false);
         Scribe_Values.Look(ref SnoozePinned, "SnoozePinned", true);
-        Scribe_Values.Look(ref DismissedQuestsDismissLetters, "DismissedQuestsDismissLetters", true);
-        Scribe_Values.Look(ref KeepQuestLettersOnStack, "KeepQuestLettersOnStack", true);
         Scribe_Values.Look(ref DoCreateReminderPlaySetting, "DoCreateReminderPlaySetting", true);
         Scribe_Values.Look(ref AutoSelectThingForReminders, "AutoSelectThingForReminders", true);
+
+        Scribe_Values.Look(ref QuestExpirationSound, "QuestExpirationSound", QuestExpirationSounds.LetterArrive);
+        Scribe_Values.Look(ref DismissedQuestsDismissLetters, "DismissedQuestsDismissLetters", true);
+        Scribe_Values.Look(ref KeepQuestLettersOnStack, "KeepQuestLettersOnStack", true);
+        Scribe_Values.Look(ref ChangeExpiredQuestLetters, "ChangeExpiredQuestLetters", true);
         // ReSharper restore RedundantArgumentDefaultValue
 
         base.ExposeData();

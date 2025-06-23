@@ -110,6 +110,7 @@
     <Compile Include="Patches\Patch_PlaySettings_GlobalControl_CreateReminderButton.cs" />
     <Compile Include="Patches\Patch_QuestsTab_SelectedQuest_Buttons.cs" />
     <Compile Include="Patches\Patch_Letter_RemoveLetter_KeepOnStack.cs" />
+    <Compile Include="Patches\Patch_Quest_CleanupQuestParts_MarkLetter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utils\Icons.cs" />

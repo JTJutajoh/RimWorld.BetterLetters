@@ -103,6 +103,7 @@ namespace BetterLetters
             PatchCategory("LetterStack_SortPinned");
             PatchCategory("PlaySettings_CreateReminderButton");
             PatchCategory("HistoryFiltersAndButtons");
+            PatchCategory("ExpireQuestLetters");
 
 #if !(v1_1 || v1_2 || v1_3)
             PatchCategory("HistoryArchivableRow");

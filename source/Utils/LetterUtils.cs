@@ -132,7 +132,7 @@ namespace BetterLetters.Utils
         /// Search for the "new quest" letter associated with a quest, since the quest does not store a reference to it.<br />
         /// Results (including null) are cached. The cache is however not serialized.
         /// </summary>
-        public static ChoiceLetter? GetLetter(this Quest quest)
+        public static ChoiceLetter? GetQuestLetter(this Quest quest)
         {
             if (QuestLetterCache.TryGetValue(quest, out var cachedLetter))
             {
