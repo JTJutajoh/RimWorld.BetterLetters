@@ -309,11 +309,24 @@ internal class WorldComponent_SnoozeManager : WorldComponent
     /// <returns>True if the letter was snoozed. False if the user canceled.</returns>
     public static void ShowSnoozeDialog(Letter letter, Action<Snooze?>? onSnooze = null)
     {
-        var snoozeDialog = new Dialog_Snooze(duration =>
+        int? maxDurationOverride = null;
+        if (letter is LetterWithTimeout { disappearAtTick: > 0 } timedLetter)
         {
-            var snooze = AddSnooze(letter, duration);
-            onSnooze?.Invoke(snooze);
-        });
+            maxDurationOverride = timedLetter.disappearAtTick - Find.TickManager?.TicksGame;
+        }
+
+        if (letter is ChoiceLetter { quest.TicksUntilExpiry: > 0 } choiceLetter)
+        {
+            maxDurationOverride = Math.Max(choiceLetter.quest.TicksUntilExpiry, maxDurationOverride ?? 0);
+        }
+
+        var snoozeDialog = new Dialog_Snooze(duration =>
+            {
+                var snooze = AddSnooze(letter, duration);
+                onSnooze?.Invoke(snooze);
+            },
+            maxDurationOverride
+        );
         Find.WindowStack?.Add(snoozeDialog);
     }
 

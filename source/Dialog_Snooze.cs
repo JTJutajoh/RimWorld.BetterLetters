@@ -16,12 +16,14 @@ public class Dialog_Snooze : Window
     internal int DurationTicks => _durationTicks;
 
     // Maximum duration in days set in settings
+    private int? _maxDurationOverride;
 
-    public Dialog_Snooze(Action<int> onConfirmedAction)
+    public Dialog_Snooze(Action<int> onConfirmedAction, int? maxDurationOverride = null)
     {
         _instance?.Close();
         _instance = this;
         _onConfirmed = onConfirmedAction;
+        _maxDurationOverride = maxDurationOverride;
         closeOnClickedOutside = true;
         absorbInputAroundWindow = true;
         doCloseButton = false;
@@ -39,7 +41,7 @@ public class Dialog_Snooze : Window
         var labelsRect = mainRect.BottomPart(0.3f);
 
         var curY = upperRect.yMin;
-        CustomWidgets.SnoozeSettings(upperRect.x, ref curY, upperRect.width, ref _durationTicks);
+        CustomWidgets.SnoozeSettings(upperRect.x, ref curY, upperRect.width, ref _durationTicks, maxDurationOverride: _maxDurationOverride);
 
 
         var buttonsRect = inRect.BottomPartPixels(buttonsSize.y + 10);
