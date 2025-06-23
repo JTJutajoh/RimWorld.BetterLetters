@@ -147,7 +147,6 @@ namespace BetterLetters.Patches
         /// Once the window's initial size has been modified by <see cref="ExpandWindowInitialSizeVertically"/>,
         /// set the values of <see cref="_buttonsRect"/> based on the <see cref="Settings.LetterButtonsPosition"/> setting.
         /// </summary>
-        /// <param name="initialSize"></param>
         internal static void CalcButtonPositions()
         {
             // Calculate the actual rect inside the window that we can draw within.

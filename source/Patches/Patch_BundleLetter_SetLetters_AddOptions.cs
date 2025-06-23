@@ -20,10 +20,10 @@ internal static class Patch_BundleLetter_SetLetters_AddOptions
     [UsedImplicitly]
     static void CacheDidListChange(List<Letter> letters, List<Letter> ___bundledLetters)
     {
-        _listChanged = !GenCollection.ListsEqual<Letter>(letters, ___bundledLetters);
+        _listChanged = !GenCollection.ListsEqual(letters, ___bundledLetters);
     }
 
-    private static bool _listChanged = false;
+    private static bool _listChanged;
 
     /// <summary>
     ///

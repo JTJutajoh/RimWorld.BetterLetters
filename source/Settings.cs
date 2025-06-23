@@ -431,7 +431,7 @@ internal class Settings : ModSettings
 
         listingStandard.GapLine(20f);
 
-        listingStandard.IntSetting(ref MaxNumSnoozes, "MaxNumSnoozes", ref _editBufferMaxNumSnoozes, null, min: 1,
+        listingStandard.IntSetting(ref MaxNumSnoozes, "MaxNumSnoozes", ref _editBufferMaxNumSnoozes, min: 1,
             max: 200);
 
         listingStandard.GapLine(20f);

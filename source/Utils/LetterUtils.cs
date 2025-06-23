@@ -226,7 +226,7 @@ namespace BetterLetters.Utils
 
         internal static float TicksToTimeUnit(this int numTicks, TimeUnits timeUnit)
         {
-            return (float)numTicks / (float)timeUnit;
+            return numTicks / (float)timeUnit;
         }
 
         internal static string ToStringTicksToPeriodVeryVerbose(this int numTicks, Color? color = null)

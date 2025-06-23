@@ -13,13 +13,6 @@ namespace BetterLetters.Utils;
 /// </summary>
 internal static class CustomWidgets
 {
-    private static string SliderMaxLabel => "BetterLetters_SliderRightLabel".Translate(
-        Mathf.RoundToInt(MaxDuration * GenDate.TicksPerDay).ToStringTicksToPeriod());
-
-    private static string SliderDurationLabel(float durationDays) =>
-        "BetterLetters_SliderLabel".Translate(Mathf.RoundToInt(durationDays * GenDate.TicksPerDay)
-            .ToStringTicksToPeriod());
-
     private static string _editBufferSnooze = "";
 
     internal static LetterUtils.TimeUnits SnoozeTimeUnit = LetterUtils.TimeUnits.Hours;
@@ -54,12 +47,9 @@ internal static class CustomWidgets
         const float spacing = 8f;
 
 
-        int years;
-        int quadrums;
-        int days;
         float hoursFloat;
-        durationTicks.TicksToPeriod(out years, out quadrums, out days, out hoursFloat);
-        int hours = (int)hoursFloat;
+        durationTicks.TicksToPeriod(out _, out _, out _, out hoursFloat);
+        var hours = (int)hoursFloat;
 
         RefreshEditBuffer(durationTicks);
 
@@ -149,7 +139,7 @@ internal static class CustomWidgets
         // (X <unit> + Y <remainder>)
         // ex: (3 hours + 500 ticks) or (7 days + 38,477 ticks)
         // This way the user can adjust a unit without losing the smaller units that they've already set
-        durationTicks = (int)Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks, minDurationOverride ?? Settings.SnoozeTickPeriod,
+        durationTicks = Mathf.Clamp(numOfUnit * (int)SnoozeTimeUnit + remainderTicks, minDurationOverride ?? Settings.SnoozeTickPeriod,
             maxDurationOverride ?? Settings.MaxSnoozeDuration);
     }
 
@@ -230,8 +220,6 @@ internal static class CustomWidgets
 
         value = Mathf.Clamp(value, min, max);
     }
-
-    private static float MaxDuration => Settings.MaxSnoozeDuration;
 
     internal static void SnoozeIconButton(Letter letter, Rect rect)
     {

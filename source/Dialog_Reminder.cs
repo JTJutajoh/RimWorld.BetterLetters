@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using RimWorld;
 using UnityEngine;
 using Verse.Sound;
@@ -170,7 +169,6 @@ public class Dialog_Reminder : Window
         DoBodyTextEntry(innerRect, ref curY);
         curY += 3f;
         DoReminderSettings(innerRect, ref curY);
-        curY += 4f;
 
         DoCloseButtons(innerRect);
 #if !(v1_1 || v1_2)
