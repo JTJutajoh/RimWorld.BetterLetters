@@ -23,6 +23,8 @@
   <BetterLetters_SnoozeFor>Duration: {0}</BetterLetters_SnoozeFor>
   <BetterLetters_MinimumDuration>(Minimum, {0} ticks)</BetterLetters_MinimumDuration>
   <BetterLetters_MinimumDuration_Tooltip>Cannot set snooze duration to less than the "Snooze Tick Period" option in mod settings.</BetterLetters_MinimumDuration_Tooltip>
+  <BetterLetters_MaximumDuration>(Maximum)</BetterLetters_MaximumDuration>
+  <BetterLetters_MaximumDuration_Tooltip>Maximum duration is either set in mod settings or if this is a letter with an expiration date (like a quest), the maximum duration is automatically set to its expiry.</BetterLetters_MaximumDuration_Tooltip>
   <BetterLetters_Immediately>Immediately</BetterLetters_Immediately>
   <BetterLetters_JumpToColon>Jump to:</BetterLetters_JumpToColon>
   <BetterLetters_JumpToColonTooltip>Choose a Thing to set as this reminder's Jump To Target, which adds an option in the letter to quickly jump to it when it fires.</BetterLetters_JumpToColonTooltip>

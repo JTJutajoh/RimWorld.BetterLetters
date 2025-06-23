@@ -84,6 +84,11 @@ internal static class CustomWidgets
             durationString = durationString + " " + "BetterLetters_MinimumDuration".Translate(durationTicks);
             TooltipHandler.TipRegionByKey(new Rect(x, y, width, 32f), "BetterLetters_MinimumDuration_Tooltip");
         }
+        else if (durationTicks >= (maxDurationOverride ?? Settings.MaxSnoozeDuration))
+        {
+            durationString = durationString + " " + "BetterLetters_MaximumDuration".Translate();
+            TooltipHandler.TipRegionByKey(new Rect(x, y, width, 32f), "BetterLetters_MaximumDuration_Tooltip");
+        }
 
         Widgets.Label(x, ref y, width, "BetterLetters_SnoozeFor".Translate(durationString));
         Text.Anchor = TextAnchor.UpperLeft;
