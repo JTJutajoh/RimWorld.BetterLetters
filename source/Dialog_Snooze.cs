@@ -37,6 +37,7 @@ public class Dialog_Snooze : Window
     {
         var buttonsSize = new Vector2(120f, 32f);
         var mainRect = inRect.TopPartPixels(inRect.yMax - buttonsSize.y - 4);
+        mainRect.yMin += 8f;
 
         var upperRect = mainRect.TopPart(0.7f);
         var labelsRect = mainRect.BottomPart(0.3f);

@@ -13,7 +13,7 @@ namespace BetterLetters.Utils;
 /// </summary>
 internal static class CustomWidgets
 {
-    private static string _editBufferSnooze = "";
+    private static string _editBufferSnooze = "null";
 
     internal static LetterUtils.TimeUnits SnoozeTimeUnit = LetterUtils.TimeUnits.Hours;
 
@@ -24,6 +24,8 @@ internal static class CustomWidgets
             durationTicks == 0 ? "" : ((int)Math.Floor(durationTicks / (float)SnoozeTimeUnit)).ToStringCached()!;
     }
 
+    private static float? _lastSnoozeSettingsHeight = null;
+
     internal static void SnoozeSettings(float x,
         ref float y,
         float width,
@@ -31,12 +33,14 @@ internal static class CustomWidgets
         float paddingLeft = 32f,
         float paddingRight = 32f,
         float paddingTop = 8f,
+        float paddingBottom = 8f,
         int? maxDurationOverride = null,
         int? minDurationOverride = null,
-        bool showEndDate = true
+        bool showEndDate = true,
+        bool doSectionBackground = true
     )
     {
-        const float minWidth = 400f;
+        const float minWidth = 340f;
         const float maxWidth = 600f;
         // When the chosen unit is Ticks, the buttons change to adjust by this amount.
         // Used the TPS of max 3x speed
@@ -46,6 +50,7 @@ internal static class CustomWidgets
         const float buttonRowHeight = 32f;
         const float spacing = 8f;
 
+        var startY = y;
 
         float hoursFloat;
         durationTicks.TicksToPeriod(out _, out _, out _, out hoursFloat);
@@ -62,10 +67,14 @@ internal static class CustomWidgets
 
         width = Mathf.Max(width, minWidth);
 
+        if (doSectionBackground && _lastSnoozeSettingsHeight != null)
+            Widgets.DrawMenuSection(new Rect(x, y, width, _lastSnoozeSettingsHeight.Value));
+
         // Apply padding
         x += paddingLeft;
         width -= paddingLeft + paddingRight;
         y += paddingTop;
+
 
         // Duration label
         Text.Anchor = TextAnchor.UpperCenter;
@@ -142,6 +151,8 @@ internal static class CustomWidgets
             SnoozeTimeUnit == LetterUtils.TimeUnits.Ticks ? ticksMultiplier : 1);
 
         y += intEntryRect.height;
+        y += paddingBottom;
+        _lastSnoozeSettingsHeight = y - startY;
 
         // The resulting number of ticks is:
         // (X <unit> + Y <remainder>)
@@ -330,5 +341,13 @@ internal static class CustomWidgets
             TooltipHandler.TipRegionByKey(rect, "BetterLetters_OpenSettingsTooltip");
         }
 #endif
+    }
+
+    internal static void SectionHeader(this Listing_Standard snoozeSection, string sectionKey)
+    {
+        Text.Anchor = TextAnchor.UpperCenter;
+        snoozeSection.Label(sectionKey.Translate());
+        Text.Anchor = TextAnchor.UpperLeft;
+        snoozeSection.GapLine(8f);
     }
 }

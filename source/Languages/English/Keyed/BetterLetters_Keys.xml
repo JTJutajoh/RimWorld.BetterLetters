@@ -110,10 +110,12 @@ Currently selected thing(s) can be automatically used as the reminder's "Jump To
   <BetterLetters_SettingsCategory>Better Letters</BetterLetters_SettingsCategory>
   <BetterLetters_Settings_Tab_Main>Main</BetterLetters_Settings_Tab_Main>
   <BetterLetters_Settings_Tab_Pinning>Pinning</BetterLetters_Settings_Tab_Pinning>
-  <BetterLetters_Settings_Tab_Snoozing>Snoozing</BetterLetters_Settings_Tab_Snoozing>
-  <BetterLetters_Settings_Tab_Reminders>Reminders</BetterLetters_Settings_Tab_Reminders>
-  <BetterLetters_Settings_Tab_Quests>Quests</BetterLetters_Settings_Tab_Quests>
+  <BetterLetters_Settings_Tab_Snoozing>Snoozing/Reminders</BetterLetters_Settings_Tab_Snoozing>
   <BetterLetters_Settings_Tab_Cache>Cache</BetterLetters_Settings_Tab_Cache>
+  <BetterLetters_Settings_Section_Misc>Misc settings</BetterLetters_Settings_Section_Misc>
+  <BetterLetters_Settings_Section_Quests>Quests settings</BetterLetters_Settings_Section_Quests>
+  <BetterLetters_Settings_Section_Snoozing>Snoozing settings</BetterLetters_Settings_Section_Snoozing>
+  <BetterLetters_Settings_Section_Reminders>Reminders settings</BetterLetters_Settings_Section_Reminders>
   <BetterLetters_OpenSettingsTooltip>Open Better Letters mod settings to configure the appearance and placement of these buttons.
 
 (Takes effect the NEXT time you open a letter)</BetterLetters_OpenSettingsTooltip>
