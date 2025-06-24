@@ -434,7 +434,11 @@ internal class Settings : ModSettings
         // Calculate the height of the tab's contents for the scrollbar rects
         var viewRectSnoozeTab = new Rect(inRect);
         var outerRectSnoozeTab = new Rect(inRect);
+#if !(v1_1 || v1_2 || v1_3 || v1_4)
         Widgets.AdjustRectsForScrollView(inRect, ref outerRectSnoozeTab, ref viewRectSnoozeTab);
+#else
+        LegacySupport.AdjustRectsForScrollView(inRect, ref outerRectSnoozeTab, ref viewRectSnoozeTab);
+#endif
         viewRectSnoozeTab.height = _lastSnoozeTabHeight ?? inRect.height * 1.5f;
 
         Widgets.BeginScrollView(outerRectSnoozeTab, ref _scrollPositionSnoozeTab, viewRectSnoozeTab);

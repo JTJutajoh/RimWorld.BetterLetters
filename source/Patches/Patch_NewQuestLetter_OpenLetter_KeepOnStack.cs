@@ -18,7 +18,9 @@ namespace BetterLetters.Patches
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class Patch_NewQuestLetter_OpenLetter_KeepOnStack
     {
-        private static readonly MethodInfo? LetterStackGetterAnchor = typeof(Find).GetProperty("LetterStack")?.GetGetMethod();
+        private static readonly MethodInfo? LetterStackGetterAnchor =
+            typeof(Find).GetProperty("LetterStack")?.GetGetMethod();
+
         /// Transpiler that skips the line calling Find.LetterStack.RemoveLetter(this);
         /// Keeping letters in the letter stack when opened, instead of the vanilla functionality that automatically
         /// removes them.

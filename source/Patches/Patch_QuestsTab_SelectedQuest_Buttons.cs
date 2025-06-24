@@ -1,5 +1,4 @@
-﻿#if !(v1_1 || v1_2) // This patch only works on RimWorld 1.3+
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -123,6 +122,7 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
             return;
         }
 
+        //BUG: This isn't including quests that start active
         var rect = new Rect(innerRect.xMax - 96f - 6f, innerRect.y, 32f, 32f);
         var extraFloatMenuOptions = new List<FloatMenuOption>();
         if (quest.GetTicksUntilExpiry() > GenDate.TicksPerHour)
@@ -158,11 +158,10 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         types: new[] { typeof(Rect), typeof(Texture2D), typeof(bool), typeof(string) }
     );
 #else
-    static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).
-        GetMethod(
-            name: nameof(Widgets.ButtonImage),
-            types: new Type[] { typeof(Rect), typeof(Texture2D), typeof(bool) }
-        );
+    static readonly MethodInfo? DismissButtonClickedMethodAnchor = typeof(Widgets).GetMethod(
+        name: nameof(Widgets.ButtonImage),
+        types: new Type[] { typeof(Rect), typeof(Texture2D), typeof(bool) }
+    );
 #endif
     /// <summary>
     /// Patches the vanilla button to dismiss quests to make it also remove them from the stack
@@ -223,4 +222,3 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         innerRect.x -= 40f;
     }
 }
-#endif
