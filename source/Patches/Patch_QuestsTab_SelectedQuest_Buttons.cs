@@ -18,6 +18,8 @@ namespace BetterLetters.Patches;
 /// </summary>
 [HarmonyPatch]
 [HarmonyPatchCategory("QuestsTab_Buttons")]
+[HarmonyPatchCondition(unsupportedVersion: RWVersion.v1_0 | RWVersion.v1_1 | RWVersion.v1_2,
+    unsupportedString: "Pin/snooze buttons in the quest tab will not be available.")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class Patch_QuestsTab_SelectedQuest_Buttons

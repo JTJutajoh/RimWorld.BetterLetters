@@ -10,6 +10,7 @@ namespace BetterLetters.Patches;
 /// </summary>
 [HarmonyPatch]
 [HarmonyPatchCategory("BundleLetters")]
+[HarmonyPatchCondition(unsupportedVersion: RWVersion.v1_0 | RWVersion.v1_1 | RWVersion.v1_2 | RWVersion.v1_3, unsupportedString:"Extra float menu options for BundleLetters will not be available.")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
 internal static class Patch_BundleLetter_SetLetters_AddOptions

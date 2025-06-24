@@ -1,5 +1,4 @@
-﻿#if !(v1_1 || v1_2 || v1_3) // This patch only works on RimWorld 1.4+
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -20,6 +19,9 @@ namespace BetterLetters.Patches;
 /// </summary>
 [HarmonyPatch]
 [HarmonyPatchCategory("HistoryArchivableRow")]
+[HarmonyPatchCondition(
+    unsupportedVersion: RWVersion.v1_0 | RWVersion.v1_1 | RWVersion.v1_2 | RWVersion.v1_3,
+    unsupportedString: "Message history filters and extra snooze/pin buttons will not be available.")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class Patch_HistoryTab_DoArchivableRow
@@ -196,4 +198,3 @@ internal static class Patch_HistoryTab_DoArchivableRow
         }
     }
 }
-#endif

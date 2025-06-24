@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -6,6 +7,25 @@ using UnityEngine;
 
 namespace BetterLetters
 {
+    internal class HarmonyPatchConditionAttribute : Attribute
+    {
+        internal RWVersion SupportedVersion { get; private set; }
+
+        internal bool IsSupported => (LegacySupport.CurrentRWVersion & SupportedVersion) != 0;
+
+        internal string? UnsupportedString = null;
+
+        internal HarmonyPatchConditionAttribute(
+            RWVersion supportedVersion = RWVersion.All,
+            RWVersion unsupportedVersion = RWVersion.None,
+            string? unsupportedString = null
+        )
+        {
+            SupportedVersion = supportedVersion & ~unsupportedVersion;
+            UnsupportedString = unsupportedString;
+        }
+    }
+
     [UsedImplicitly]
     internal class BetterLettersMod : Mod
     {
@@ -51,6 +71,7 @@ namespace BetterLetters
 
         private static int _loadedPatches;
         private static int _failedPatches;
+        private static int _skippedPatches;
 
         static LoadHarmony()
         {
@@ -72,9 +93,13 @@ namespace BetterLetters
                     "Error patching vanilla. This likely means either the wrong game version or a hard incompatibility with another mod.");
             }
 
-            Log.Message($"{_loadedPatches}/{_loadedPatches + _failedPatches} Harmony patches successful.");
+            var totalPatches = _loadedPatches + _failedPatches + _skippedPatches;
+            Log.Message($"{_loadedPatches}/{totalPatches} Harmony patches successful.");
+            if (_skippedPatches > 0)
+                Log.Message($"{_skippedPatches}/{totalPatches} Harmony patches skipped.");
             if (_failedPatches > 0)
-                Log.Warning($"{_failedPatches} Harmony patches failed! The mod/game might behave in undesirable ways.");
+                Log.Warning(
+                    $"{_failedPatches}/{totalPatches} Harmony patches failed! The mod/game might behave in undesirable ways.");
         }
 
         /// <summary>
@@ -93,30 +118,10 @@ namespace BetterLetters
             PatchCategory("PlaySettings_CreateReminderButton");
             PatchCategory("HistoryFiltersAndButtons");
             PatchCategory("ExpireQuestLetters");
-
-#if !(v1_1 || v1_2 || v1_3)
             PatchCategory("BundleLetters");
-#else
-            Log.Warning("BundleLetters patch skipped, doesn't exist in 1.1-1.3");
-            _failedPatches++;
-#endif
-#if !(v1_1 || v1_2 || v1_3)
             PatchCategory("HistoryArchivableRow");
-#else
-            Log.Warning(
-                "MainTabWindow_History.DoArchivableRow patch skipped, requires RimWorld 1.4+. Message History tab will not display snooze/reminder buttons in rows.");
-            _failedPatches++;
-#endif
-
-
-#if !(v1_1 || v1_2)
             PatchCategory("QuestsTab_Buttons");
             PatchCategory("Letter_RemoveLetter_KeepOnStack_QuestLetter");
-#else
-            Log.Warning("Pin/Snooze buttons on Quests tab are only available in RimWorld 1.3+");
-            _failedPatches++;
-            _failedPatches++;
-#endif
         }
 
         /// <summary>
@@ -126,27 +131,62 @@ namespace BetterLetters
         /// <param name="category">Name of the category to pass to <see cref="Harmony"/>.<see cref="Harmony.PatchCategory(string)"/></param>
         /// <param name="condition">Optional condition that must be true or the patch will be skipped.<br />
         /// Used for conditionally skipping patches based on mod configs.</param>
-        private static void PatchCategory(string category, bool condition = true)
+        private static void PatchCategory(string category)
         {
-            if (!condition) //MAYBE: Come up with a way to conditionally RE-patch categories if they're enabled in settings without requiring a restart
+            var patchTypes = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => t.GetCustomAttributes(typeof(HarmonyPatchCategory), true)
+                    .Cast<HarmonyPatchCategory>()
+                    .Any(attr => attr.info?.category == category))
+                .ToList();
+
+            // Find any classes in the assembly with a [HarmonyPatchCategory] attribute that matches the category
+            var numMethods = patchTypes.SelectMany(t =>
+                    t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+                .Count(m => m.GetCustomAttributes(typeof(HarmonyPatch), true).Length > 0);
+
+            // Find any [HarmonyPatchCondition] attributes on all the types in the category
+            var conditions = patchTypes
+                .SelectMany(t => t.GetCustomAttributes(typeof(HarmonyPatchConditionAttribute), true)
+                    .Cast<HarmonyPatchConditionAttribute>())
+                .ToList();
+
+            // bitwise AND all of their supportedVersion
+            var supportedVersions = conditions.Aggregate(RWVersion.All,
+                (current, condition) => current & condition.SupportedVersion);
+
+            // If the result is not a supported version, fail
+            if ((supportedVersions & LegacySupport.CurrentRWVersion) == 0)
             {
-                Log.Message($"Patch \"{category}\" skipped, disabled in mod config.");
+                Log.Warning(
+                    $"Patch category \"{category}\" ({numMethods} methods) skipped.\nOnly supported on RimWorld versions: {supportedVersions.ToString().Replace("_", ".").Replace("v", "")}.");
+                _skippedPatches += numMethods;
+
+                foreach (var condition in conditions)
+                {
+                    if (condition.UnsupportedString != null)
+                    {
+                        Log.Message(condition.UnsupportedString);
+                    }
+                }
+
                 return;
             }
 
+
             try
             {
-                Log.Trace($"Patching category \"{category}\"...");
+                Log.Trace($"Patching category \"{category}\" ({numMethods} methods)...");
                 Harmony.PatchCategory(category);
             }
             catch (Exception e)
             {
                 Log.Exception(e, $"Error patching category {category}");
-                _failedPatches++;
+                _failedPatches += numMethods;
                 return;
             }
 
-            _loadedPatches++;
+            _loadedPatches += numMethods;
         }
 
         /// <summary>

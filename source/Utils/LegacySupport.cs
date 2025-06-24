@@ -2,19 +2,56 @@
 // ReSharper disable InconsistentNaming
 // ReSharper disable RedundantCast
 
+using System;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse.Sound;
 
-namespace BetterLetters.Utils;
-
-/// <summary>
-/// Class with helper functions that assist with multi-version support.<br />
-/// Primarily, backporting functions from newer versions
-/// </summary>
-public static class LegacySupport
+namespace BetterLetters.Utils
 {
+    /// <summary>
+    /// Class with helper functions that assist with multi-version support.<br />
+    /// Primarily, backporting functions from newer versions
+    /// </summary>
+    public static class LegacySupport
+    {
+        [Flags]
+        internal enum RWVersion
+        {
+            None = 0,
+            v1_0 = 2,
+            v1_1 = 4,
+            v1_2 = 8,
+            v1_3 = 16,
+            v1_4 = 32,
+            v1_5 = 64,
+            v1_6 = 128,
+            All = v1_0 | v1_1 | v1_2 | v1_3 | v1_4 | v1_5 | v1_6,
+        }
+
+        internal static RWVersion CurrentRWVersion
+        {
+            get
+            {
+#if v1_1
+                return RWVersion.v1_1;
+#elif v1_2
+                return RWVersion.v1_2;
+#elif v1_3
+                return RWVersion.v1_3;
+#elif v1_4
+                return RWVersion.v1_4;
+#elif v1_5
+                return RWVersion.v1_5;
+#elif v1_6
+                return RWVersion.v1_6;
+#else
+                return RWVersion.None;
+#endif
+            }
+        }
+
 #if v1_1 || v1_2 || v1_3
     /// Extension method for a function that was added in RimWorld 1.4+
     public static float SliderLabeled(
@@ -210,14 +247,14 @@ public static class LegacySupport
     }
 #endif
 
-    internal static int GetTicksUntilExpiry(this Quest quest)
-    {
+        internal static int GetTicksUntilExpiry(this Quest quest)
+        {
 #if v1_1 || v1_2 || v1_3 || v1_4 || v1_5
         return quest.ticksUntilAcceptanceExpiry;
 #else
-        return quest.TicksUntilExpiry;
+            return quest.TicksUntilExpiry;
 #endif
-    }
+        }
 
 #if (v1_1 || v1_2)
     internal static void Label(float x, ref float curY, float width, string text, TipSignal tip = default(TipSignal))
@@ -238,4 +275,5 @@ public static class LegacySupport
         curY += height;
     }
 #endif
+    }
 }

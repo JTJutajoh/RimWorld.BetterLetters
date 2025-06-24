@@ -11,6 +11,9 @@ namespace BetterLetters.Patches
     /// Patch New Quest letters that don't show the dialog to prevent them from removing their letter from the stack
     [HarmonyPatch]
     [HarmonyPatchCategory("Letter_RemoveLetter_KeepOnStack_QuestLetter")]
+    [HarmonyPatchCondition(
+        unsupportedVersion: RWVersion.v1_0 | RWVersion.v1_1 | RWVersion.v1_2,
+        unsupportedString: "Quest letters will not stay on the stack when opened.")]
     [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class Patch_NewQuestLetter_OpenLetter_KeepOnStack
