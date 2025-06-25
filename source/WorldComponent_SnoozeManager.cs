@@ -340,14 +340,10 @@ internal class WorldComponent_SnoozeManager : WorldComponent
     public static void ShowSnoozeDialog(Letter letter, Action<Snooze?>? onSnooze = null)
     {
         int? maxDurationOverride = null;
-        if (letter is LetterWithTimeout { disappearAtTick: > 0 } timedLetter)
+        var remainingTicks = letter.RemainingTicks();
+        if (remainingTicks > 0)
         {
-            maxDurationOverride = timedLetter.disappearAtTick - Find.TickManager?.TicksGame;
-        }
-
-        if (letter is ChoiceLetter choiceLetter && choiceLetter.quest?.GetTicksUntilExpiry() > 0)
-        {
-            maxDurationOverride = Math.Max(choiceLetter.quest.GetTicksUntilExpiry(), maxDurationOverride ?? 0);
+            maxDurationOverride = remainingTicks;
         }
 
         var snoozeDialog = new Dialog_Snooze(duration =>

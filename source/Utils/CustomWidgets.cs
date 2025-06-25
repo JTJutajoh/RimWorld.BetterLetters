@@ -266,11 +266,15 @@ internal static class CustomWidgets
                     snoozed = true;
                 }
 
-                var floatMenuOptions = new List<FloatMenuOption>
-                {
-                    LetterUtils.Snooze1HrFloatMenuOption(letter, OnSnooze),
-                    LetterUtils.Snooze1DayFloatMenuOption(letter, OnSnooze),
-                };
+                var floatMenuOptions = new List<FloatMenuOption>();
+                var remainingTicks = letter.RemainingTicks();
+
+                // Only add the "Snooze for 1 day/hour" options if the letter won't expire before then
+                if (remainingTicks == -1 || remainingTicks > GenDate.TicksPerHour * 1.5f)
+                    floatMenuOptions.Add(LetterUtils.Snooze1HrFloatMenuOption(letter, OnSnooze));
+                if (remainingTicks == -1 || remainingTicks > (GenDate.TicksPerDay + GenDate.TicksPerHour))
+                    floatMenuOptions.Add(LetterUtils.Snooze1DayFloatMenuOption(letter, OnSnooze));
+
                 if (extraFloatMenuOptions != null)
                 {
                     floatMenuOptions.AddRange(extraFloatMenuOptions);

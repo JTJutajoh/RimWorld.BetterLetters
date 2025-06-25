@@ -3,6 +3,7 @@
 // ReSharper disable RedundantCast
 
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -247,10 +248,29 @@ namespace BetterLetters.Utils
     }
 #endif
 
-        internal static int GetTicksUntilExpiry(this Quest quest)
+        /// <summary>
+        /// Extension method for <see cref="Quest"/> that checks for when it expires/fails.<br/>
+        /// If it has not been accepted, returns the number of ticks until the offer expires.<br/>
+        /// If it has been accepted or if it started active, it returns the number of ticks until the quest "ends".
+        /// What exactly counts as an ending depends on the specific quest but overall it seems to work.
+        /// </summary>
+        internal static int GetTicksUntilExpiryOrFail(this Quest quest)
         {
+            // For quests that start active or that the player has accepted and have a deadline
+            if (quest.State == QuestState.Ongoing && quest.PartsListForReading is { } questParts)
+            {
+                // Look through the quest's quest parts for any that have a TicksLeft property
+                // This mirrors the code used in MainTabWindow_Quests for displaying the amount of time left for a selected quest.
+                foreach (var questPart in questParts)
+                {
+                    if (questPart is QuestPart_Delay { State: QuestPartState.Enabled, TicksLeft: > 0 } questPartDelay)
+                    {
+                        return questPartDelay.TicksLeft;
+                    }
+                }
+            }
 #if v1_1 || v1_2 || v1_3 || v1_4 || v1_5
-        return quest.ticksUntilAcceptanceExpiry;
+            return quest.ticksUntilAcceptanceExpiry;
 #else
             return quest.TicksUntilExpiry;
 #endif

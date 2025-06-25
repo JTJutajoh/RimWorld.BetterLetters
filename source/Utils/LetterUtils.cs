@@ -67,7 +67,8 @@ namespace BetterLetters.Utils
             SortLetterStackByPinned();
         }
 
-        public static void Snooze(this Letter letter, int durationTicks, bool pinWhenFinished = false, bool openWhenFinished = false)
+        public static void Snooze(this Letter letter, int durationTicks, bool pinWhenFinished = false,
+            bool openWhenFinished = false)
         {
             WorldComponent_SnoozeManager.AddSnooze(letter, durationTicks, pinWhenFinished, openWhenFinished);
         }
@@ -77,7 +78,8 @@ namespace BetterLetters.Utils
             return WorldComponent_SnoozeManager.RemoveSnooze(letter);
         }
 
-        public static void AddReminder(this Letter letter, int durationTicks, bool isPinned = false, bool openWhenFinished = false)
+        public static void AddReminder(this Letter letter, int durationTicks, bool isPinned = false,
+            bool openWhenFinished = false)
         {
             WorldComponent_SnoozeManager.AddSnooze(new WorldComponent_SnoozeManager.Snooze(letter, durationTicks,
                 openWhenFinished,
@@ -222,6 +224,26 @@ namespace BetterLetters.Utils
                 iconTex: Icons.SnoozeFloatMenu,
                 iconColor: Color.white
             );
+        }
+
+        /// <summary>
+        /// Given a letter, checks if the letter itself has an expiration or if it's associated with a quest that does.
+        /// </summary>
+        /// <returns>Number of ticks until expiration OR -1 if it does not have an expiration.</returns>
+        internal static int RemainingTicks(this Letter letter)
+        {
+            var remainingTicks = -1;
+            if (letter is LetterWithTimeout { disappearAtTick: > 0 } timedLetter)
+            {
+                remainingTicks = timedLetter.disappearAtTick - Find.TickManager!.TicksGame;
+            }
+
+            if (letter is ChoiceLetter choiceLetter && choiceLetter.quest?.GetTicksUntilExpiryOrFail() > 0)
+            {
+                remainingTicks = choiceLetter.quest.GetTicksUntilExpiryOrFail();
+            }
+
+            return remainingTicks;
         }
 
         internal static float TicksToTimeUnit(this int numTicks, TimeUnits timeUnit)
