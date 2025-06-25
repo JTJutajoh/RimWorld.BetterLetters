@@ -122,7 +122,6 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
             return;
         }
 
-        //BUG: This isn't including quests that start active
         var rect = new Rect(innerRect.xMax - 96f - 6f, innerRect.y, 32f, 32f);
         var extraFloatMenuOptions = new List<FloatMenuOption>();
         if (quest.GetTicksUntilExpiryOrFail() > GenDate.TicksPerHour)
