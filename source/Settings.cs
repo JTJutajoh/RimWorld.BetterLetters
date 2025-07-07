@@ -59,6 +59,7 @@ internal class Settings : ModSettings
     [Setting] internal static int SnoozeTickPeriod = GenTicks.TicksPerRealSecond;
 
     [Setting] internal static bool DisableRightClickPinnedLetters = false;
+    [Setting] internal static bool ReplaceLetterIconsInXML = true;
     [Setting] internal static bool DisableBounceIfPinned = true;
     [Setting] internal static bool DisableBounceAlways = false;
     [Setting] internal static bool DisableFlashIfPinned = true;

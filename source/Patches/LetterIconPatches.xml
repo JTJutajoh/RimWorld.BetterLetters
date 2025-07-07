@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Patch>
+    <Operation Class="BetterLetters.PatchOperationConfigToggleable">
+        <settingName>ReplaceLetterIconsInXML</settingName>
+        <match Class="PatchOperationSequence">
+            <operations>
+                <li Class="PatchOperationConditional">
+                    <xpath>Defs/LetterDef[defName = "NewQuest"]/icon</xpath>
+                    <nomatch Class="PatchOperationAdd">
+                        <xpath>Defs/LetterDef[defName="NewQuest"]</xpath>
+                        <value>
+                            <icon>UI/Letters/LetterQuest</icon>
+                        </value>
+                    </nomatch>
+                    <match Class="PatchOperationReplace">
+                        <xpath>Defs/LetterDef[defName="NewQuest"]/icon</xpath>
+                        <value>
+                            <icon>UI/Letters/LetterQuest</icon>
+                        </value>
+                    </match>
+                </li>
+                <li Class="PatchOperationConditional">
+                    <xpath>Defs/LetterDef[defName = "NewQuest_ThreatBig"]/icon</xpath>
+                    <nomatch Class="PatchOperationAdd">
+                        <xpath>Defs/LetterDef[defName="NewQuest_ThreatBig"]</xpath>
+                        <value>
+                            <icon>UI/Letters/LetterQuest</icon>
+                        </value>
+                    </nomatch>
+                    <match Class="PatchOperationReplace">
+                        <xpath>Defs/LetterDef[defName="NewQuest_ThreatBig"]/icon</xpath>
+                        <value>
+                            <icon>UI/Letters/LetterQuest</icon>
+                        </value>
+                    </match>
+                </li>
+                <li Class="PatchOperationConditional">
+                    <xpath>Defs/LetterDef[defName = "Death"]/icon</xpath>
+                    <nomatch Class="PatchOperationAdd">
+                        <xpath>Defs/LetterDef[defName="Death"]</xpath>
+                        <value>
+                            <icon>UI/Letters/LetterDeath</icon>
+                        </value>
+                    </nomatch>
+                    <match Class="PatchOperationReplace">
+                        <xpath>Defs/LetterDef[defName="Death"]/icon</xpath>
+                        <value>
+                            <icon>UI/Letters/LetterDeath</icon>
+                        </value>
+                    </match>
+                </li>
+                <li Class="PatchOperationConditional">
+                    <xpath>Defs/LetterDef[defName = "Reminder"]/icon</xpath>
+                    <nomatch Class="PatchOperationAdd">
+                        <xpath>Defs/LetterDef[defName="Reminder"]</xpath>
+                        <value>
+                            <icon>UI/Letters/LetterReminder</icon>
+                        </value>
+                    </nomatch>
+                    <match Class="PatchOperationReplace">
+                        <xpath>Defs/LetterDef[defName="Reminder"]/icon</xpath>
+                        <value>
+                            <icon>UI/Letters/LetterReminder</icon>
+                        </value>
+                    </match>
+                </li>
+            </operations>
+        </match>
+    </Operation>
+</Patch>

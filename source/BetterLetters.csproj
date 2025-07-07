@@ -112,6 +112,7 @@
     <Compile Include="Patches\Patch_QuestsTab_SelectedQuest_Buttons.cs" />
     <Compile Include="Patches\Patch_Letter_RemoveLetter_KeepOnStack.cs" />
     <Compile Include="Patches\Patch_Quest_CleanupQuestParts_MarkLetter.cs" />
+    <Compile Include="PatchOperationConfigToggleable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utils\Icons.cs" />
@@ -130,6 +131,7 @@
     </Content>
     <Content Include="Defs\Misc\LetterDefs\BetterLettersLetters.xml" />
     <Content Include="Languages\English\Keyed\BetterLetters_Keys.xml" />
+    <Content Include="Patches\LetterIconPatches.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="DeployMod" AfterTargets="Build">

@@ -125,6 +125,14 @@ Default: {0}</BetterLetters_Settings_DefaultSuffix>
   
   <BetterLetters_Settings_DisableRightClickPinnedLetters>Disable right click float menu for pinned letters</BetterLetters_Settings_DisableRightClickPinnedLetters>
   <BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>By default, pinned letters replace the vanilla "Right click to delete" functionality with a context menu that has several options including dismissing. Enable this if you want right click to always unpin pinned letters instead.</BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>
+  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack>Enable modified Letter status icons</BetterLetters_Settings_ReplaceLetterIconsInLetterStack>
+  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Desc>Enables the feature that replaces the standard vanilla letter icon with new icons that reflect their status. For example, snoozed letters or new/expired quests.
+
+(Only applies to letters whose icons are changed dynamically, not ones changed by xml patches).</BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Desc>
+  <BetterLetters_Settings_ReplaceLetterIconsInXML>Enable replaced Letter icons (requires restart)</BetterLetters_Settings_ReplaceLetterIconsInXML>
+  <BetterLetters_Settings_ReplaceLetterIconsInXML_Desc>Enables custom replacer icons for various vanilla Letter types (such as new quests, deaths, etc.)
+
+Changes to this setting will take effect the next time the game is restarted.</BetterLetters_Settings_ReplaceLetterIconsInXML_Desc>
   <BetterLetters_Settings_DismissedQuestsDismissLetters>Dismissing quests also dismisses the associated letter</BetterLetters_Settings_DismissedQuestsDismissLetters>
   <BetterLetters_Settings_DismissedQuestsDismissLetters_Desc>If enabled, clicking the trash can icon on a quest to dismiss it will also automatically hide the "Quest available" letter for it. Note that the letter will stay pinned if you pinned it, but only in the archive.</BetterLetters_Settings_DismissedQuestsDismissLetters_Desc>
   <BetterLetters_Settings_KeepQuestLettersOnStack>Keep "Quest available" letters when clicked</BetterLetters_Settings_KeepQuestLettersOnStack>
