@@ -102,6 +102,7 @@
     <Compile Include="Patches\Patch_BundleLetter_SetLetters_AddOptions.cs" />
     <Compile Include="Patches\Patch_HistoryTab_DoArchivableRow.cs" />
     <Compile Include="Patches\Patch_HistoryTab_FilteringButtons.cs" />
+    <Compile Include="Patches\Patch_IncidentWorkerRaid_GetLetterLabel_AddDetails.cs" />
     <Compile Include="Patches\Patch_Letter_CanCull_KeepSnoozes.cs" />
     <Compile Include="Patches\Patch_LetterStack_ReceiveLetter_SortPinned.cs" />
     <Compile Include="Patches\Patch_Archive_Pin_AddBackToStack.cs" />

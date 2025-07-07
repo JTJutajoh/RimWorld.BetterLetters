@@ -67,6 +67,17 @@ Click to cancel the reminder.</BetterLetters_SnoozedReminderButtonTooltip>
   <BetterLetters_ShowSnoozes>Show Snoozes</BetterLetters_ShowSnoozes>
   <BetterLetters_ShowReminders>Show Reminders</BetterLetters_ShowReminders>
 
+  <!-- Raids -->
+  <BetterLetters_Raid_DropPodPrefix>Drop Pod</BetterLetters_Raid_DropPodPrefix>
+  <BetterLetters_Raid_Immediate>Immediate</BetterLetters_Raid_Immediate>
+  <BetterLetters_Raid_Breaching>Breaching</BetterLetters_Raid_Breaching>
+  <BetterLetters_Raid_Sappers>Sappers</BetterLetters_Raid_Sappers>
+  <BetterLetters_Raid_Delayed>Delayed</BetterLetters_Raid_Delayed>
+  <BetterLetters_Raid_Emerge>Emerging</BetterLetters_Raid_Emerge>
+  <BetterLetters_Raid_PawnsCount>{0} attackers</BetterLetters_Raid_PawnsCount>
+  <BetterLetters_Raid_1Pawn>1 attacker</BetterLetters_Raid_1Pawn>
+  <BetterLetters_Raid_GroupsCount>{0} groups</BetterLetters_Raid_GroupsCount>
+
   <!-- Quests -->
   <BetterLetters_PinQuestTooltip>Pin this quest's corresponding Letter to help keep track of it. If it is snoozed, the snooze will be canceled.</BetterLetters_PinQuestTooltip>
   <BetterLetters_UnPinQuestTooltip>Unpin this quest's corresponding letter. The letter will not be dismissed.</BetterLetters_UnPinQuestTooltip>
@@ -122,6 +133,7 @@ Currently selected thing(s) can be automatically used as the reminder's "Jump To
   <BetterLetters_Settings_Section_Snoozing>Snoozing settings</BetterLetters_Settings_Section_Snoozing>
   <BetterLetters_Settings_Section_Reminders>Reminders settings</BetterLetters_Settings_Section_Reminders>
   <BetterLetters_Settings_Section_LetterStack>Letter Stack (active letters on the right)</BetterLetters_Settings_Section_LetterStack>
+  <BetterLetters_Settings_Section_BaseLetters>Letters</BetterLetters_Settings_Section_BaseLetters>
   <BetterLetters_Settings_Section_DialogButtons>Letter dialogs</BetterLetters_Settings_Section_DialogButtons>
   <BetterLetters_Settings_Section_Time>Time-related settings</BetterLetters_Settings_Section_Time>
   <BetterLetters_OpenSettingsTooltip>Open Better Letters mod settings to configure the appearance and placement of these buttons.
@@ -130,15 +142,26 @@ Currently selected thing(s) can be automatically used as the reminder's "Jump To
   <BetterLetters_Settings_DefaultSuffix>
 
 Default: {0}</BetterLetters_Settings_DefaultSuffix>
+  <BetterLetters_Settings_RequiresRestart>(Requires restart)</BetterLetters_Settings_RequiresRestart>
   
   <BetterLetters_Settings_DisableRightClickPinnedLetters>Disable right click float menu for pinned letters</BetterLetters_Settings_DisableRightClickPinnedLetters>
   <BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>By default, pinned letters replace the vanilla "Right click to delete" functionality with a context menu that has several options including dismissing. Enable this if you want right click to always unpin pinned letters instead.</BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>
-  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack>Enable modified Letter status icons</BetterLetters_Settings_ReplaceLetterIconsInLetterStack>
-  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Desc>Enables the feature that replaces the standard vanilla letter icon with new icons that reflect their status. For example, snoozed letters or new/expired quests.
+  <BetterLetters_Settings_ModifyLetterText>Add information to Letter labels (new Letters only)</BetterLetters_Settings_ModifyLetterText>
+  <BetterLetters_Settings_ModifyLetterText_Desc>Whether or not to modify labels of letters to add more information at a glance.
+For example, whether a raid will attack immediately or wait a while.</BetterLetters_Settings_ModifyLetterText_Desc>
+  <BetterLetters_Settings_ModifyLetterText_Enabled>Enable modified Letter labels</BetterLetters_Settings_ModifyLetterText_Enabled>
+  <BetterLetters_Settings_ModifyLetterText_Disabled>Vanilla Letter labels</BetterLetters_Settings_ModifyLetterText_Disabled>
+  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack>Letter status icons</BetterLetters_Settings_ReplaceLetterIconsInLetterStack>
+  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Desc>Whether or not to replace the standard vanilla letter icon with new icons that reflect their status. For example, snoozed letters or new/expired quests.
+Only effects the Letter Stack, not anywhere else that Letters appear (like the History archive).
 
 (Only applies to letters whose icons are changed dynamically, not ones changed by xml patches).</BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Desc>
-  <BetterLetters_Settings_ReplaceLetterIconsInXML>Enable replaced Letter icons (requires restart)</BetterLetters_Settings_ReplaceLetterIconsInXML>
-  <BetterLetters_Settings_ReplaceLetterIconsInXML_Desc>Enables custom replacer icons for various vanilla Letter types (such as new quests, deaths, etc.)
+  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Enabled>Enable modified Letter status icons</BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Enabled>
+  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Disabled>Vanilla (no status icons)</BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Disabled>
+  <BetterLetters_Settings_ReplaceLetterIconsInXML>Replaced Letter icons</BetterLetters_Settings_ReplaceLetterIconsInXML>
+  <BetterLetters_Settings_ReplaceLetterIconsInXML_Enabled>Enable replaced Letter icons</BetterLetters_Settings_ReplaceLetterIconsInXML_Enabled>
+  <BetterLetters_Settings_ReplaceLetterIconsInXML_Disabled>Vanilla Letter icons</BetterLetters_Settings_ReplaceLetterIconsInXML_Disabled>
+  <BetterLetters_Settings_ReplaceLetterIconsInXML_Desc>Whether or not to use custom replacer icons for various vanilla Letter types (such as new quests, deaths, etc.)
 
 Changes to this setting will take effect the next time the game is restarted.</BetterLetters_Settings_ReplaceLetterIconsInXML_Desc>
   <BetterLetters_Settings_DismissedQuestsDismissLetters>Dismissing quests also dismisses the associated letter</BetterLetters_Settings_DismissedQuestsDismissLetters>
@@ -157,12 +180,19 @@ Changes to this setting will take effect the next time the game is restarted.</B
   <BetterLetters_Settings_DisableFlashAlways_Desc>Letters in vanilla flash at you to get your attention. Turn this on to disable that vanilla feature entirely.</BetterLetters_Settings_DisableFlashAlways_Desc>
   <BetterLetters_Settings_DisableFlashNever>Enable flash for ALL letters (Vanilla)</BetterLetters_Settings_DisableFlashNever>
   <BetterLetters_Settings_DisableFlashNever_Desc>All letters, pinned or otherwise, will flash just like they normally do in vanilla.</BetterLetters_Settings_DisableFlashNever_Desc>
-  <BetterLetters_Settings_PinTexture>Texture style for pinned letter dialogs</BetterLetters_Settings_PinTexture>
-  <BetterLetters_Settings_PinTexture_Disabled>Disabled</BetterLetters_Settings_PinTexture_Disabled>
-  <BetterLetters_Settings_PinTexture_Round>Simple</BetterLetters_Settings_PinTexture_Round>
-  <BetterLetters_Settings_PinTexture_Alt>Pushpin</BetterLetters_Settings_PinTexture_Alt>
-  <BetterLetters_Settings_TextureInDialogSize>Pinned/snoozed texture size</BetterLetters_Settings_TextureInDialogSize>
-  <BetterLetters_Settings_TextureInDialogSize_Desc>Size, in pixels, of the texture in the top right of the dialog that opens when you click on a letter.</BetterLetters_Settings_TextureInDialogSize_Desc>
+
+  <BetterLetters_Settings_RaidAddDropPod>Add prefix to Drop Pod raids</BetterLetters_Settings_RaidAddDropPod>
+  <BetterLetters_Settings_RaidAddDropPod_Desc>Any raids with a "Drop" arrival mode have their letter name changed from "Raid" to "Drop Pod Raid" so you can assess the threat at a glance.</BetterLetters_Settings_RaidAddDropPod_Desc>
+  <BetterLetters_Settings_RaidAddRaidStrategy>Add raid strategy to raids</BetterLetters_Settings_RaidAddRaidStrategy>
+  <BetterLetters_Settings_RaidAddRaidStrategy_Desc>Add information about the raid type to the raid letter.
+
+For example: Immediate/Delayed, Breaching, Sappers</BetterLetters_Settings_RaidAddRaidStrategy_Desc>
+  <BetterLetters_Settings_RaidAddPawnCount>Add pawn count to raids</BetterLetters_Settings_RaidAddPawnCount>
+  <BetterLetters_Settings_RaidAddPawnCount_Desc>Add "N attackers" to raid letter labels.</BetterLetters_Settings_RaidAddPawnCount_Desc>
+  <BetterLetters_Settings_RaidAddGroupCount>Add group count to raids</BetterLetters_Settings_RaidAddGroupCount>
+  <BetterLetters_Settings_RaidAddGroupCount_Desc>If a raid involves multiple groups attacking from multiple angles, add "N groups" to the letter label.</BetterLetters_Settings_RaidAddGroupCount_Desc>
+
+
   <BetterLetters_Settings_MaxNumSnoozes>Snoozed letters limit</BetterLetters_Settings_MaxNumSnoozes>
   <BetterLetters_Settings_MaxNumSnoozes_Desc>The maximum number of letters that are allowed to be snoozed at a time. Large numbers of snoozed letters could negatively impact performance slightly.
 
@@ -222,6 +252,7 @@ Quests letters that you have dismissed will not play a sound.</BetterLetters_Set
   <BetterLetters_Settings_QuestExpirationSound_BadUrgent>Threat Small</BetterLetters_Settings_QuestExpirationSound_BadUrgent>
   <BetterLetters_Settings_QuestExpirationSound_BadUrgentBig>Threat Big</BetterLetters_Settings_QuestExpirationSound_BadUrgentBig>
   <BetterLetters_Settings_QuestExpirationSound_RitualNegative>Ritual Negative Outcome</BetterLetters_Settings_QuestExpirationSound_RitualNegative>
+  <BetterLetters_Settings_QuestExpirationSound_None>None</BetterLetters_Settings_QuestExpirationSound_None>
 
   <BetterLetters_Settings_Patches_Label>Enable/disable Harmony patches</BetterLetters_Settings_Patches_Label>
   <BetterLetters_Settings_Patches_Note>For advanced users:
@@ -229,7 +260,7 @@ Quests letters that you have dismissed will not play a sound.</BetterLetters_Set
     WARNING: The mod may behave incorrectly if you disable patches. Use these settings with care.</BetterLetters_Settings_Patches_Note>
   <BetterLetters_Settings_Patches_Enabled>Enabled patches:</BetterLetters_Settings_Patches_Enabled>
   <BetterLetters_Settings_Patches_Disabled>Disabled patches:</BetterLetters_Settings_Patches_Disabled>
-  <BetterLetters_Settings_RequiresRestart>(Most likely requires game restart for changes to take effect)</BetterLetters_Settings_RequiresRestart>
+  <BetterLetters_Settings_ProbablyRequiresRestart>(Most likely requires game restart for changes to take effect)</BetterLetters_Settings_ProbablyRequiresRestart>
   <BetterLetters_Settings_RefreshPatches>Apply</BetterLetters_Settings_RefreshPatches>
   <BetterLetters_Settings_RefreshPatches_Desc>Attempt(!) to patch/unpatch the selected patches without restarting.
 
@@ -249,5 +280,6 @@ Quests letters that you have dismissed will not play a sound.</BetterLetters_Set
   <BetterLetters_Settings_PatchCategory_BundleLetters>Add options to bundle letters (when there are lots of letters on the stack)</BetterLetters_Settings_PatchCategory_BundleLetters>
   <BetterLetters_Settings_PatchCategory_HistoryArchivableRow>Replace pin icon/button in message history for snoozes/reminders</BetterLetters_Settings_PatchCategory_HistoryArchivableRow>
   <BetterLetters_Settings_PatchCategory_QuestsTab_Buttons>Add icon buttons to quests to snooze/pin the quest's letter</BetterLetters_Settings_PatchCategory_QuestsTab_Buttons>
+  <BetterLetters_Settings_PatchCategory_RaidLetter_AddDetails>Add extra info to raid letter labels</BetterLetters_Settings_PatchCategory_RaidLetter_AddDetails>
 
 </LanguageData>
