@@ -63,6 +63,8 @@ internal class WorldComponent_SnoozeManager : WorldComponent
 
         private bool _openWhenFinished;
 
+        internal bool OpenWhenFinished => _openWhenFinished;
+
         /// Defines the behavior of this snooze and used by UI to distinguish it
         internal SnoozeTypes SnoozeType = SnoozeTypes.Letter;
 
@@ -159,18 +161,15 @@ internal class WorldComponent_SnoozeManager : WorldComponent
                 return;
             }
 
+            Letter.UnSnooze(true);
+            Find.LetterStack?.ReceiveLetter(Letter);
             if (_pinWhenFinished)
             {
                 Letter.Pin(suppressSnoozeCanceledMessage: true);
             }
-            else
-            {
-                Find.LetterStack?.ReceiveLetter(Letter);
-            }
 
             if (_openWhenFinished)
             {
-                Letter.UnSnooze();
                 Letter.OpenLetter();
             }
         }
@@ -189,6 +188,7 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             Scribe_Values.Look(ref _duration, "duration", 0, false);
             Scribe_Values.Look(ref _start, "start", 0, false);
             Scribe_Values.Look(ref _pinWhenFinished, "pinWhenFinished", false, false);
+            Scribe_Values.Look(ref _openWhenFinished, "openWhenFinished", false, false);
             Scribe_Values.Look(ref SnoozeType, "snoozeType", SnoozeTypes.Letter, false);
             if (Scribe.mode == LoadSaveMode.PostLoadInit && !Finished)
             {
@@ -198,7 +198,10 @@ internal class WorldComponent_SnoozeManager : WorldComponent
     }
 
     private static Dictionary<Letter?, Snooze> _snoozes = new();
-    public static Dictionary<Letter?, Snooze> Snoozes => _snoozes;
+    internal static Dictionary<Letter?, Snooze> Snoozes => _snoozes;
+
+    internal static HashSet<int> AllSnoozesSeen = new();
+    internal static HashSet<int> AllRemindersSeen = new();
 
     /// <summary>
     /// Base method for adding snoozes to the dictionary.
@@ -267,6 +270,16 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             Find.LetterStack.RemoveLetter(snooze.Letter);
         }
 
+        var hash = snooze.Letter.ID;
+        if (snooze.SnoozeType == SnoozeTypes.Reminder)
+        {
+            AllRemindersSeen.Add(hash);
+        }
+        else
+        {
+            AllSnoozesSeen.Add(hash);
+        }
+
         return true;
     }
 
@@ -278,11 +291,11 @@ internal class WorldComponent_SnoozeManager : WorldComponent
     /// <param name="pinWhenFinished">If true, the letter will be automatically pinned when the snooze finishes</param>
     /// <param name="openWhenFinished">If true, the letter will be automatically opened when the snooze finishes</param>
     /// <returns>Newly-created instance of the snooze for this letter, or null if it failed.</returns>
-    public static Snooze? AddSnooze(Letter letter, int durationTicks, bool pinWhenFinished = false,
-        bool openWhenFinished = false)
+    public static Snooze? AddSnooze(Letter letter, int durationTicks, bool? pinWhenFinished = null,
+        bool? openWhenFinished = null)
     {
-        var success = AddSnooze(new Snooze(letter, durationTicks, Settings.SnoozePinned || pinWhenFinished,
-            Settings.SnoozeOpen || openWhenFinished));
+        var success = AddSnooze(new Snooze(letter, durationTicks, pinWhenFinished ?? Settings.SnoozePinned,
+            openWhenFinished ?? Settings.SnoozeOpen));
         return success ? Snoozes[letter] : null;
     }
 
@@ -346,9 +359,9 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             maxDurationOverride = remainingTicks;
         }
 
-        var snoozeDialog = new Dialog_Snooze(duration =>
+        var snoozeDialog = new Dialog_Snooze((duration, pinWhenFinished, openWhenFinished) =>
             {
-                var snooze = AddSnooze(letter, duration);
+                var snooze = AddSnooze(letter, duration, pinWhenFinished, openWhenFinished);
                 onSnooze?.Invoke(snooze);
             },
             maxDurationOverride
@@ -372,6 +385,9 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             ref _letterList,
             ref _snoozeList
         );
+
+        Scribe_Collections.Look(ref AllSnoozesSeen, "AllSnoozesSeen", LookMode.Value);
+        Scribe_Collections.Look(ref AllRemindersSeen, "AllRemindersSeen", LookMode.Value);
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
@@ -401,6 +417,14 @@ internal class WorldComponent_SnoozeManager : WorldComponent
 
             _letterList = null;
             _snoozeList = null;
+
+            if (AllSnoozesSeen?.Count > 250)
+                Log.Warning("Loaded many snoozes from save file.");
+            if (AllRemindersSeen?.Count > 250)
+                Log.Warning("Loaded many reminders from save file.");
+
+            AllSnoozesSeen ??= new HashSet<int>();
+            AllRemindersSeen ??= new HashSet<int>();
         }
     }
 }

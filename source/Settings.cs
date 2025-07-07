@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using BetterLetters.Patches;
 using HarmonyLib;
 using RimWorld;
@@ -59,14 +61,18 @@ internal class Settings : ModSettings
     [Setting] internal static int SnoozeTickPeriod = GenTicks.TicksPerRealSecond;
 
     [Setting] internal static bool DisableRightClickPinnedLetters = false;
+    [Setting] internal static bool ReplaceLetterIconsInLetterStack = true;
     [Setting] internal static bool ReplaceLetterIconsInXML = true;
     [Setting] internal static bool DisableBounceIfPinned = true;
     [Setting] internal static bool DisableBounceAlways = false;
     [Setting] internal static bool DisableFlashIfPinned = true;
     [Setting] internal static bool DisableFlashAlways = false;
-    [Setting] internal static int MaxSnoozeDuration = GenDate.TicksPerYear * 5;
+    [Setting] internal static int MaxSnoozeDuration = GenDate.TicksPerYear * 2;
+    [Setting] internal static int MinSnoozeDuration = GenDate.TicksPerHour / 4;
     [Setting] internal static bool SnoozePinned = true;
     [Setting] internal static bool SnoozeOpen = false;
+    [Setting] internal static bool RemindersPinned = true;
+    [Setting] internal static bool RemindersOpen = false;
     [Setting] internal static bool DoCreateReminderPlaySetting = true;
     [Setting] internal static bool AutoSelectThingForReminders = true;
 
@@ -74,6 +80,27 @@ internal class Settings : ModSettings
     [Setting] internal static bool KeepQuestLettersOnStack = true;
     [Setting] internal static bool ChangeExpiredQuestLetters = true;
     [Setting] internal static QuestExpirationSounds QuestExpirationSound = QuestExpirationSounds.LetterArrive;
+
+    [Setting] internal static List<string> EnabledPatchCategories = new()
+    {
+        "Letter_RemoveLetter_KeepOnStack",
+        "Letter_RemoveLetter_KeepOnStack_QuestLetter",
+        "Letter_OpenLetter_AddDiaOptions",
+        "Dialog_AddIcons",
+        "ArchivePin_AddBackToStack",
+        "Letter_CanDismissWithRightClick_BlockIfPinned",
+        "Letter_DrawInLetterStack",
+        "Letter_CanCull_KeepSnoozes",
+        "LetterStack_SortPinned",
+        "PlaySettings_CreateReminderButton",
+        "HistoryFiltersAndButtons",
+        "ExpireQuestLetters",
+        "BundleLetters",
+        "HistoryArchivableRow",
+        "QuestsTab_Buttons",
+    };
+
+    [Setting] internal static List<string> DisabledPatchCategories = new();
     // ReSharper restore RedundantDefaultMemberInitializer
 
     internal static Dictionary<string, object> DefaultSettings = new();
@@ -82,8 +109,7 @@ internal class Settings : ModSettings
     internal enum SettingsTab
     {
         Main,
-        Pinning,
-        Snoozing,
+        Patches,
         Cache
     }
 
@@ -93,7 +119,6 @@ internal class Settings : ModSettings
     public Settings()
     {
         HarvestSettingsDefaults(out DefaultSettings);
-        Log.Trace("Default settings loaded");
     }
 
 
@@ -112,6 +137,8 @@ internal class Settings : ModSettings
             settings[field.Name] = field.GetValue(this);
             Log.Trace($"Harvested Setting: '{field.Name}' Default: {settings[field.Name]}");
         }
+
+        Log.Trace("Default settings loaded");
     }
 
     internal static string GetSettingLabel(string key, bool showValue = false)
@@ -146,10 +173,8 @@ internal class Settings : ModSettings
         {
             new TabRecord("BetterLetters_Settings_Tab_Main".Translate(), () => CurrentTab = SettingsTab.Main,
                 () => CurrentTab == SettingsTab.Main),
-            new TabRecord("BetterLetters_Settings_Tab_Pinning".Translate(), () => CurrentTab = SettingsTab.Pinning,
-                () => CurrentTab == SettingsTab.Pinning),
-            new TabRecord("BetterLetters_Settings_Tab_Snoozing".Translate(), () => CurrentTab = SettingsTab.Snoozing,
-                () => CurrentTab == SettingsTab.Snoozing),
+            new TabRecord("BetterLetters_Settings_Tab_Patches".Translate(), () => CurrentTab = SettingsTab.Patches,
+                () => CurrentTab == SettingsTab.Patches),
         };
         if (Prefs.DevMode && WorldComponent_SnoozeManager.Instance is not null)
         {
@@ -176,35 +201,22 @@ internal class Settings : ModSettings
                 catch (Exception e)
                 {
                     Log.Exception(e, "Error drawing main settings tab.", true);
-                    CurrentTab = SettingsTab.Pinning;
                 }
 
                 break;
-            case SettingsTab.Pinning:
+
+            case SettingsTab.Patches:
                 try
                 {
-                    DoTabPinning(tabRect);
+                    DoTabPatches(tabRect);
                 }
                 catch (Exception e)
                 {
-                    Log.Exception(e, "Error drawing pin settings tab.", true);
-                    CurrentTab = SettingsTab.Main;
+                    Log.Exception(e, "Error drawing patches settings tab.", true);
                 }
 
                 break;
 
-            case SettingsTab.Snoozing:
-                try
-                {
-                    DoTabSnoozing(tabRect);
-                }
-                catch (Exception e)
-                {
-                    Log.Exception(e, "Error drawing snooze settings tab.", true);
-                    CurrentTab = SettingsTab.Main;
-                }
-
-                break;
             case SettingsTab.Cache:
                 try
                 {
@@ -223,68 +235,76 @@ internal class Settings : ModSettings
         }
     }
 
-    private static float? _miscSectionLastHeight = null;
-    private static float? _questSectionLastHeight = null;
+    private static Vector2 _scrollPositionMainTab = Vector2.zero;
+    private static float? _lastMainTabHeight = null;
 
     private static void DoTabMain(Rect inRect)
     {
+        var viewRect = new Rect(inRect);
+        var outerRect = new Rect(inRect);
+#if !(v1_1 || v1_2 || v1_3 || v1_4)
+        Widgets.AdjustRectsForScrollView(inRect, ref outerRect, ref viewRect);
+#else
+        LegacySupport.AdjustRectsForScrollView(inRect, ref outerRect, ref viewRect);
+#endif
+        viewRect.height = _lastMainTabHeight ?? inRect.height * 1.5f;
+
+        Widgets.BeginScrollView(outerRect, ref _scrollPositionMainTab, viewRect);
+
         var listing = new Listing_Standard();
-        var innerRect = inRect.MiddlePart(0.85f, 1f);
+        var innerRect = viewRect.MiddlePart(0.85f, 1f);
         listing.Begin(innerRect);
 
         listing.ColumnWidth = innerRect.width / 2.05f;
 
-        var miscSection = listing.BeginSection(_miscSectionLastHeight ?? 9999f)!;
+        DoLetterStackSection(listing);
 
-        miscSection.SectionHeader("BetterLetters_Settings_Section_Misc");
+        listing.Gap();
 
-        miscSection.CheckboxLabeled(GetSettingLabel("DisableBounceAlways"), ref DisableBounceAlways,
-            GetSettingTooltip("DisableBounceAlways"), 36f, 0.90f);
-        if (!DisableBounceAlways)
-        {
-            miscSection.Indent();
-            miscSection.CheckboxLabeled(GetSettingLabel("DisableBounceIfPinned"), ref DisableBounceIfPinned,
-                GetSettingTooltip("DisableBounceIfPinned"), 28f, 0.87f);
-            miscSection.Outdent();
-        }
-
-        miscSection.Gap(4f);
-
-        miscSection.CheckboxLabeled(GetSettingLabel("DisableFlashAlways"), ref DisableFlashAlways,
-            GetSettingTooltip("DisableFlashAlways"), 36f, 0.90f);
-        if (!DisableFlashAlways)
-        {
-            miscSection.Indent();
-            miscSection.CheckboxLabeled(GetSettingLabel("DisableFlashIfPinned"), ref DisableFlashIfPinned,
-                GetSettingTooltip("DisableFlashIfPinned"), 28f, 0.87f);
-            miscSection.Outdent();
-        }
-
-        _miscSectionLastHeight = miscSection.MaxColumnHeightSeen;
-        listing.EndSection(miscSection);
+        DoDialogButtonsSection(listing);
 
         listing.NewColumn();
 
-        var questSection = listing.BeginSection(_questSectionLastHeight ?? 9999f)!;
+        DoTimeSection(listing);
 
-        questSection.SectionHeader("BetterLetters_Settings_Section_Quests");
+        listing.Gap();
 
-        questSection.CheckboxLabeled(GetSettingLabel("DismissedQuestsDismissLetters"),
+        DoSnoozingSection(listing);
+        DoRemindersSection(listing);
+
+        listing.Gap();
+
+        DoQuestSection(listing);
+
+        _lastMainTabHeight = listing.MaxColumnHeightSeen;
+        listing.End();
+        Widgets.EndScrollView();
+    }
+
+    private static float? _questSectionLastHeight = null;
+
+    private static void DoQuestSection(Listing_Standard listing)
+    {
+        var section = listing.BeginSection(_questSectionLastHeight ?? 9999f)!;
+
+        section.SectionHeader("BetterLetters_Settings_Section_Quests");
+
+        section.CheckboxLabeled(GetSettingLabel("DismissedQuestsDismissLetters"),
             ref DismissedQuestsDismissLetters,
             GetSettingTooltip("DismissedQuestsDismissLetters"), 36f, 0.90f);
 
-        questSection.CheckboxLabeled(GetSettingLabel("KeepQuestLettersOnStack"), ref KeepQuestLettersOnStack,
+        section.CheckboxLabeled(GetSettingLabel("KeepQuestLettersOnStack"), ref KeepQuestLettersOnStack,
             GetSettingTooltip("KeepQuestLettersOnStack"), 36f, 0.90f);
 
-        questSection.CheckboxLabeled(GetSettingLabel("ChangeExpiredQuestLetters"), ref ChangeExpiredQuestLetters,
+        section.CheckboxLabeled(GetSettingLabel("ChangeExpiredQuestLetters"), ref ChangeExpiredQuestLetters,
             GetSettingTooltip("ChangeExpiredQuestLetters"), 36f, 0.90f);
 
-        var expirationSoundLabelRect = questSection.Label(GetSettingLabel("QuestExpirationSound"));
+        var expirationSoundLabelRect = section.Label(GetSettingLabel("QuestExpirationSound"));
         var extraHeight = 0f;
         foreach (QuestExpirationSounds soundOption in Enum.GetValues(typeof(QuestExpirationSounds)))
         {
             var disabled = !ChangeExpiredQuestLetters;
-            if (questSection.RadioButton(
+            if (section.RadioButton(
                     $"BetterLetters_Settings_QuestExpirationSound_{soundOption.ToString()}".Translate(),
                     soundOption == QuestExpirationSound, 0f, tabInRight: 0.6f, null!, null, disabled))
             {
@@ -298,77 +318,25 @@ internal class Settings : ModSettings
             expirationSoundLabelRect with { height = expirationSoundLabelRect.height + extraHeight },
             "BetterLetters_Settings_QuestExpirationSound_Desc".Translate());
 
-        _questSectionLastHeight = questSection.MaxColumnHeightSeen;
-        listing.EndSection(questSection);
-
-        listing.End();
+        _questSectionLastHeight = section.MaxColumnHeightSeen;
+        listing.EndSection(section);
     }
 
-    private static void DoTabQuests(Rect inRect)
+    private static float? _lastDialogButtonsSectionHeight = null;
+
+    private static void DoDialogButtonsSection(Listing_Standard listing)
     {
-        var listing = new Listing_Standard();
-        listing.Begin(inRect.MiddlePart(0.75f, 1f));
+        var section = listing.BeginSection(_lastDialogButtonsSectionHeight ?? 9999f)!;
+        section.SectionHeader("BetterLetters_Settings_Section_DialogButtons");
 
-
-        listing.End();
-    }
-
-    private static float? _lastLeftSectionHeight = null;
-    private static float? _lastRightSectionHeight = null;
-
-    private static void DoTabPinning(Rect inRect)
-    {
-        var listing = new Listing_Standard();
-        var lsRect = inRect.MiddlePart(0.85f, 1f);
-        listing.Begin(lsRect);
-        var leftColWidth = lsRect.width / 2.05f;
-        var rightColWidth = lsRect.width / 2.05f;
-        listing.ColumnWidth = leftColWidth;
-
-        var leftSection = listing.BeginSection(_lastLeftSectionHeight ?? 9999f)!;
-
-        listing.CheckboxLabeled(GetSettingLabel("DisableRightClickPinnedLetters"),
-            ref DisableRightClickPinnedLetters,
-            GetSettingTooltip("DisableRightClickPinnedLetters"), 36f);
-
-        leftSection.Gap(8f);
-
-        var buttonSize = Patch_Dialog_NodeTree_DoWindowContents_AddPinSnoozeButtons.ButtonSize;
-        var labelRect = leftSection.Label(GetSettingLabel("PinTexture"));
-        var tabIn = buttonSize + 4f;
-        var tabInRight = leftColWidth * 0.2f;
-        if (leftSection.RadioButton("BetterLetters_Settings_PinTexture_Round".Translate(),
-                PinTexture == PinTextureMode.Round, tabIn, tabInRight, null!, null, false))
-        {
-            PinTexture = PinTextureMode.Round;
-        }
-        else if (leftSection.RadioButton("BetterLetters_Settings_PinTexture_Alt".Translate(),
-                     PinTexture == PinTextureMode.Alt, tabIn, tabInRight, null!, null, false))
-        {
-            PinTexture = PinTextureMode.Alt;
-        }
-
-        var pinTexRect = labelRect with { y = labelRect.yMax + 2f, width = buttonSize, height = buttonSize };
-        GUI.DrawTexture(pinTexRect, Icons.PinRound);
-        pinTexRect.y += 24f;
-        GUI.DrawTexture(pinTexRect, Icons.PinAlt);
-
-        _lastLeftSectionHeight = leftSection.MaxColumnHeightSeen;
-        listing.EndSection(leftSection);
-
-        // RIGHT COLUMN
-        listing.NewColumn();
-
-        var rightSection = listing.BeginSection(_lastRightSectionHeight ?? 9999f)!;
-
-        var letterButtonTypesRect = rightSection.Label(GetSettingLabel("LetterButtonTypes"));
+        var letterButtonTypesRect = section.Label(GetSettingLabel("LetterButtonTypes"));
 
         var buttonTypeDiaOptions = LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.DiaOptions);
 #if !(v1_1 || v1_2 || v1_3)
-        rightSection.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_DiaOptions".Translate(),
-            ref buttonTypeDiaOptions, tabIn);
+        section.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_DiaOptions".Translate(),
+            ref buttonTypeDiaOptions);
 #else
-        rightSection.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_DiaOptions".Translate(),
+        section.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_DiaOptions".Translate(),
             ref buttonTypeDiaOptions);
 #endif
         if (buttonTypeDiaOptions)
@@ -378,10 +346,10 @@ internal class Settings : ModSettings
 
         var buttonTypeIcons = LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.Icons);
 #if !(v1_1 || v1_2 || v1_3)
-        rightSection.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_Icons".Translate(),
-            ref buttonTypeIcons, tabIn);
+        section.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_Icons".Translate(),
+            ref buttonTypeIcons);
 #else
-        rightSection.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_Icons".Translate(),
+        section.CheckboxLabeled("BetterLetters_Settings_LetterButtonTypes_Icons".Translate(),
             ref buttonTypeIcons);
 #endif
         if (buttonTypeIcons)
@@ -393,15 +361,15 @@ internal class Settings : ModSettings
             letterButtonTypesRect with { height = letterButtonTypesRect.height + 64f },
             GetSettingTooltip("LetterButtonTypes"));
 
-        rightSection.GapLine(8f);
+        section.GapLine(8f);
 
-        var letterButtonsPositionRect = rightSection.Label(GetSettingLabel("LetterButtonsPosition"));
+        var letterButtonsPositionRect = section.Label(GetSettingLabel("LetterButtonsPosition"));
 
         var extraHeight = 0f;
         foreach (ButtonPlacement placement in Enum.GetValues(typeof(ButtonPlacement)))
         {
             var disabled = !LetterButtonsEnabledTypes.HasFlag(LetterButtonsType.Icons);
-            if (rightSection.RadioButton(GetSettingLabel(placement.ToString()),
+            if (section.RadioButton(GetSettingLabel(placement.ToString()),
                     placement == LetterButtonsPosition, 0f, tabInRight: 0.6f, null!, null, disabled))
             {
                 LetterButtonsPosition = placement;
@@ -418,17 +386,85 @@ internal class Settings : ModSettings
             letterButtonsPositionRect with { height = letterButtonsPositionRect.height + extraHeight },
             GetSettingTooltip("LetterButtonsPosition"));
 
-        _lastRightSectionHeight = rightSection.MaxColumnHeightSeen;
-        listing.EndSection(rightSection);
+        _lastDialogButtonsSectionHeight = section.MaxColumnHeightSeen;
+        listing.EndSection(section);
+    }
 
-        listing.End();
+    private static float? _lastPinningSectionHeight = null;
+
+    private static void DoLetterStackSection(Listing_Standard listing)
+    {
+        var section = listing.BeginSection(_lastPinningSectionHeight ?? 9999f)!;
+
+        section.SectionHeader("BetterLetters_Settings_Section_LetterStack");
+
+        section.CheckboxLabeled(GetSettingLabel("DisableRightClickPinnedLetters"),
+            ref DisableRightClickPinnedLetters,
+            GetSettingTooltip("DisableRightClickPinnedLetters"), 36f);
+
+        section.CheckboxLabeled(GetSettingLabel("ReplaceLetterIconsInLetterStack"), ref ReplaceLetterIconsInLetterStack,
+            GetSettingTooltip("ReplaceLetterIconsInLetterStack"), 36f);
+
+        section.CheckboxLabeled(GetSettingLabel("ReplaceLetterIconsInXML"), ref ReplaceLetterIconsInXML,
+            GetSettingTooltip("ReplaceLetterIconsInXML"), 36f);
+
+        if (section.RadioButton(GetSettingLabel("DisableBounceIfPinned"),
+                (!DisableBounceAlways && DisableBounceIfPinned), 0f,
+                GetSettingTooltip("DisableBounceIfPinned")))
+        {
+            DisableBounceAlways = false;
+            DisableBounceIfPinned = true;
+        }
+
+        if (section.RadioButton(GetSettingLabel("DisableBounceAlways"),
+                (!DisableBounceIfPinned && DisableBounceAlways), 0f,
+                GetSettingTooltip("DisableBounceAlways")))
+        {
+            DisableBounceAlways = true;
+            DisableBounceIfPinned = false;
+        }
+
+        if (section.RadioButton(GetSettingLabel("DisableBounceNever"),
+                (!DisableBounceIfPinned && !DisableBounceAlways), 0f,
+                GetSettingTooltip("DisableBounceNever")))
+        {
+            DisableBounceAlways = false;
+            DisableBounceIfPinned = false;
+        }
+
+        section.Gap(20f);
+
+        if (section.RadioButton(GetSettingLabel("DisableFlashIfPinned"),
+                (!DisableFlashAlways && DisableFlashIfPinned), 0f,
+                GetSettingTooltip("DisableFlashIfPinned")))
+        {
+            DisableFlashAlways = false;
+            DisableFlashIfPinned = true;
+        }
+
+        if (section.RadioButton(GetSettingLabel("DisableFlashAlways"),
+                (!DisableFlashIfPinned && DisableFlashAlways), 0f,
+                GetSettingTooltip("DisableFlashAlways")))
+        {
+            DisableFlashAlways = true;
+            DisableFlashIfPinned = false;
+        }
+
+        if (section.RadioButton(GetSettingLabel("DisableFlashNever"),
+                (!DisableFlashIfPinned && !DisableFlashAlways), 0f,
+                GetSettingTooltip("DisableFlashNever")))
+        {
+            DisableFlashAlways = false;
+            DisableFlashIfPinned = false;
+        }
+
+        _lastPinningSectionHeight = section.MaxColumnHeightSeen;
+        listing.EndSection(section);
     }
 
     private static string _editBufferMaxNumSnoozes = MaxNumSnoozes.ToString();
     private static Vector2 _scrollPositionSnoozeTab = Vector2.zero;
     private static float? _lastSnoozeTabHeight = null;
-    private static float? _lastSnoozeSectionHeight = null;
-    private static float? _lastRemindersSectionHeight = null;
 
     private static void DoTabSnoozing(Rect inRect)
     {
@@ -450,89 +486,103 @@ internal class Settings : ModSettings
 
         listing.ColumnWidth = innerRect.width / 2.05f;
 
-        // Snoozing section
-        var snoozeSection = listing.BeginSection(_lastSnoozeSectionHeight ?? 9999f)!;
-        snoozeSection.SectionHeader("BetterLetters_Settings_Section_Snoozing");
-
-        snoozeSection.CheckboxLabeled(GetSettingLabel("SnoozePinned"), ref SnoozePinned,
-            GetSettingTooltip("SnoozePinned"), 28f, 0.9f);
-
-        snoozeSection.CheckboxLabeled(GetSettingLabel("SnoozeOpen"), ref SnoozeOpen,
-            null!, 28f, 0.9f);
-
-        snoozeSection.GapLine(42f);
-
-        snoozeSection.Label(GetSettingLabel("MaxSnoozeDuration", true));
-        var snoozesRect = snoozeSection.GetRect(0f, 1f);
-        var curY = snoozesRect.yMin;
-        CustomWidgets.SnoozeSettings(snoozesRect.xMin, ref curY, snoozesRect.width, ref MaxSnoozeDuration, 0f, 0f, 0f,
-            maxDurationOverride: GenDate.TicksPerYear * 100, showEndDate: false);
-        MaxSnoozeDuration = Mathf.Clamp(MaxSnoozeDuration, GenDate.TicksPerHour, GenDate.TicksPerYear * 100);
-        snoozeSection.GetRect((curY - snoozesRect.yMin) + 4f);
-        var defaultMaxSnoozeDuration = DefaultSettings["MaxSnoozeDuration"] as int? ?? GenDate.TicksPerYear * 5;
-#if !(v1_1 || v1_2 || v1_3)
-        if (snoozeSection.ButtonText("Default".Translate() + "(" + defaultMaxSnoozeDuration.ToStringTicksToPeriodVague() + ")"))
-#else
-        if (snoozeSection.ButtonText("Default".Translate()))
-#endif
-        {
-            MaxSnoozeDuration = defaultMaxSnoozeDuration;
-        }
-
-        snoozeSection.GapLine(42f);
-
-        snoozeSection.IntSetting(ref MaxNumSnoozes, "MaxNumSnoozes", ref _editBufferMaxNumSnoozes, min: 1,
-            max: 200);
-
-        snoozeSection.GapLine(42f);
-        var periodLabelRect = snoozeSection.GetRect(1f, 0.5f);
-        curY = periodLabelRect.yMin;
-#if !(v1_1 || v1_2)
-        Widgets.Label(periodLabelRect.xMin, ref curY, periodLabelRect.width, GetSettingLabel("SnoozeTickPeriod", true));
-#else
-        LegacySupport.Label(periodLabelRect.xMin, ref curY, periodLabelRect.width, "BetterLetters_ReminderTextLabel".Translate());
-#endif
-        snoozeSection.GetRect((curY - periodLabelRect.yMin) + 4f);
-
-        snoozeSection.GapLine();
-
-        var periodRect = snoozeSection.GetRect(1f, 1f);
-        CustomWidgets.SnoozeSettings(periodRect.xMin, ref curY, periodRect.width, ref SnoozeTickPeriod, 0f, 0f, 0f,
-            maxDurationOverride: GenDate.TicksPerHour, showEndDate: false);
-        SnoozeTickPeriod = Mathf.Max(SnoozeTickPeriod, GenTicks.TicksPerRealSecond); // Minimum
-        snoozeSection.GetRect(curY - periodRect.yMin);
-        var defaultSnoozeTickPeriod = DefaultSettings["SnoozeTickPeriod"] as int? ?? GenTicks.TicksPerRealSecond;
-#if !(v1_1 || v1_2 || v1_3)
-        if (snoozeSection.ButtonText("Default".Translate() + "(" + defaultSnoozeTickPeriod.ToStringTicksToPeriodVague() + ")"))
-#else
-        if (snoozeSection.ButtonText("Default".Translate()))
-#endif
-        {
-            SnoozeTickPeriod = defaultSnoozeTickPeriod;
-        }
-
-        snoozeSection.SubLabel(GetSettingTooltip("SnoozeTickPeriod"), 0.9f);
-
-        _lastSnoozeSectionHeight = snoozeSection.MaxColumnHeightSeen;
-        listing.EndSection(snoozeSection);
+        DoSnoozingSection(listing);
+        listing.GapLine();
+        DoTimeSection(listing);
 
         listing.NewColumn();
 
-        var remindersSection = listing.BeginSection(_lastRemindersSectionHeight ?? 9999f)!;
-        remindersSection.SectionHeader("BetterLetters_Settings_Section_Reminders");
-
-        remindersSection.CheckboxLabeled(GetSettingLabel("DoCreateReminderPlaySetting"),
-            ref DoCreateReminderPlaySetting, GetSettingTooltip("DoCreateReminderPlaySetting"), 32f, 0.9f);
-
-        remindersSection.CheckboxLabeled(GetSettingLabel("AutoSelectThingForReminders"),
-            ref AutoSelectThingForReminders, GetSettingTooltip("AutoSelectThingForReminders"), 32f, 0.9f);
-
-        _lastRemindersSectionHeight = remindersSection.MaxColumnHeightSeen;
-        listing.EndSection(remindersSection);
+        DoRemindersSection(listing);
 
         _lastSnoozeTabHeight = _lastSnoozeSectionHeight + _lastRemindersSectionHeight + 16f;
         listing.End();
         Widgets.EndScrollView();
+    }
+
+    private static float? _lastRemindersSectionHeight = null;
+
+    private static void DoRemindersSection(Listing_Standard listing)
+    {
+        var section = listing.BeginSection(_lastRemindersSectionHeight ?? 9999f)!;
+        section.SectionHeader("BetterLetters_Settings_Section_Reminders");
+
+        section.CheckboxLabeled(GetSettingLabel("DoCreateReminderPlaySetting"),
+            ref DoCreateReminderPlaySetting, GetSettingTooltip("DoCreateReminderPlaySetting"), 32f, 0.9f);
+
+        section.CheckboxLabeled(GetSettingLabel("RemindersPinned"), ref RemindersPinned, null!, 28f, 0.9f);
+
+        section.CheckboxLabeled(GetSettingLabel("RemindersOpen"), ref RemindersOpen, null!, 28f, 0.9f);
+
+        section.CheckboxLabeled(GetSettingLabel("AutoSelectThingForReminders"),
+            ref AutoSelectThingForReminders, GetSettingTooltip("AutoSelectThingForReminders"), 32f, 0.9f);
+
+        _lastRemindersSectionHeight = section.MaxColumnHeightSeen;
+        listing.EndSection(section);
+    }
+
+    private static float? _lastSnoozeSectionHeight = null;
+
+    private static void DoSnoozingSection(Listing_Standard listing)
+    {
+        var section = listing.BeginSection(_lastSnoozeSectionHeight ?? 9999f)!;
+        section.SectionHeader("BetterLetters_Settings_Section_Snoozing");
+
+        section.CheckboxLabeled(GetSettingLabel("SnoozePinned"), ref SnoozePinned,
+            GetSettingTooltip("SnoozePinned"), 28f, 0.9f);
+
+        section.CheckboxLabeled(GetSettingLabel("SnoozeOpen"), ref SnoozeOpen,
+            null!, 28f, 0.9f);
+
+        section.IntSetting(ref MaxNumSnoozes, "MaxNumSnoozes", ref _editBufferMaxNumSnoozes, min: 1, max: 200);
+
+        _lastSnoozeSectionHeight = section.MaxColumnHeightSeen;
+        listing.EndSection(section);
+    }
+
+    private static float? _lastTimeSectionHeight = null;
+
+    private static void DoTimeSection(Listing_Standard listing)
+    {
+        var section = listing.BeginSection(_lastTimeSectionHeight ?? 9999f)!;
+        section.SectionHeader("BetterLetters_Settings_Section_Time");
+
+        // section.SliderSetting(ref MaxSnoozeDuration, "MaxSnoozeDuration");
+
+        SnoozeTickPeriod = Mathf.RoundToInt(section.SliderLabeled(GetSettingLabel("SnoozeTickPeriod", true),
+            (float)SnoozeTickPeriod, GenDate.TicksPerHour / 4f, GenDate.TicksPerHour * 4f, 0.7f,
+            GetSettingTooltip("SnoozeTickPeriod")));
+
+        section.Label("BetterLetters_Settings_SnoozeDurationRange".Translate());
+
+        var minSnoozeDurationHours = (float)Math.Max(MinSnoozeDuration, SnoozeTickPeriod) / GenDate.TicksPerHour;
+        minSnoozeDurationHours = section.SliderLabeled(
+            "BetterLetters_Settings_MinSnoozeDuration".Translate(MinSnoozeDuration.ToStringTicksToPeriod()),
+            minSnoozeDurationHours,
+            (float)SnoozeTickPeriod / GenDate.TicksPerHour, 24f,
+            tooltip: "BetterLetters_Settings_MinSnoozeDuration_Desc".Translate());
+
+        minSnoozeDurationHours = Mathf.Round(minSnoozeDurationHours * 2f) / 2f;
+        MinSnoozeDuration = Mathf.RoundToInt(minSnoozeDurationHours * GenDate.TicksPerHour);
+
+        var maxSnoozeDurationHours = (float)MaxSnoozeDuration / GenDate.TicksPerDay;
+        maxSnoozeDurationHours = section.SliderLabeled(
+            "BetterLetters_Settings_MaxSnoozeDuration".Translate(MaxSnoozeDuration.ToStringTicksToPeriod()),
+            maxSnoozeDurationHours,
+            (float)MinSnoozeDuration / GenDate.TicksPerHour, 60 * 5,
+            tooltip: "BetterLetters_Settings_MaxSnoozeDuration_Desc".Translate());
+
+        maxSnoozeDurationHours = Mathf.Round(maxSnoozeDurationHours * 2f) / 2f;
+        MaxSnoozeDuration = Mathf.RoundToInt(maxSnoozeDurationHours * GenDate.TicksPerDay);
+
+        if (section.ButtonText("Default".Translate()))
+        {
+            SnoozeTickPeriod = (int)DefaultSettings["SnoozeTickPeriod"];
+            MinSnoozeDuration = (int)DefaultSettings["MinSnoozeDuration"];
+            MaxSnoozeDuration = (int)DefaultSettings["MaxSnoozeDuration"];
+        }
+
+        _lastTimeSectionHeight = section.MaxColumnHeightSeen;
+        listing.EndSection(section);
     }
 
     private static void DoTabCache(Rect inRect)
@@ -613,31 +663,139 @@ internal class Settings : ModSettings
         listing.EndSection(section);
     }
 
+    private static Vector2 _scrollPositionPatchesTab = Vector2.zero;
+    private static float? _lastPatchesTabHeight = null;
+
+    private static void DoTabPatches(Rect inRect)
+    {
+        var viewRect = new Rect(inRect);
+        var outerRect = new Rect(inRect);
+#if !(v1_1 || v1_2 || v1_3 || v1_4)
+        Widgets.AdjustRectsForScrollView(inRect, ref outerRect, ref viewRect);
+#else
+        LegacySupport.AdjustRectsForScrollView(inRect, ref outerRect, ref viewRect);
+#endif
+        viewRect.height = _lastMainTabHeight ?? inRect.height * 1.5f;
+
+        Widgets.BeginScrollView(outerRect, ref _scrollPositionMainTab, viewRect);
+
+        var listing = new Listing_Standard();
+        var innerRect = viewRect.MiddlePart(0.9f, 1f);
+        listing.Begin(innerRect);
+
+        listing.Label("BetterLetters_Settings_Patches_Label".Translate());
+        listing.SubLabel("BetterLetters_Settings_Patches_Note".Translate(), 1f);
+        listing.Gap(4f);
+        GUI.color = ColorLibrary.RedReadable;
+        var applyButtonWidthPct = 0.8f;
+        TooltipHandler.TipRegionByKey(
+            new Rect(innerRect.xMin, listing.CurHeight, innerRect.width * applyButtonWidthPct, 40f),
+            "BetterLetters_Settings_RefreshPatches_Desc");
+        if (listing.ButtonText("BetterLetters_Settings_RefreshPatches".Translate(), null!, 0.3f))
+        {
+            BetterLettersMod.Instance?.GetSettings<Settings>()?.Write();
+            PatchManager.RepatchAll();
+        }
+
+        listing.SubLabel("BetterLetters_Settings_RequiresRestart".Translate(), applyButtonWidthPct);
+        GUI.color = Color.white;
+
+        listing.GapLine();
+        listing.Label("BetterLetters_Settings_Patches_Enabled".Translate());
+        foreach (var patch in EnabledPatchCategories)
+        {
+            DisabledPatchCategories.Remove(patch);
+            var enabled = true;
+            listing.CheckboxLabeled($"BetterLetters_Settings_PatchCategory_{patch}".Translate(), ref enabled, 80f);
+            if (!enabled)
+            {
+                DisabledPatchCategories.Add(patch);
+            }
+        }
+
+        listing.GapLine();
+        listing.Label("BetterLetters_Settings_Patches_Disabled".Translate());
+        foreach (var patch in DisabledPatchCategories)
+        {
+            EnabledPatchCategories.Remove(patch);
+            var enabled = false;
+            listing.CheckboxLabeled($"BetterLetters_Settings_PatchCategory_{patch}".Translate(), ref enabled, 80f);
+            if (enabled)
+            {
+                EnabledPatchCategories.Add(patch);
+            }
+        }
+
+        EnabledPatchCategories.Sort();
+        DisabledPatchCategories.Sort();
+
+        _lastPatchesTabHeight = listing.MaxColumnHeightSeen;
+        listing.End();
+        Widgets.EndScrollView();
+    }
+
     public override void ExposeData()
     {
-        // ReSharper disable RedundantArgumentDefaultValue
-        Scribe_Values.Look(ref PinTexture, "PinTexture", PinTextureMode.Alt);
-        Scribe_Values.Look(ref LetterButtonsPosition, "LetterButtonsPosition", ButtonPlacement.BottomRight);
-        Scribe_Values.Look(ref LetterButtonsEnabledTypes, "LetterButtonsEnabledTypes",
-            LetterButtonsType.Icons & LetterButtonsType.DiaOptions);
-        Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration", GenDate.TicksPerYear * 5);
-        Scribe_Values.Look(ref MaxNumSnoozes, "MaxNumSnoozes", 30);
-        Scribe_Values.Look(ref SnoozeTickPeriod, "SnoozeTickPeriod", GenTicks.TickLongInterval);
-        Scribe_Values.Look(ref DisableRightClickPinnedLetters, "DisableRightClickPinnedLetters", false);
-        Scribe_Values.Look(ref DisableBounceIfPinned, "DisableBounceIfPinned", true);
-        Scribe_Values.Look(ref DisableBounceAlways, "DisableBounceAlways", false);
-        Scribe_Values.Look(ref DisableFlashIfPinned, "DisableFlashIfPinned", true);
-        Scribe_Values.Look(ref DisableFlashAlways, "DisableFlashAlways", false);
-        Scribe_Values.Look(ref SnoozePinned, "SnoozePinned", true);
-        Scribe_Values.Look(ref SnoozeOpen, "SnoozeOpen", false);
-        Scribe_Values.Look(ref DoCreateReminderPlaySetting, "DoCreateReminderPlaySetting", true);
-        Scribe_Values.Look(ref AutoSelectThingForReminders, "AutoSelectThingForReminders", true);
+        string? settingsVersion = null;
+        if (Scribe.mode == LoadSaveMode.Saving)
+        {
+            settingsVersion = BetterLettersMod.ModVersion.Major + "." + BetterLettersMod.ModVersion.Minor;
+            Scribe_Values.Look(ref settingsVersion, "SettingsVersion", forceSave: true);
+        }
+        else if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            Scribe_Values.Look(ref settingsVersion, "SettingsVersion", forceSave: true);
+        }
 
-        Scribe_Values.Look(ref QuestExpirationSound, "QuestExpirationSound", QuestExpirationSounds.LetterArrive);
-        Scribe_Values.Look(ref DismissedQuestsDismissLetters, "DismissedQuestsDismissLetters", true);
-        Scribe_Values.Look(ref KeepQuestLettersOnStack, "KeepQuestLettersOnStack", true);
-        Scribe_Values.Look(ref ChangeExpiredQuestLetters, "ChangeExpiredQuestLetters", true);
-        // ReSharper restore RedundantArgumentDefaultValue
+        Scribe_Values.Look(ref PinTexture, "PinTexture",
+            (PinTextureMode)DefaultSettings[nameof(PinTexture)]);
+        Scribe_Values.Look(ref LetterButtonsPosition, "LetterButtonsPosition",
+            (ButtonPlacement)DefaultSettings[nameof(LetterButtonsPosition)]);
+        Scribe_Values.Look(ref LetterButtonsEnabledTypes, "LetterButtonsEnabledTypes",
+            (LetterButtonsType)DefaultSettings[nameof(LetterButtonsEnabledTypes)]);
+        Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration",
+            (int)DefaultSettings[nameof(MaxSnoozeDuration)]);
+        Scribe_Values.Look(ref ReplaceLetterIconsInLetterStack, "ReplaceLetterIconsInLetterStack",
+            (bool)DefaultSettings[nameof(ReplaceLetterIconsInLetterStack)]);
+        Scribe_Values.Look(ref ReplaceLetterIconsInXML, "ReplaceLetterIconsInXML",
+            (bool)DefaultSettings[nameof(ReplaceLetterIconsInXML)]);
+        Scribe_Values.Look(ref MinSnoozeDuration, "MinSnoozeDuration",
+            (int)DefaultSettings[nameof(MinSnoozeDuration)]);
+        Scribe_Values.Look(ref MaxNumSnoozes, "MaxNumSnoozes",
+            (int)DefaultSettings[nameof(MaxNumSnoozes)]);
+        Scribe_Values.Look(ref SnoozeTickPeriod, "SnoozeTickPeriod",
+            (int)DefaultSettings[nameof(SnoozeTickPeriod)]);
+        Scribe_Values.Look(ref DisableRightClickPinnedLetters, "DisableRightClickPinnedLetters",
+            (bool)DefaultSettings[nameof(DisableRightClickPinnedLetters)]);
+        Scribe_Values.Look(ref DisableBounceIfPinned, "DisableBounceIfPinned",
+            (bool)DefaultSettings[nameof(DisableBounceIfPinned)]);
+        Scribe_Values.Look(ref DisableBounceAlways, "DisableBounceAlways",
+            (bool)DefaultSettings[nameof(DisableBounceAlways)]);
+        Scribe_Values.Look(ref DisableFlashIfPinned, "DisableFlashIfPinned",
+            (bool)DefaultSettings[nameof(DisableFlashIfPinned)]);
+        Scribe_Values.Look(ref DisableFlashAlways, "DisableFlashAlways",
+            (bool)DefaultSettings[nameof(DisableFlashAlways)]);
+        Scribe_Values.Look(ref SnoozePinned, "SnoozePinned",
+            (bool)DefaultSettings[nameof(SnoozePinned)]);
+        Scribe_Values.Look(ref SnoozeOpen, "SnoozeOpen",
+            (bool)DefaultSettings[nameof(SnoozeOpen)]);
+        Scribe_Values.Look(ref RemindersPinned, "RemindersPinned",
+            (bool)DefaultSettings[nameof(RemindersPinned)]);
+        Scribe_Values.Look(ref RemindersOpen, "RemindersOpen",
+            (bool)DefaultSettings[nameof(RemindersOpen)]);
+        Scribe_Values.Look(ref DoCreateReminderPlaySetting, "DoCreateReminderPlaySetting",
+            (bool)DefaultSettings[nameof(DoCreateReminderPlaySetting)]);
+        Scribe_Values.Look(ref AutoSelectThingForReminders, "AutoSelectThingForReminders",
+            (bool)DefaultSettings[nameof(AutoSelectThingForReminders)]);
+
+        Scribe_Values.Look(ref QuestExpirationSound, "QuestExpirationSound",
+            (QuestExpirationSounds)DefaultSettings[nameof(QuestExpirationSound)]);
+        Scribe_Values.Look(ref DismissedQuestsDismissLetters, "DismissedQuestsDismissLetters",
+            (bool)DefaultSettings[nameof(DismissedQuestsDismissLetters)]);
+        Scribe_Values.Look(ref KeepQuestLettersOnStack, "KeepQuestLettersOnStack",
+            (bool)DefaultSettings[nameof(KeepQuestLettersOnStack)]);
+        Scribe_Values.Look(ref ChangeExpiredQuestLetters, "ChangeExpiredQuestLetters",
+            (bool)DefaultSettings[nameof(ChangeExpiredQuestLetters)]);
 
         base.ExposeData();
     }

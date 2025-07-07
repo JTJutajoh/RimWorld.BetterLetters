@@ -9,7 +9,7 @@ namespace BetterLetters;
 public class Dialog_Reminder : Window
 {
     private const int MaxTitleLength = 32;
-    public override Vector2 InitialSize => new(500f, Mathf.Min(440f, UI.screenHeight));
+    public override Vector2 InitialSize => new(500f, Mathf.Min(580f, UI.screenHeight));
 
     private Vector2 LetterIconSize => new Vector2(_letterDef.Icon?.width ?? 64f, _letterDef.Icon?.height ?? 64f) * 0.5f;
 
@@ -126,13 +126,14 @@ public class Dialog_Reminder : Window
 
     public Dialog_Reminder(Thing? thing = null, string? title = null,
         string? text = null,
-        bool pinWhenFinished = true,
-        bool openWhenFinished = false,
+        bool? pinWhenFinished = null,
+        bool? openWhenFinished = null,
         LetterDef? letterDef = null,
         int durationTicks = -1
     )
     {
-        _openWhenFinished = openWhenFinished;
+        _openWhenFinished = openWhenFinished ?? Settings.RemindersOpen;
+        _pinWhenFinished = pinWhenFinished ?? Settings.RemindersPinned;
         _selectedThing = thing;
 
         Instance?.Close();
@@ -149,11 +150,8 @@ public class Dialog_Reminder : Window
         _selectedThing = thing ?? FindSelectedThing();
         _reminderTitle = title ?? _reminderTitle;
         _reminderText = text ?? _reminderText;
-        _pinWhenFinished = pinWhenFinished;
         _letterDef = letterDef ?? _letterDef;
         _durationTicks = durationTicks >= 0 ? durationTicks : _durationTicks;
-
-        CustomWidgets.SnoozeTimeUnit = LetterUtils.TimeUnits.Days;
     }
 
     public override void DoWindowContents(Rect inRect)
@@ -195,7 +193,7 @@ public class Dialog_Reminder : Window
         // Pin button
         Widgets.Checkbox(pinIconRect.xMin, pinIconRect.yMin, ref _pinWhenFinished, pinButtonSize,
             texChecked: Icons.PinIcon, texUnchecked: Icons.PinOutline);
-        TooltipHandler.TipRegionByKey(pinIconRect, "BetterLetters_PinReminder");
+        TooltipHandler.TipRegionByKey(pinIconRect, "BetterLetters_PinSnooze");
 
         curY += titleRowRect.height + 4f;
     }
@@ -242,11 +240,8 @@ public class Dialog_Reminder : Window
         var snoozeSettingsWidth = innerRect.width * snoozeSettingsWidthPct;
         var snoozeSettingsLeftMargin = ((innerRect.width - snoozeSettingsWidth) / 2f);
 
-        CustomWidgets.SnoozeSettings(
-            x: innerRect.xMin + (innerRect.xMin + snoozeSettingsLeftMargin),
-            y: ref curY,
-            width: snoozeSettingsWidth,
-            durationTicks: ref _durationTicks);
+        CustomWidgets.TimeEntry(innerRect with { yMin = curY, height = 220f }, ref _durationTicks);
+        curY += 220f;
 
         curY += 8f;
 

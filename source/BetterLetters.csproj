@@ -97,6 +97,8 @@
     <Compile Include="Dialog_Reminder.cs" />
     <Compile Include="Dialog_Snooze.cs" />
     <Compile Include="GlobalUsings.cs" />
+    <Compile Include="Icons.cs" />
+    <Compile Include="ModCompatibility.cs" />
     <Compile Include="Patches\Patch_BundleLetter_SetLetters_AddOptions.cs" />
     <Compile Include="Patches\Patch_HistoryTab_DoArchivableRow.cs" />
     <Compile Include="Patches\Patch_HistoryTab_FilteringButtons.cs" />
@@ -105,17 +107,17 @@
     <Compile Include="Patches\Patch_Archive_Pin_AddBackToStack.cs" />
     <Compile Include="Patches\Patch_Dialog_NodeTree_DoWindowContents_AddPinSnoozeButtons.cs" />
     <Compile Include="Patches\Patch_Letter_CanDismissWithRightClick_BlockIfPinned.cs" />
-    <Compile Include="Patches\Patch_Letter_DrawButton_PinnedBehavior.cs" />
+    <Compile Include="Patches\Patch_Letter_DrawButton_LetterStackAppearance.cs" />
     <Compile Include="Patches\Patch_Letter_OpenLetter_AddDiaOptions.cs" />
     <Compile Include="Patches\Patch_NewQuestLetter_OpenLetter_KeepOnStack.cs" />
     <Compile Include="Patches\Patch_PlaySettings_GlobalControl_CreateReminderButton.cs" />
     <Compile Include="Patches\Patch_QuestsTab_SelectedQuest_Buttons.cs" />
     <Compile Include="Patches\Patch_Letter_RemoveLetter_KeepOnStack.cs" />
     <Compile Include="Patches\Patch_Quest_CleanupQuestParts_MarkLetter.cs" />
+    <Compile Include="PatchManager.cs" />
     <Compile Include="PatchOperationConfigToggleable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="Utils\Icons.cs" />
     <Compile Include="Utils\LogPrefixed.cs" />
     <Compile Include="WorldComponent_SnoozeManager.cs" />
     <Compile Include="Utils\CustomWidgets.cs" />
@@ -131,6 +133,7 @@
     </Content>
     <Content Include="Defs\Misc\LetterDefs\BetterLettersLetters.xml" />
     <Content Include="Languages\English\Keyed\BetterLetters_Keys.xml" />
+    <Content Include="News\BetterLettersUpdateNews.xml" />
     <Content Include="Patches\LetterIconPatches.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

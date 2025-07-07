@@ -10,6 +10,7 @@
   <BetterLetters_Unpin>Unpin</BetterLetters_Unpin>
   <BetterLetters_Reminder>Reminder</BetterLetters_Reminder>
   <BetterLetters_Reminders>Reminders</BetterLetters_Reminders>
+  <BetterLetters_PinSnooze>Should this reminder automatically get pinned when it fires?</BetterLetters_PinSnooze>
 
   <!-- Snooze float menu -->
   <BetterLetters_SnoozeForFloatMenuOption>Snooze for...</BetterLetters_SnoozeForFloatMenuOption>
@@ -101,6 +102,12 @@ Currently selected thing(s) can be automatically used as the reminder's "Jump To
   <BetterLetters_PeriodTicks>{0} ticks</BetterLetters_PeriodTicks>
   <BetterLetters_Period1Season>1 season</BetterLetters_Period1Season>
   <BetterLetters_PeriodSeasons>{0} seasons</BetterLetters_PeriodSeasons>
+  <BetterLetters_Period1Year>1 year</BetterLetters_Period1Year>
+  <BetterLetters_PeriodYears>{0} years</BetterLetters_PeriodYears>
+  <BetterLetters_Period1Day>1 day</BetterLetters_Period1Day>
+  <BetterLetters_PeriodDays>{0} days</BetterLetters_PeriodDays>
+  <BetterLetters_Period1Hour>1 hour</BetterLetters_Period1Hour>
+  <BetterLetters_PeriodHours>{0} hours</BetterLetters_PeriodHours>
 
 
 
@@ -109,13 +116,14 @@ Currently selected thing(s) can be automatically used as the reminder's "Jump To
 
   <BetterLetters_SettingsCategory>Better Letters</BetterLetters_SettingsCategory>
   <BetterLetters_Settings_Tab_Main>Main</BetterLetters_Settings_Tab_Main>
-  <BetterLetters_Settings_Tab_Pinning>Pinning</BetterLetters_Settings_Tab_Pinning>
-  <BetterLetters_Settings_Tab_Snoozing>Snoozing/Reminders</BetterLetters_Settings_Tab_Snoozing>
   <BetterLetters_Settings_Tab_Cache>Cache</BetterLetters_Settings_Tab_Cache>
-  <BetterLetters_Settings_Section_Misc>Misc settings</BetterLetters_Settings_Section_Misc>
+  <BetterLetters_Settings_Tab_Patches>Patches</BetterLetters_Settings_Tab_Patches>
   <BetterLetters_Settings_Section_Quests>Quests settings</BetterLetters_Settings_Section_Quests>
   <BetterLetters_Settings_Section_Snoozing>Snoozing settings</BetterLetters_Settings_Section_Snoozing>
   <BetterLetters_Settings_Section_Reminders>Reminders settings</BetterLetters_Settings_Section_Reminders>
+  <BetterLetters_Settings_Section_LetterStack>Letter Stack (active letters on the right)</BetterLetters_Settings_Section_LetterStack>
+  <BetterLetters_Settings_Section_DialogButtons>Letter dialogs</BetterLetters_Settings_Section_DialogButtons>
+  <BetterLetters_Settings_Section_Time>Time-related settings</BetterLetters_Settings_Section_Time>
   <BetterLetters_OpenSettingsTooltip>Open Better Letters mod settings to configure the appearance and placement of these buttons.
 
 (Takes effect the NEXT time you open a letter)</BetterLetters_OpenSettingsTooltip>
@@ -141,10 +149,14 @@ Changes to this setting will take effect the next time the game is restarted.</B
   <BetterLetters_Settings_DisableBounceIfPinned_Desc>By default some letters (mostly negative ones in vanilla) have a little bounce animation to get your attention. If this option is enabled, pinned letters will sit still no matter what.</BetterLetters_Settings_DisableBounceIfPinned_Desc>
   <BetterLetters_Settings_DisableBounceAlways>Disable bounce for ALL letters</BetterLetters_Settings_DisableBounceAlways>
   <BetterLetters_Settings_DisableBounceAlways_Desc>By default some letters (mostly negative ones in vanilla) have a little bounce animation to get your attention. Enabling this option will turn that off for ALL letters.</BetterLetters_Settings_DisableBounceAlways_Desc>
+  <BetterLetters_Settings_DisableBounceNever>Enable bounce for ALL letters (Vanilla)</BetterLetters_Settings_DisableBounceNever>
+  <BetterLetters_Settings_DisableBounceNever_Desc>All letters, pinned or otherwise, will bounce just like they normally do in vanilla.</BetterLetters_Settings_DisableBounceNever_Desc>
   <BetterLetters_Settings_DisableFlashIfPinned>Disable flash for pinned letters</BetterLetters_Settings_DisableFlashIfPinned>
   <BetterLetters_Settings_DisableFlashIfPinned_Desc>Letters in vanilla flash at you to get your attention. Turn this on to disable flashing for pinned letters so they aren't distracting.</BetterLetters_Settings_DisableFlashIfPinned_Desc>
   <BetterLetters_Settings_DisableFlashAlways>Disable flash for ALL letters</BetterLetters_Settings_DisableFlashAlways>
   <BetterLetters_Settings_DisableFlashAlways_Desc>Letters in vanilla flash at you to get your attention. Turn this on to disable that vanilla feature entirely.</BetterLetters_Settings_DisableFlashAlways_Desc>
+  <BetterLetters_Settings_DisableFlashNever>Enable flash for ALL letters (Vanilla)</BetterLetters_Settings_DisableFlashNever>
+  <BetterLetters_Settings_DisableFlashNever_Desc>All letters, pinned or otherwise, will flash just like they normally do in vanilla.</BetterLetters_Settings_DisableFlashNever_Desc>
   <BetterLetters_Settings_PinTexture>Texture style for pinned letter dialogs</BetterLetters_Settings_PinTexture>
   <BetterLetters_Settings_PinTexture_Disabled>Disabled</BetterLetters_Settings_PinTexture_Disabled>
   <BetterLetters_Settings_PinTexture_Round>Simple</BetterLetters_Settings_PinTexture_Round>
@@ -160,12 +172,17 @@ Also includes reminders.</BetterLetters_Settings_MaxNumSnoozes_Desc>
 Larger values reduce performance impact but reduce accuracy for when they actually fire relative to the time that you set.
 
 You probably don't need to change this unless you keep a LOT of active snoozes.</BetterLetters_Settings_SnoozeTickPeriod_Desc>
-  <BetterLetters_Settings_MaxSnoozeDuration>Max Snooze/Reminder Duration (ticks)</BetterLetters_Settings_MaxSnoozeDuration>
+  <BetterLetters_Settings_MaxSnoozeDuration>Maximum: {0}</BetterLetters_Settings_MaxSnoozeDuration>
   <BetterLetters_Settings_MaxSnoozeDuration_Desc>Determines the longest allowed snooze in the "Snooze for..." dialog. Measured in days.
 Note that letters that are snoozed for a very long time may expire before the snooze finishes.</BetterLetters_Settings_MaxSnoozeDuration_Desc>
-  <BetterLetters_Settings_SnoozePinned>Automatically pin snoozed letters</BetterLetters_Settings_SnoozePinned>
+  <BetterLetters_Settings_MinSnoozeDuration>Minimum: {0}</BetterLetters_Settings_MinSnoozeDuration>
+  <BetterLetters_Settings_MinSnoozeDuration_Desc>Limited by the Snooze tick period setting.</BetterLetters_Settings_MinSnoozeDuration_Desc>
+  <BetterLetters_Settings_SnoozeDurationRange>Duration limits for snoozes and reminders (ticks):</BetterLetters_Settings_SnoozeDurationRange>
+  <BetterLetters_Settings_SnoozePinned>Pin by default</BetterLetters_Settings_SnoozePinned>
   <BetterLetters_Settings_SnoozePinned_Desc>When a snoozed letter finishes its snooze timer, the letter will show up already pinned so you're less likely to miss it.</BetterLetters_Settings_SnoozePinned_Desc>
-  <BetterLetters_Settings_SnoozeOpen>Automatically open snoozed letters</BetterLetters_Settings_SnoozeOpen>
+  <BetterLetters_Settings_SnoozeOpen>Open by default</BetterLetters_Settings_SnoozeOpen>
+  <BetterLetters_Settings_RemindersPinned>Pin by default</BetterLetters_Settings_RemindersPinned>
+  <BetterLetters_Settings_RemindersOpen>Open by default</BetterLetters_Settings_RemindersOpen>
   <BetterLetters_Settings_LetterButtonsPosition>Button placement in Letters</BetterLetters_Settings_LetterButtonsPosition>
   <BetterLetters_Settings_LetterButtonsPosition_Desc>Pin/Snooze buttons will be added to the dialog when you open a letter. Use this setting to choose which part of the window they are placed in.</BetterLetters_Settings_LetterButtonsPosition_Desc>
   <BetterLetters_Settings_TopLeft>Top left</BetterLetters_Settings_TopLeft>
@@ -205,4 +222,32 @@ Quests letters that you have dismissed will not play a sound.</BetterLetters_Set
   <BetterLetters_Settings_QuestExpirationSound_BadUrgent>Threat Small</BetterLetters_Settings_QuestExpirationSound_BadUrgent>
   <BetterLetters_Settings_QuestExpirationSound_BadUrgentBig>Threat Big</BetterLetters_Settings_QuestExpirationSound_BadUrgentBig>
   <BetterLetters_Settings_QuestExpirationSound_RitualNegative>Ritual Negative Outcome</BetterLetters_Settings_QuestExpirationSound_RitualNegative>
+
+  <BetterLetters_Settings_Patches_Label>Enable/disable Harmony patches</BetterLetters_Settings_Patches_Label>
+  <BetterLetters_Settings_Patches_Note>For advanced users:
+    Use this tab to enable or disable specific Harmony patches in this mod if something isn't working or if you simply know you don't want certain patches.
+    WARNING: The mod may behave incorrectly if you disable patches. Use these settings with care.</BetterLetters_Settings_Patches_Note>
+  <BetterLetters_Settings_Patches_Enabled>Enabled patches:</BetterLetters_Settings_Patches_Enabled>
+  <BetterLetters_Settings_Patches_Disabled>Disabled patches:</BetterLetters_Settings_Patches_Disabled>
+  <BetterLetters_Settings_RequiresRestart>(Most likely requires game restart for changes to take effect)</BetterLetters_Settings_RequiresRestart>
+  <BetterLetters_Settings_RefreshPatches>Apply</BetterLetters_Settings_RefreshPatches>
+  <BetterLetters_Settings_RefreshPatches_Desc>Attempt(!) to patch/unpatch the selected patches without restarting.
+
+    Only recommended for troubleshooting! May cause errors!</BetterLetters_Settings_RefreshPatches_Desc>
+  <BetterLetters_Settings_PatchCategory_Letter_RemoveLetter_KeepOnStack>Letters (non quest) staying on the stack</BetterLetters_Settings_PatchCategory_Letter_RemoveLetter_KeepOnStack>
+  <BetterLetters_Settings_PatchCategory_Letter_RemoveLetter_KeepOnStack_QuestLetter>Letters (quests) staying on the stack</BetterLetters_Settings_PatchCategory_Letter_RemoveLetter_KeepOnStack_QuestLetter>
+  <BetterLetters_Settings_PatchCategory_Letter_OpenLetter_AddDiaOptions>Add dialog options to letter dialogs</BetterLetters_Settings_PatchCategory_Letter_OpenLetter_AddDiaOptions>
+  <BetterLetters_Settings_PatchCategory_Dialog_AddIcons>Add icon buttons to letter dialogs</BetterLetters_Settings_PatchCategory_Dialog_AddIcons>
+  <BetterLetters_Settings_PatchCategory_ArchivePin_AddBackToStack>Add letters back to the stack when pinned</BetterLetters_Settings_PatchCategory_ArchivePin_AddBackToStack>
+  <BetterLetters_Settings_PatchCategory_Letter_CanDismissWithRightClick_BlockIfPinned>Block dismissing letters with right click if pinned</BetterLetters_Settings_PatchCategory_Letter_CanDismissWithRightClick_BlockIfPinned>
+  <BetterLetters_Settings_PatchCategory_Letter_DrawInLetterStack>Modify appearance of letters in the letter stack</BetterLetters_Settings_PatchCategory_Letter_DrawInLetterStack>
+  <BetterLetters_Settings_PatchCategory_Letter_CanCull_KeepSnoozes>Prevent snoozed letters from being culled</BetterLetters_Settings_PatchCategory_Letter_CanCull_KeepSnoozes>
+  <BetterLetters_Settings_PatchCategory_LetterStack_SortPinned>Sort letters when one is pinned</BetterLetters_Settings_PatchCategory_LetterStack_SortPinned>
+  <BetterLetters_Settings_PatchCategory_PlaySettings_CreateReminderButton>Add a button to the Play Settings in the bottom right to create a reminder</BetterLetters_Settings_PatchCategory_PlaySettings_CreateReminderButton>
+  <BetterLetters_Settings_PatchCategory_HistoryFiltersAndButtons>Add buttons and checkboxes to filter for snoozes/reminders in the archive</BetterLetters_Settings_PatchCategory_HistoryFiltersAndButtons>
+  <BetterLetters_Settings_PatchCategory_ExpireQuestLetters>New Quest letters change when their quest expires</BetterLetters_Settings_PatchCategory_ExpireQuestLetters>
+  <BetterLetters_Settings_PatchCategory_BundleLetters>Add options to bundle letters (when there are lots of letters on the stack)</BetterLetters_Settings_PatchCategory_BundleLetters>
+  <BetterLetters_Settings_PatchCategory_HistoryArchivableRow>Replace pin icon/button in message history for snoozes/reminders</BetterLetters_Settings_PatchCategory_HistoryArchivableRow>
+  <BetterLetters_Settings_PatchCategory_QuestsTab_Buttons>Add icon buttons to quests to snooze/pin the quest's letter</BetterLetters_Settings_PatchCategory_QuestsTab_Buttons>
+
 </LanguageData>

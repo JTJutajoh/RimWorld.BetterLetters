@@ -265,6 +265,9 @@ namespace BetterLetters.Utils
                 {
                     if (questPart is QuestPart_Delay { State: QuestPartState.Enabled, TicksLeft: > 0 } questPartDelay)
                     {
+                        //BUG: Auto snooze duration is spoiling quests like betrayal offers
+                        // Filter for specific types of QuestPart.
+                        // Or maybe just filter for if the QuestPart is hidden or not? I think that's a thing.
                         return questPartDelay.TicksLeft;
                     }
                 }
