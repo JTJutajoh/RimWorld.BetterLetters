@@ -32,13 +32,18 @@ internal static class CustomWidgets
 
         var textFieldRect = columnRect.MiddlePartPixels(columnWidth, textFieldHeight);
         textFieldRect = textFieldRect.MiddlePartPixels(buttonWidth, textFieldRect.height);
+
         var incButtonRect = columnRect with { yMin = textFieldRect.yMin - 2f - buttonHeight, height = buttonHeight };
         incButtonRect = incButtonRect.MiddlePartPixels(buttonWidth, incButtonRect.height);
+
         var labelRect = columnRect with { yMin = incButtonRect.yMin - 2f - buttonHeight, height = buttonHeight };
+
         var decButtonRect = columnRect with { yMin = textFieldRect.yMax + 2f, height = buttonHeight };
         decButtonRect = decButtonRect.MiddlePartPixels(buttonWidth, decButtonRect.height);
+
         var clearButtonRect = columnRect with { yMin = decButtonRect.yMax + 2f, height = buttonHeight };
         clearButtonRect = clearButtonRect.MiddlePartPixels(buttonWidth, clearButtonRect.height);
+
 
         // Label
         Text.Anchor = TextAnchor.LowerCenter;
@@ -47,12 +52,12 @@ internal static class CustomWidgets
 
         if (Widgets.ButtonText(incButtonRect, "+"))
         {
-            value++;
+            value += 1 * GenUI.CurrentAdjustmentMultiplier();
         }
 
         if (Widgets.ButtonText(decButtonRect, "-"))
         {
-            value--;
+            value -= 1 * GenUI.CurrentAdjustmentMultiplier();
         }
 
         GUI.color = ColorLibrary.RedReadable;
@@ -131,15 +136,13 @@ internal static class CustomWidgets
         Text.Anchor = TextAnchor.UpperLeft;
 
         // Ticks column
-        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Ticks".Translate(), ref remainderTicks,
-            ref _editBufferTicks);
+        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Ticks".Translate(), ref remainderTicks, ref _editBufferTicks);
         // Hours column
         TimeEntryColumn(inputRect, ref curX, "BetterLetters_Hours".Translate(), ref hours, ref _editBufferHours);
         // Days column
         TimeEntryColumn(inputRect, ref curX, "BetterLetters_Days".Translate(), ref days, ref _editBufferDays);
         // Quadrums column
-        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Seasons".Translate(), ref quadrums,
-            ref _editBufferQuadrums);
+        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Seasons".Translate(), ref quadrums, ref _editBufferQuadrums);
         // Years column
         TimeEntryColumn(inputRect, ref curX, "BetterLetters_Years".Translate(), ref years, ref _editBufferYears);
 
