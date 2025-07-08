@@ -131,8 +131,9 @@ namespace BetterLetters.Patches
                         }),
                         LetterUtils.Snooze1HrFloatMenuOption(__instance, updateDiaOptionText),
                         LetterUtils.Snooze1DayFloatMenuOption(__instance, updateDiaOptionText),
-                        LetterUtils.SnoozeDialogFloatMenuOption(__instance, updateDiaOptionText)
                     };
+                    floatMenuOptions.AddRange(LetterUtils.RecentSnoozeDurationsFloatMenuOptions(__instance));
+                    floatMenuOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(__instance, updateDiaOptionText));
 
                     Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
                     SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();

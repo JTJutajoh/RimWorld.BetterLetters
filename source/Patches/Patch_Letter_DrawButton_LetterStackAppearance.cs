@@ -155,6 +155,7 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
             ));
             floatMenuOptions.Add(LetterUtils.Snooze1HrFloatMenuOption(letter));
             floatMenuOptions.Add(LetterUtils.Snooze1DayFloatMenuOption(letter));
+            floatMenuOptions.AddRange(LetterUtils.RecentSnoozeDurationsFloatMenuOptions(letter));
             floatMenuOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(letter));
 
             Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));

@@ -107,6 +107,10 @@ internal class Settings : ModSettings
     };
 
     [Setting] internal static List<string> DisabledPatchCategories = new();
+
+    [Setting] internal static int RecentSnoozesMax = 10;
+    [Setting] internal static int DurationSimilarityThreshold = GenDate.TicksPerHour / 2;
+    [Setting] internal static List<int> RecentSnoozeDurations = new();
     // ReSharper restore RedundantDefaultMemberInitializer
 
     internal static Dictionary<string, object> DefaultSettings = new();
@@ -171,6 +175,34 @@ internal class Settings : ModSettings
             str += "BetterLetters_Settings_DefaultSuffix".Translate(setting!.ToString());
 
         return str;
+    }
+
+    internal static void TryCacheSnoozeDuration(Snooze snooze)
+    {
+        if (Mathf.Abs(GenDate.TicksPerDay - snooze.Duration) < DurationSimilarityThreshold)
+            return;
+        if (Mathf.Abs(GenDate.TicksPerHour - snooze.Duration) < DurationSimilarityThreshold)
+            return;
+
+        for (var index = 0; index < RecentSnoozeDurations.Count; index++)
+        {
+            // Look for any similar durations and adjust them to this new duration if they already exist
+            if (Mathf.Abs(snooze.Duration - RecentSnoozeDurations[index]) < DurationSimilarityThreshold)
+            {
+                RecentSnoozeDurations[index] = snooze.Duration;
+                RecentSnoozeDurations.RemoveAt(index);
+                break;
+            }
+        }
+
+        // If no similar duration was found, add a new one
+        RecentSnoozeDurations.Add(snooze.Duration);
+        if (RecentSnoozeDurations.Count > RecentSnoozesMax)
+        {
+            RecentSnoozeDurations.PopFront();
+        }
+
+        BetterLettersMod.Instance!.WriteSettings();
     }
 
     internal void DoWindowContents(Rect inRect)
@@ -554,6 +586,8 @@ internal class Settings : ModSettings
     }
 
     private static float? _lastSnoozeSectionHeight;
+    private static string _editBufferRecentSnoozesMax = "";
+    private static string _editBufferDuratinSimilarityThreshold = "";
 
     private static void DoSnoozingSection(Listing_Standard listing)
     {
@@ -567,6 +601,26 @@ internal class Settings : ModSettings
             null!, 28f, 0.9f);
 
         section.IntSetting(ref MaxNumSnoozes, "MaxNumSnoozes", ref _editBufferMaxNumSnoozes, min: 1, max: 200);
+
+        section.GapLine();
+
+        _editBufferRecentSnoozesMax = RecentSnoozesMax.ToString();
+        section.IntSetting(ref RecentSnoozesMax, "RecentSnoozesMax", ref _editBufferRecentSnoozesMax, min: 1, max: 20);
+
+        section.Gap();
+
+        _editBufferDuratinSimilarityThreshold = DurationSimilarityThreshold.ToString();
+        section.IntSetting(ref DurationSimilarityThreshold, "DurationSimilarityThreshold",
+            ref _editBufferDuratinSimilarityThreshold, min: 1, max: GenDate.TicksPerHour);
+        section.Label(DurationSimilarityThreshold.ToStringTicksToPeriodVerbose()!);
+
+        section.Gap();
+
+        if (section.ButtonText(
+                "BetterLetters_Settings_ClearRecentSnoozeDurations".Translate(RecentSnoozeDurations.Count)))
+        {
+            RecentSnoozeDurations.Clear();
+        }
 
         _lastSnoozeSectionHeight = section.MaxColumnHeightSeen;
         listing.EndSection(section);
@@ -874,6 +928,19 @@ internal class Settings : ModSettings
 
         Scribe_Values.Look(ref ChangeExpiredQuestLetters, "ChangeExpiredQuestLetters",
             (bool)DefaultSettings[nameof(ChangeExpiredQuestLetters)]);
+
+        Scribe_Values.Look(ref RecentSnoozesMax, "RecentSnoozesMax",
+            (int)DefaultSettings[nameof(RecentSnoozesMax)]);
+
+        Scribe_Values.Look(ref DurationSimilarityThreshold, "DurationSimilarityThreshold",
+            (int)DefaultSettings[nameof(DurationSimilarityThreshold)]);
+
+        Scribe_Collections.Look(ref RecentSnoozeDurations, "RecentSnoozeDurations", LookMode.Value);
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            RecentSnoozeDurations ??= new List<int>();
+        }
 
         base.ExposeData();
     }

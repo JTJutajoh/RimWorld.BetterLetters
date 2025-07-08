@@ -104,6 +104,8 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             AllSnoozesSeen.Add(hash);
         }
 
+        Settings.TryCacheSnoozeDuration(snooze);
+
         return true;
     }
 

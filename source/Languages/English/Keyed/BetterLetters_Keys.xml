@@ -116,6 +116,8 @@ Has several options for what types of letters to dismiss, such as expired quests
   <BetterLetters_LetterStack_FloatMenu_DismissThreatSmall>Dismiss minor threat letters</BetterLetters_LetterStack_FloatMenu_DismissThreatSmall>
   <BetterLetters_LetterStack_FloatMenu_DismissThreatBig>Dismiss major threat letters</BetterLetters_LetterStack_FloatMenu_DismissThreatBig>
 
+  <BetterLetters_SnoozeForRecent>Snooze for {0} (Recent)</BetterLetters_SnoozeForRecent>
+
   <!-- Time -->
   <BetterLetters_TimeUnitTooltip>Choose the unit of time to adjust.</BetterLetters_TimeUnitTooltip>
   <BetterLetters_Ticks>Ticks</BetterLetters_Ticks>
@@ -249,7 +251,13 @@ You can enable both or neither if you do not want this feature.</BetterLetters_S
   <BetterLetters_Settings_NoSnoozedLetters>None</BetterLetters_Settings_NoSnoozedLetters>
   <BetterLetters_Settings_Unsnooze>Cancel snooze</BetterLetters_Settings_Unsnooze>
   <BetterLetters_Settings_Fire>Trigger now</BetterLetters_Settings_Fire>
-  
+
+  <BetterLetters_Settings_RecentSnoozesMax>Remembered snooze durations</BetterLetters_Settings_RecentSnoozesMax>
+  <BetterLetters_Settings_RecentSnoozesMax_Desc>Maximum number of recently-used snooze durations to keep track of.</BetterLetters_Settings_RecentSnoozesMax_Desc>
+  <BetterLetters_Settings_DurationSimilarityThreshold>Duration similarity threshold (ticks)</BetterLetters_Settings_DurationSimilarityThreshold>
+  <BetterLetters_Settings_DurationSimilarityThreshold_Desc>Used to decide if a new snooze duration is different enough from already remembered durations.</BetterLetters_Settings_DurationSimilarityThreshold_Desc>
+  <BetterLetters_Settings_ClearRecentSnoozeDurations>Forget all {0} recent snooze durations</BetterLetters_Settings_ClearRecentSnoozeDurations>
+
   <BetterLetters_Settings_DoCreateReminderPlaySetting>Add Create Reminder button to the bottom play controls</BetterLetters_Settings_DoCreateReminderPlaySetting>
   <BetterLetters_Settings_DoCreateReminderPlaySetting_Desc>Adds a button to the bottom right buttons that can be used as a shortcut to create a new reminder.</BetterLetters_Settings_DoCreateReminderPlaySetting_Desc>
   <BetterLetters_Settings_AutoSelectThingForReminders>Automatically target any selected Things</BetterLetters_Settings_AutoSelectThingForReminders>

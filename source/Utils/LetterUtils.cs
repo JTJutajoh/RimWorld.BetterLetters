@@ -237,6 +237,35 @@ namespace BetterLetters.Utils
             );
         }
 
+        internal static List<FloatMenuOption> RecentSnoozeDurationsFloatMenuOptions(Letter letter,
+            Action<Snooze?>? onClicked = null)
+        {
+            var floatMenuOptions = new List<FloatMenuOption>();
+
+            var recentDurations = Settings.RecentSnoozeDurations.ListFullCopy();
+
+            if (recentDurations is null)
+                return floatMenuOptions;
+
+            recentDurations.Reverse();
+
+            foreach (var duration in recentDurations)
+            {
+                floatMenuOptions.Add(new FloatMenuOption(
+                    "BetterLetters_SnoozeForRecent".Translate(duration.ToStringTicksToPeriod()),
+                    action: () =>
+                    {
+                        var snooze = WorldComponent_SnoozeManager.AddSnooze(letter, duration);
+                        onClicked?.Invoke(snooze);
+                    },
+                    iconTex: Icons.SnoozeFloatMenu,
+                    iconColor: new Color(0.4f, 0.5f, 0.6f)
+                ));
+            }
+
+            return floatMenuOptions;
+        }
+
         /// <summary>
         /// Given a letter, checks if the letter itself has an expiration or if it's associated with a quest that does.
         /// </summary>

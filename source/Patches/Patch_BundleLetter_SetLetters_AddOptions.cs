@@ -4,6 +4,7 @@ using HarmonyLib;
 using JetBrains.Annotations;
 
 namespace BetterLetters.Patches;
+
 /// <summary>
 /// Simple patch that adds additional options to the float menu that comes up when you click on a <see cref="BundleLetter"/>
 /// (The special type of letter when the letter stack is full).
@@ -19,9 +20,11 @@ internal static class Patch_BundleLetter_SetLetters_AddOptions
     {
         if (LegacySupport.CurrentRWVersion < RWVersion.v1_4)
         {
-            Log.Warning($"{nameof(Patch_BundleLetter_SetLetters_AddOptions)} requires RimWorld 1.4+.\nExtra float menu options for BundleLetters will not be available.");
+            Log.Warning(
+                $"{nameof(Patch_BundleLetter_SetLetters_AddOptions)} requires RimWorld 1.4+.\nExtra float menu options for BundleLetters will not be available.");
             return false;
         }
+
         return true;
     }
 
@@ -119,8 +122,9 @@ internal static class Patch_BundleLetter_SetLetters_AddOptions
                 {
                     LetterUtils.Snooze1HrFloatMenuOption(__instance),
                     LetterUtils.Snooze1DayFloatMenuOption(__instance),
-                    LetterUtils.SnoozeDialogFloatMenuOption(__instance)
                 };
+                snoozeOptions.AddRange(LetterUtils.RecentSnoozeDurationsFloatMenuOptions(__instance));
+                snoozeOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(__instance));
                 Find.WindowStack?.Add(new FloatMenu(snoozeOptions));
             },
 #if !(v1_1 || v1_2 || v1_3 || v1_4 || v1_5)

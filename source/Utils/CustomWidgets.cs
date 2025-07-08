@@ -411,6 +411,8 @@ internal static class CustomWidgets
                 if (remainingTicks == -1 || remainingTicks > (GenDate.TicksPerDay + GenDate.TicksPerHour))
                     floatMenuOptions.Add(LetterUtils.Snooze1DayFloatMenuOption(letter, OnSnooze));
 
+                floatMenuOptions.AddRange(LetterUtils.RecentSnoozeDurationsFloatMenuOptions(letter, OnSnooze));
+
                 if (extraFloatMenuOptions != null)
                 {
                     floatMenuOptions.AddRange(extraFloatMenuOptions);
