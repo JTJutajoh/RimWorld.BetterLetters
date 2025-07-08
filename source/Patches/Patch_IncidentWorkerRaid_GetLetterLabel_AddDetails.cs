@@ -16,8 +16,10 @@ internal static class Patch_IncidentWorkerRaid_GetLetterLabel_AddDetails
     {
         PawnsArrivalModeDefOf.CenterDrop,
         PawnsArrivalModeDefOf.EdgeDrop,
+#if !(v1_1 || v1_2 || v1_3 || v1_4 || v1_5)
         PawnsArrivalModeDefOf.RandomDrop,
         PawnsArrivalModeDefOf.SpecificDropDebug
+#endif
     };
 
     [HarmonyPatch(typeof(IncidentWorker_RaidEnemy), "GetLetterLabel")]
