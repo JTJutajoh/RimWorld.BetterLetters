@@ -82,6 +82,8 @@ internal class Settings : ModSettings
     [Setting] internal static bool OffsetLetterLabels = true;
     [Setting] internal static float LetterLabelsOffsetAmount = 0f;
 
+    [Setting] internal static bool AddQuestExpirationSnoozeOptions = true;
+
     [Setting] internal static bool DismissedQuestsDismissLetters = true;
     [Setting] internal static bool KeepQuestLettersOnStack = true;
     [Setting] internal static bool ChangeExpiredQuestLetters = true;
@@ -327,13 +329,16 @@ internal class Settings : ModSettings
 
         section.CheckboxLabeled(GetSettingLabel("DismissedQuestsDismissLetters"),
             ref DismissedQuestsDismissLetters,
-            GetSettingTooltip("DismissedQuestsDismissLetters"), 36f, 0.90f);
+            GetSettingTooltip("DismissedQuestsDismissLetters"), 36f);
 
         section.CheckboxLabeled(GetSettingLabel("KeepQuestLettersOnStack"), ref KeepQuestLettersOnStack,
-            GetSettingTooltip("KeepQuestLettersOnStack"), 36f, 0.90f);
+            GetSettingTooltip("KeepQuestLettersOnStack"), 36f);
 
         section.CheckboxLabeled(GetSettingLabel("ChangeExpiredQuestLetters"), ref ChangeExpiredQuestLetters,
-            GetSettingTooltip("ChangeExpiredQuestLetters"), 36f, 0.90f);
+            GetSettingTooltip("ChangeExpiredQuestLetters"), 36f);
+
+        section.CheckboxLabeled(GetSettingLabel("AddQuestExpirationSnoozeOptions"), ref AddQuestExpirationSnoozeOptions,
+            GetSettingTooltip("AddQuestExpirationSnoozeOptions"), 36f);
 
         var expirationSoundLabelRect = section.Label(GetSettingLabel("QuestExpirationSound"));
         var extraHeight = 0f;
@@ -583,14 +588,14 @@ internal class Settings : ModSettings
         section.SectionHeader("BetterLetters_Settings_Section_Reminders");
 
         section.CheckboxLabeled(GetSettingLabel("DoCreateReminderPlaySetting"),
-            ref DoCreateReminderPlaySetting, GetSettingTooltip("DoCreateReminderPlaySetting"), 32f, 0.9f);
+            ref DoCreateReminderPlaySetting, GetSettingTooltip("DoCreateReminderPlaySetting"), 32f);
 
-        section.CheckboxLabeled(GetSettingLabel("RemindersPinned"), ref RemindersPinned, null!, 28f, 0.9f);
+        section.CheckboxLabeled(GetSettingLabel("RemindersPinned"), ref RemindersPinned, null!, 28f);
 
-        section.CheckboxLabeled(GetSettingLabel("RemindersOpen"), ref RemindersOpen, null!, 28f, 0.9f);
+        section.CheckboxLabeled(GetSettingLabel("RemindersOpen"), ref RemindersOpen, null!, 28f);
 
         section.CheckboxLabeled(GetSettingLabel("AutoSelectThingForReminders"),
-            ref AutoSelectThingForReminders, GetSettingTooltip("AutoSelectThingForReminders"), 32f, 0.9f);
+            ref AutoSelectThingForReminders, GetSettingTooltip("AutoSelectThingForReminders"), 32f);
 
         _lastRemindersSectionHeight = section.MaxColumnHeightSeen;
         listing.EndSection(section);
@@ -928,6 +933,9 @@ internal class Settings : ModSettings
 
         Scribe_Values.Look(ref AutoSelectThingForReminders, "AutoSelectThingForReminders",
             (bool)DefaultSettings[nameof(AutoSelectThingForReminders)]);
+
+        Scribe_Values.Look(ref AddQuestExpirationSnoozeOptions, "AddQuestExpirationSnoozeOptions",
+            (bool)DefaultSettings[nameof(AddQuestExpirationSnoozeOptions)]);
 
 
         Scribe_Values.Look(ref QuestExpirationSound, "QuestExpirationSound",

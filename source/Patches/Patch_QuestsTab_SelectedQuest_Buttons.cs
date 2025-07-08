@@ -135,24 +135,27 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
 
         var rect = new Rect(innerRect.xMax - 96f - 6f, innerRect.y, 32f, 32f);
         var extraFloatMenuOptions = new List<FloatMenuOption>();
-        if (quest.GetTicksUntilExpiryOrFail() > GenDate.TicksPerHour)
+        if (Settings.AddQuestExpirationSnoozeOptions)
         {
-            // Snooze until 1 hr before expiration
-            extraFloatMenuOptions.Add(FloatMenuFactory.MakeFloatMenuOption(
-                "BetterLetters_Quest_SnoozeUntil1HrBeforeExpiration".Translate(),
-                () => { choiceLetter.Snooze(quest.GetTicksUntilExpiryOrFail() - GenDate.TicksPerHour); },
-                MenuOptionPriority.Default, Icons.SnoozeFloatMenu, ColorLibrary.Gold
-            ));
-        }
+            if (quest.GetTicksUntilExpiryOrFail() > GenDate.TicksPerHour)
+            {
+                // Snooze until 1 hr before expiration
+                extraFloatMenuOptions.Add(FloatMenuFactory.MakeFloatMenuOption(
+                    "BetterLetters_Quest_SnoozeUntil1HrBeforeExpiration".Translate(),
+                    () => { choiceLetter.Snooze(quest.GetTicksUntilExpiryOrFail() - GenDate.TicksPerHour); },
+                    MenuOptionPriority.Default, Icons.SnoozeFloatMenu, ColorLibrary.Gold
+                ));
+            }
 
-        if (quest.GetTicksUntilExpiryOrFail() > GenDate.TicksPerDay)
-        {
-            // Snooze until 1 day before expiration
-            extraFloatMenuOptions.Add(FloatMenuFactory.MakeFloatMenuOption(
-                "BetterLetters_Quest_SnoozeUntil1DayBeforeExpiration".Translate(),
-                () => { choiceLetter.Snooze(quest.GetTicksUntilExpiryOrFail() - GenDate.TicksPerDay); },
-                MenuOptionPriority.Default, Icons.SnoozeFloatMenu, ColorLibrary.Gold
-            ));
+            if (quest.GetTicksUntilExpiryOrFail() > GenDate.TicksPerDay)
+            {
+                // Snooze until 1 day before expiration
+                extraFloatMenuOptions.Add(FloatMenuFactory.MakeFloatMenuOption(
+                    "BetterLetters_Quest_SnoozeUntil1DayBeforeExpiration".Translate(),
+                    () => { choiceLetter.Snooze(quest.GetTicksUntilExpiryOrFail() - GenDate.TicksPerDay); },
+                    MenuOptionPriority.Default, Icons.SnoozeFloatMenu, ColorLibrary.Gold
+                ));
+            }
         }
 
         CustomWidgets.SnoozeIconButton(choiceLetter, rect, extraFloatMenuOptions);

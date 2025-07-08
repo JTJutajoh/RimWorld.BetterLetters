@@ -215,7 +215,7 @@ For example: Immediate/Delayed, Breaching, Sappers</BetterLetters_Settings_RaidA
   <BetterLetters_Settings_MaxNumSnoozes_Desc>The maximum number of letters that are allowed to be snoozed at a time. Large numbers of snoozed letters could negatively impact performance slightly.
 
 Also includes reminders.</BetterLetters_Settings_MaxNumSnoozes_Desc>
-  <BetterLetters_Settings_SnoozeTickPeriod>Snooze tick period (ticks)</BetterLetters_Settings_SnoozeTickPeriod>
+  <BetterLetters_Settings_SnoozeTickPeriod>Snooze tick period</BetterLetters_Settings_SnoozeTickPeriod>
   <BetterLetters_Settings_SnoozeTickPeriod_Desc>Number of game ticks between when snoozes check if they are complete.
 Larger values reduce performance impact but reduce accuracy for when they actually fire relative to the time that you set.
 
@@ -267,6 +267,8 @@ You can enable both or neither if you do not want this feature.</BetterLetters_S
   <BetterLetters_Settings_AutoSelectThingForReminders>Automatically target any selected Things</BetterLetters_Settings_AutoSelectThingForReminders>
   <BetterLetters_Settings_AutoSelectThingForReminders_Desc>Anything that you have selected when the reminder dialog is opened will be automatically chosen as the "Jump To" target for the reminder by default.</BetterLetters_Settings_AutoSelectThingForReminders_Desc>
 
+  <BetterLetters_Settings_AddQuestExpirationSnoozeOptions>Expiration snooze options</BetterLetters_Settings_AddQuestExpirationSnoozeOptions>
+  <BetterLetters_Settings_AddQuestExpirationSnoozeOptions_Desc>Add some special options to the dropdown when snoozing a quest to snooze until 1 day before expiration or until 1 hour before expiration.</BetterLetters_Settings_AddQuestExpirationSnoozeOptions_Desc>
   <BetterLetters_Settings_ChangeExpiredQuestLetters>Update expired quest letters</BetterLetters_Settings_ChangeExpiredQuestLetters>
   <BetterLetters_Settings_ChangeExpiredQuestLetters_Desc>If a "Quest available" letter for a non-dismissed quest is not dismissed itself (still on the stack on the right) when the quest expires, update the letter by:
 Changing "Quest available" to "Quest expired"
