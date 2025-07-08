@@ -10,11 +10,21 @@ namespace BetterLetters.Patches;
 /// </summary>
 [HarmonyPatch]
 [HarmonyPatchCategory("BundleLetters")]
-[HarmonyPatchCondition(unsupportedVersion: RWVersion.v1_0 | RWVersion.v1_1 | RWVersion.v1_2 | RWVersion.v1_3, unsupportedString:"Extra float menu options for BundleLetters will not be available.")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
 internal static class Patch_BundleLetter_SetLetters_AddOptions
 {
+    [UsedImplicitly]
+    static bool Prepare()
+    {
+        if (LegacySupport.CurrentRWVersion < RWVersion.v1_4)
+        {
+            Log.Warning($"{nameof(Patch_BundleLetter_SetLetters_AddOptions)} requires RimWorld 1.4+.\nExtra float menu options for BundleLetters will not be available.");
+            return false;
+        }
+        return true;
+    }
+
     // Using the string type name because 1.1-1.3 don't have a BundleLetter type and it's easier to do this than an #if
     [HarmonyPatch("BundleLetter", "SetLetters")]
     [HarmonyPrefix]

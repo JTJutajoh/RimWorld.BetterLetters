@@ -120,6 +120,7 @@
     <Compile Include="PatchOperationConfigToggleable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Snooze.cs" />
     <Compile Include="Utils\LogPrefixed.cs" />
     <Compile Include="WorldComponent_SnoozeManager.cs" />
     <Compile Include="Utils\CustomWidgets.cs" />

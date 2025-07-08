@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Xml;
+﻿using System.Xml;
 using HarmonyLib;
 using JetBrains.Annotations;
 

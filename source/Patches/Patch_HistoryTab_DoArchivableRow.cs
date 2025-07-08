@@ -19,13 +19,21 @@ namespace BetterLetters.Patches;
 /// </summary>
 [HarmonyPatch]
 [HarmonyPatchCategory("HistoryArchivableRow")]
-[HarmonyPatchCondition(
-    unsupportedVersion: RWVersion.v1_0 | RWVersion.v1_1 | RWVersion.v1_2 | RWVersion.v1_3,
-    unsupportedString: "Message history filters and extra snooze/pin buttons will not be available.")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class Patch_HistoryTab_DoArchivableRow
 {
+    [UsedImplicitly]
+    static bool Prepare()
+    {
+        if (LegacySupport.CurrentRWVersion < RWVersion.v1_4)
+        {
+            Log.Warning($"{nameof(Patch_HistoryTab_DoArchivableRow)} requires RimWorld 1.4+.\nMessage history filters and extra snooze/pin buttons will not be available in history tab.");
+            return false;
+        }
+        return true;
+    }
+
     static readonly MethodInfo? ButtonPatchMethodAnchor =
         typeof(Widgets).GetMethod(nameof(Widgets.ButtonInvisible)) ?? null;
 

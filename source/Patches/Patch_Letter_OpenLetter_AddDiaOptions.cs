@@ -113,7 +113,7 @@ namespace BetterLetters.Patches
                 else
                 {
                     // Not pinned or snoozed, show a float menu to pin or snooze it
-                    var updateDiaOptionText = (WorldComponent_SnoozeManager.Snooze? snooze) =>
+                    var updateDiaOptionText = (Snooze? snooze) =>
                     {
                         if (snooze == null)
                             option.SetText(pinnedText);

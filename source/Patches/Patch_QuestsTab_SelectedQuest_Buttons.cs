@@ -17,12 +17,21 @@ namespace BetterLetters.Patches;
 /// </summary>
 [HarmonyPatch]
 [HarmonyPatchCategory("QuestsTab_Buttons")]
-[HarmonyPatchCondition(unsupportedVersion: RWVersion.v1_0 | RWVersion.v1_1 | RWVersion.v1_2,
-    unsupportedString: "Pin/snooze buttons in the quest tab will not be available.")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class Patch_QuestsTab_SelectedQuest_Buttons
 {
+    [UsedImplicitly]
+    static bool Prepare()
+    {
+        if (LegacySupport.CurrentRWVersion < RWVersion.v1_3)
+        {
+            Log.Warning($"{nameof(Patch_HistoryTab_DoArchivableRow)} requires RimWorld 1.3+.\nPin/snooze buttons in the quest tab will not be available.");
+            return false;
+        }
+        return true;
+    }
+
     private static readonly FieldInfo? SelectedFieldInfo =
         typeof(MainTabWindow_Quests).GetField("selected", AccessTools.all);
 

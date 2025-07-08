@@ -23,7 +23,7 @@ namespace BetterLetters.Utils
             {
                 return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter) &&
                        WorldComponent_SnoozeManager.Snoozes[letter]?.SnoozeType !=
-                       WorldComponent_SnoozeManager.SnoozeTypes.Reminder;
+                       SnoozeTypes.Reminder;
             }
 
             return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter);
@@ -86,10 +86,10 @@ namespace BetterLetters.Utils
         public static void AddReminder(this Letter letter, int durationTicks, bool isPinned = false,
             bool openWhenFinished = false)
         {
-            WorldComponent_SnoozeManager.AddSnooze(new WorldComponent_SnoozeManager.Snooze(letter, durationTicks,
+            WorldComponent_SnoozeManager.AddSnooze(new Snooze(letter, durationTicks,
                 pinWhenFinished: isPinned,
                 openWhenFinished: openWhenFinished,
-                snoozeType: WorldComponent_SnoozeManager.SnoozeTypes.Reminder), suppressMessage: true);
+                snoozeType: SnoozeTypes.Reminder), suppressMessage: true);
             if (durationTicks > 0)
             {
                 Messages.Message(new Message(
@@ -197,7 +197,7 @@ namespace BetterLetters.Utils
         }
 
         public static FloatMenuOption Snooze1HrFloatMenuOption(Letter letter,
-            Action<WorldComponent_SnoozeManager.Snooze?>? onClicked = null)
+            Action<Snooze?>? onClicked = null)
         {
             return MakeFloatMenuOption(
                 "BetterLetters_SnoozeFor1Hour".Translate(),
@@ -212,7 +212,7 @@ namespace BetterLetters.Utils
         }
 
         public static FloatMenuOption Snooze1DayFloatMenuOption(Letter letter,
-            Action<WorldComponent_SnoozeManager.Snooze?>? onClicked = null)
+            Action<Snooze?>? onClicked = null)
         {
             return MakeFloatMenuOption(
                 "BetterLetters_SnoozeFor1Day".Translate(),
@@ -227,7 +227,7 @@ namespace BetterLetters.Utils
         }
 
         public static FloatMenuOption SnoozeDialogFloatMenuOption(Letter letter,
-            Action<WorldComponent_SnoozeManager.Snooze?>? onSnoozed = null)
+            Action<Snooze?>? onSnoozed = null)
         {
             return MakeFloatMenuOption(
                 "BetterLetters_SnoozeForFloatMenuOption".Translate(),

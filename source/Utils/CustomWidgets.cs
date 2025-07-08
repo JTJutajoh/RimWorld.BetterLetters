@@ -64,7 +64,7 @@ internal static class CustomWidgets
         GUI.color = Color.white;
 
         editBuffer = value.ToStringCached() ?? value.ToString();
-        Widgets.TextFieldNumeric(textFieldRect, ref value, ref editBuffer, 0);
+        Widgets.TextFieldNumeric(textFieldRect, ref value, ref editBuffer);
         if (int.TryParse(editBuffer!, out var editBufferAsInt))
         {
             value = editBufferAsInt;
@@ -159,7 +159,7 @@ internal static class CustomWidgets
             durationTicks == 0 ? "" : ((int)Math.Floor(durationTicks / (float)SnoozeTimeUnit)).ToStringCached()!;
     }
 
-    [Obsolete] private static float? _lastSnoozeSettingsHeight = null;
+    [Obsolete] private static float? _lastSnoozeSettingsHeight;
 
     [Obsolete]
     internal static void SnoozeSettings(float x,
@@ -396,7 +396,7 @@ internal static class CustomWidgets
             }
             else
             {
-                void OnSnooze(WorldComponent_SnoozeManager.Snooze? snooze)
+                void OnSnooze(Snooze? snooze)
                 {
                     SoundDefOf.Tick_High!.PlayOneShotOnCamera();
                     snoozed = true;

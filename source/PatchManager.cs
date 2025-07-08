@@ -8,55 +8,6 @@ using JetBrains.Annotations;
 namespace BetterLetters;
 
 /// <summary>
-///     Classes with this attribute are checked against the supplied condition(s) before patching
-/// </summary>
-[AttributeUsage(AttributeTargets.Class)]
-internal class HarmonyPatchLegacySupportAttribute : Attribute
-{
-    /// <summary>
-    ///     If this patch is skipped due to wrong RW version, this optional string will be included in the warning.
-    /// </summary>
-    internal readonly string? UnsupportedVersionString;
-
-    internal HarmonyPatchLegacySupportAttribute(
-        RWVersion supportedVersion = RWVersion.All,
-        RWVersion unsupportedVersion = RWVersion.None,
-        string? unsupportedVersionString = null
-    )
-    {
-        SupportedVersion = supportedVersion & ~unsupportedVersion;
-        UnsupportedVersionString = unsupportedVersionString;
-    }
-
-    internal RWVersion SupportedVersion { get; }
-
-    internal bool IsSupportedVersion => (LegacySupport.CurrentRWVersion & SupportedVersion) != 0;
-
-    internal bool ConditionResult => IsSupportedVersion;
-}
-
-
-[Obsolete]
-internal class HarmonyPatchConditionAttribute : Attribute
-{
-    internal RWVersion SupportedVersion { get; private set; }
-
-    internal bool IsSupported => (LegacySupport.CurrentRWVersion & SupportedVersion) != 0;
-
-    internal string? UnsupportedString = null;
-
-    internal HarmonyPatchConditionAttribute(
-        RWVersion supportedVersion = RWVersion.All,
-        RWVersion unsupportedVersion = RWVersion.None,
-        string? unsupportedString = null
-    )
-    {
-        SupportedVersion = supportedVersion & ~unsupportedVersion;
-        UnsupportedString = unsupportedString;
-    }
-}
-
-/// <summary>
 ///     Helper class for all Harmony patching functionality.
 /// </summary>
 [StaticConstructorOnStartup]
@@ -146,30 +97,6 @@ internal static class PatchManager
         {
             Log.Message($"Patch category \"{category}\" disabled in mod settings. Skipping.");
             _skippedPatches += numMethods;
-            return;
-        }
-
-        // Find any [HarmonyPatchCondition] attributes on all the types in the category
-        var conditions = patchTypes
-            .SelectMany(t => t.GetCustomAttributes(typeof(HarmonyPatchLegacySupportAttribute), true)
-                .Cast<HarmonyPatchLegacySupportAttribute>())
-            .ToList();
-
-        // bitwise AND all of their supportedVersion
-        var supportedVersions = conditions.Aggregate(RWVersion.All,
-            (current, condition) => current & condition.SupportedVersion);
-
-        // If the result is not a supported version, fail
-        if ((supportedVersions & LegacySupport.CurrentRWVersion) == 0)
-        {
-            Log.Warning(
-                $"Patch category \"{category}\" ({numMethods} methods) skipped.\nOnly supported on RimWorld versions: {supportedVersions.ToString().Replace("_", ".").Replace("v", "")}.");
-            _skippedPatches += numMethods;
-
-            foreach (var condition in conditions)
-                if (condition.UnsupportedVersionString != null)
-                    Log.Message(condition.UnsupportedVersionString);
-
             return;
         }
 

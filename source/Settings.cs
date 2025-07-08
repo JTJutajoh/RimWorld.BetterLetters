@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using BetterLetters.Patches;
 using HarmonyLib;
 using RimWorld;
@@ -244,7 +242,7 @@ internal class Settings : ModSettings
     }
 
     private static Vector2 _scrollPositionMainTab = Vector2.zero;
-    private static float? _lastMainTabHeight = null;
+    private static float? _lastMainTabHeight;
 
     private static void DoTabMain(Rect inRect)
     {
@@ -285,7 +283,7 @@ internal class Settings : ModSettings
         Widgets.EndScrollView();
     }
 
-    private static float? _questSectionLastHeight = null;
+    private static float? _questSectionLastHeight;
 
     private static void DoQuestSection(Listing_Standard listing)
     {
@@ -328,7 +326,7 @@ internal class Settings : ModSettings
         listing.Gap(24f);
     }
 
-    private static float? _lastDialogButtonsSectionHeight = null;
+    private static float? _lastDialogButtonsSectionHeight;
 
     private static void DoDialogButtonsSection(Listing_Standard listing)
     {
@@ -398,7 +396,7 @@ internal class Settings : ModSettings
         listing.Gap(24f);
     }
 
-    private static float? _lastPinningSectionHeight = null;
+    private static float? _lastPinningSectionHeight;
 
     private static void DoLetterStackSection(Listing_Standard listing)
     {
@@ -485,7 +483,7 @@ internal class Settings : ModSettings
         listing.Gap(24f);
     }
 
-    private static float? _lastBaseLettersSectionHeight = null;
+    private static float? _lastBaseLettersSectionHeight;
 
     private static void DoBaseLettersSection(Listing_Standard listing)
     {
@@ -532,7 +530,7 @@ internal class Settings : ModSettings
 
     private static string _editBufferMaxNumSnoozes = MaxNumSnoozes.ToString();
 
-    private static float? _lastRemindersSectionHeight = null;
+    private static float? _lastRemindersSectionHeight;
 
     private static void DoRemindersSection(Listing_Standard listing)
     {
@@ -555,7 +553,7 @@ internal class Settings : ModSettings
         listing.Gap(24f);
     }
 
-    private static float? _lastSnoozeSectionHeight = null;
+    private static float? _lastSnoozeSectionHeight;
 
     private static void DoSnoozingSection(Listing_Standard listing)
     {
@@ -576,7 +574,7 @@ internal class Settings : ModSettings
         listing.Gap(24f);
     }
 
-    private static float? _lastTimeSectionHeight = null;
+    private static float? _lastTimeSectionHeight;
 
     private static void DoTimeSection(Listing_Standard listing)
     {
@@ -586,7 +584,7 @@ internal class Settings : ModSettings
         // section.SliderSetting(ref MaxSnoozeDuration, "MaxSnoozeDuration");
 
         SnoozeTickPeriod = Mathf.RoundToInt(section.SliderLabeled(GetSettingLabel("SnoozeTickPeriod", true),
-            (float)SnoozeTickPeriod, GenDate.TicksPerHour / 4f, GenDate.TicksPerHour * 4f, 0.7f,
+            SnoozeTickPeriod, GenDate.TicksPerHour / 4f, GenDate.TicksPerHour * 4f, 0.7f,
             GetSettingTooltip("SnoozeTickPeriod")));
 
         section.Label("BetterLetters_Settings_SnoozeDurationRange".Translate());
@@ -703,7 +701,7 @@ internal class Settings : ModSettings
     }
 
     private static Vector2 _scrollPositionPatchesTab = Vector2.zero;
-    private static float? _lastPatchesTabHeight = null;
+    private static float? _lastPatchesTabHeight;
 
     private static void DoTabPatches(Rect inRect)
     {
@@ -714,9 +712,9 @@ internal class Settings : ModSettings
 #else
         LegacySupport.AdjustRectsForScrollView(inRect, ref outerRect, ref viewRect);
 #endif
-        viewRect.height = _lastMainTabHeight ?? inRect.height * 1.5f;
+        viewRect.height = _lastPatchesTabHeight ?? inRect.height * 1.5f;
 
-        Widgets.BeginScrollView(outerRect, ref _scrollPositionMainTab, viewRect);
+        Widgets.BeginScrollView(outerRect, ref _scrollPositionPatchesTab, viewRect);
 
         var listing = new Listing_Standard();
         var innerRect = viewRect.MiddlePart(0.9f, 1f);
