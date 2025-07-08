@@ -68,6 +68,7 @@ internal class Settings : ModSettings
     [Setting] internal static bool RaidAddRaidStrategy = true;
     [Setting] internal static bool RaidAddPawnCount = true;
     [Setting] internal static bool RaidAddGroupCount = true;
+    [Setting] internal static bool AddBulkDismissButton = true;
     [Setting] internal static bool DisableBounceIfPinned = true;
     [Setting] internal static bool DisableBounceAlways = false;
     [Setting] internal static bool DisableFlashIfPinned = true;
@@ -104,6 +105,7 @@ internal class Settings : ModSettings
         "HistoryArchivableRow",
         "QuestsTab_Buttons",
         "RaidLetter_AddDetails",
+        "LetterStack_AddButtons",
     };
 
     [Setting] internal static List<string> DisabledPatchCategories = new();
@@ -407,6 +409,9 @@ internal class Settings : ModSettings
         section.CheckboxLabeled(GetSettingLabel("DisableRightClickPinnedLetters"),
             ref DisableRightClickPinnedLetters,
             GetSettingTooltip("DisableRightClickPinnedLetters"), 36f);
+
+        section.CheckboxLabeled(GetSettingLabel("AddBulkDismissButton"), ref AddBulkDismissButton,
+            GetSettingTooltip("AddBulkDismissButton"), 36f);
 
         section.GapLine();
 
@@ -813,6 +818,9 @@ internal class Settings : ModSettings
 
         Scribe_Values.Look(ref RaidAddGroupCount, "RaidAddGroupCount",
             (bool)DefaultSettings[nameof(RaidAddGroupCount)]);
+
+        Scribe_Values.Look(ref AddBulkDismissButton, "AddBulkDismissButton",
+            (bool)DefaultSettings[nameof(AddBulkDismissButton)]);
 
         Scribe_Values.Look(ref MinSnoozeDuration, "MinSnoozeDuration",
             (int)DefaultSettings[nameof(MinSnoozeDuration)]);

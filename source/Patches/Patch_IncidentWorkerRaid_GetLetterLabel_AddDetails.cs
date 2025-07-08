@@ -7,7 +7,6 @@ using RimWorld;
 
 namespace BetterLetters.Patches;
 
-//TODO: Maybe remove this
 [HarmonyPatch]
 [HarmonyPatchCategory("RaidLetter_AddDetails")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]

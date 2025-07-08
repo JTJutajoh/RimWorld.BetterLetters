@@ -100,6 +100,22 @@ Currently selected thing(s) can be automatically used as the reminder's "Jump To
   <BetterLetters_BundleLetter_DismissAll>Dismiss all {0} not pinned</BetterLetters_BundleLetter_DismissAll>
   <BetterLetters_BundleLetter_SnoozeAll>Snooze {0} not pinned</BetterLetters_BundleLetter_SnoozeAll>
 
+  <BetterLetters_Settings_AddBulkDismissButton>Add a button to bulk dismiss Letters</BetterLetters_Settings_AddBulkDismissButton>
+  <BetterLetters_Settings_AddBulkDismissButton_Desc>Adds a button below the stack of letters that can be used to dismiss many letters in bulk instead of right-clicking each letter one-by-one.
+
+Has several options for what types of letters to dismiss, such as expired quests or snoozed letters.</BetterLetters_Settings_AddBulkDismissButton_Desc>
+  <BetterLetters_LetterStack_FloatMenu_Tooltip>Dismiss letters in bulk</BetterLetters_LetterStack_FloatMenu_Tooltip>
+  <BetterLetters_LetterStack_FloatMenu_DismissUnpinned>Dismiss unpinned</BetterLetters_LetterStack_FloatMenu_DismissUnpinned>
+  <BetterLetters_LetterStack_FloatMenu_DismissAll>Dismiss all</BetterLetters_LetterStack_FloatMenu_DismissAll>
+  <BetterLetters_LetterStack_FloatMenu_DismissExpired>Dismiss expired</BetterLetters_LetterStack_FloatMenu_DismissExpired>
+  <BetterLetters_LetterStack_FloatMenu_DismissSnoozed>Dismiss snoozed</BetterLetters_LetterStack_FloatMenu_DismissSnoozed>
+  <BetterLetters_LetterStack_FloatMenu_DismissReminders>Dismiss reminders</BetterLetters_LetterStack_FloatMenu_DismissReminders>
+  <BetterLetters_LetterStack_FloatMenu_DismissPositive>Dismiss positive letters</BetterLetters_LetterStack_FloatMenu_DismissPositive>
+  <BetterLetters_LetterStack_FloatMenu_DismissNeutral>Dismiss neutral letters</BetterLetters_LetterStack_FloatMenu_DismissNeutral>
+  <BetterLetters_LetterStack_FloatMenu_DismissNegative>Dismiss negative letters</BetterLetters_LetterStack_FloatMenu_DismissNegative>
+  <BetterLetters_LetterStack_FloatMenu_DismissThreatSmall>Dismiss minor threat letters</BetterLetters_LetterStack_FloatMenu_DismissThreatSmall>
+  <BetterLetters_LetterStack_FloatMenu_DismissThreatBig>Dismiss major threat letters</BetterLetters_LetterStack_FloatMenu_DismissThreatBig>
+
   <!-- Time -->
   <BetterLetters_TimeUnitTooltip>Choose the unit of time to adjust.</BetterLetters_TimeUnitTooltip>
   <BetterLetters_Ticks>Ticks</BetterLetters_Ticks>
