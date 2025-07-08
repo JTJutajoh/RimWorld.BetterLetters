@@ -96,7 +96,7 @@
     <Compile Include="BetterLettersMod.cs" />
     <Compile Include="Dialog_Reminder.cs" />
     <Compile Include="Dialog_Snooze.cs" />
-    <Compile Include="FloatMenuOptionFactory.cs" />
+    <Compile Include="FloatMenuFactory.cs" />
     <Compile Include="GlobalUsings.cs" />
     <Compile Include="Icons.cs" />
     <Compile Include="ModCompatibility.cs" />

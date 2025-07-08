@@ -26,9 +26,11 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
     {
         if (LegacySupport.CurrentRWVersion < RWVersion.v1_3)
         {
-            Log.Warning($"{nameof(Patch_HistoryTab_DoArchivableRow)} requires RimWorld 1.3+.\nPin/snooze buttons in the quest tab will not be available.");
+            Log.Warning(
+                $"{nameof(Patch_HistoryTab_DoArchivableRow)} requires RimWorld 1.3+.\nPin/snooze buttons in the quest tab will not be available.");
             return false;
         }
+
         return true;
     }
 
@@ -136,24 +138,20 @@ internal static class Patch_QuestsTab_SelectedQuest_Buttons
         if (quest.GetTicksUntilExpiryOrFail() > GenDate.TicksPerHour)
         {
             // Snooze until 1 hr before expiration
-            extraFloatMenuOptions.Add(new FloatMenuOption(
+            extraFloatMenuOptions.Add(FloatMenuFactory.MakeFloatMenuOption(
                 "BetterLetters_Quest_SnoozeUntil1HrBeforeExpiration".Translate(),
-                () => { choiceLetter.Snooze(quest.GetTicksUntilExpiryOrFail() - GenDate.TicksPerHour); }
-#if !(v1_1 || v1_2 || v1_3 || v1_4 || v1_5)
-                , Icons.SnoozeFloatMenu, ColorLibrary.Gold
-#endif
+                () => { choiceLetter.Snooze(quest.GetTicksUntilExpiryOrFail() - GenDate.TicksPerHour); },
+                MenuOptionPriority.Default, Icons.SnoozeFloatMenu, ColorLibrary.Gold
             ));
         }
 
         if (quest.GetTicksUntilExpiryOrFail() > GenDate.TicksPerDay)
         {
             // Snooze until 1 day before expiration
-            extraFloatMenuOptions.Add(new FloatMenuOption(
+            extraFloatMenuOptions.Add(FloatMenuFactory.MakeFloatMenuOption(
                 "BetterLetters_Quest_SnoozeUntil1DayBeforeExpiration".Translate(),
-                () => { choiceLetter.Snooze(quest.GetTicksUntilExpiryOrFail() - GenDate.TicksPerDay); }
-#if !(v1_1 || v1_2 || v1_3 || v1_4 || v1_5)
-                , Icons.SnoozeFloatMenu, ColorLibrary.Gold
-#endif
+                () => { choiceLetter.Snooze(quest.GetTicksUntilExpiryOrFail() - GenDate.TicksPerDay); },
+                MenuOptionPriority.Default, Icons.SnoozeFloatMenu, ColorLibrary.Gold
             ));
         }
 

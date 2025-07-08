@@ -113,7 +113,15 @@ namespace BetterLetters.Patches
                 else
                 {
                     // Not pinned or snoozed, show a float menu to pin or snooze it
-                    var updateDiaOptionText = (Snooze? snooze) =>
+                    var floatMenuOptions = new List<FloatMenuOption>
+                    {
+                        FloatMenuFactory.PinFloatMenuOption(__instance, () =>
+                        {
+                            option.SetText(pinnedText);
+                            option.clickSound = SoundDefOf.Checkbox_TurnedOff!;
+                        }),
+                    };
+                    floatMenuOptions.AddRange(FloatMenuFactory.SnoozeFloatMenuOptions(__instance, (Action<Snooze?>?)((Snooze? snooze) =>
                     {
                         if (snooze == null)
                             option.SetText(pinnedText);
@@ -121,19 +129,7 @@ namespace BetterLetters.Patches
                             option.SetText("BetterLetters_CancelSnooze".Translate(
                                 snooze.Duration.ToStringTicksToPeriodVague(vagueMin: false)));
                         option.clickSound = SoundDefOf.Checkbox_TurnedOff!;
-                    };
-                    var floatMenuOptions = new List<FloatMenuOption>
-                    {
-                        FloatMenuOptionFactory.PinFloatMenuOption(__instance, () =>
-                        {
-                            option.SetText(pinnedText);
-                            option.clickSound = SoundDefOf.Checkbox_TurnedOff!;
-                        }),
-                        FloatMenuOptionFactory.Snooze1HrFloatMenuOption(__instance, updateDiaOptionText),
-                        FloatMenuOptionFactory.Snooze1DayFloatMenuOption(__instance, updateDiaOptionText),
-                    };
-                    floatMenuOptions.AddRange(FloatMenuOptionFactory.RecentSnoozeDurationsFloatMenuOptions(__instance));
-                    floatMenuOptions.Add(FloatMenuOptionFactory.SnoozeDialogFloatMenuOption(__instance, updateDiaOptionText));
+                    })));
 
                     Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
                     SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();
