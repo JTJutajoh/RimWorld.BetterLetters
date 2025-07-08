@@ -14,6 +14,7 @@ namespace BetterLetters.Patches;
 /// <summary>
 /// Patches that modify how letters are drawn in the letter stack if they're pinned.
 /// </summary>
+[StaticConstructorOnStartup]
 [HarmonyPatch]
 [HarmonyPatchCategory("Letter_DrawInLetterStack")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
