@@ -33,7 +33,7 @@ internal static class Patch_LetterStack_LettersOnGUI_AddButtons
         {
             var floatMenuOptions = new List<FloatMenuOption>
             {
-                new("BetterLetters_LetterStack_FloatMenu_DismissUnpinned".Translate(),
+                FloatMenuOptionFactory.MakeFloatMenuOption("BetterLetters_LetterStack_FloatMenu_DismissUnpinned".Translate(),
                     () =>
                     {
                         var letters = __instance.LettersListForReading!.ListFullCopy()!;
@@ -47,7 +47,7 @@ internal static class Patch_LetterStack_LettersOnGUI_AddButtons
                     },
                     iconTex: Icons.Dismiss, iconColor: Color.white
                 ),
-                new("BetterLetters_LetterStack_FloatMenu_DismissAll".Translate(),
+                FloatMenuOptionFactory.MakeFloatMenuOption("BetterLetters_LetterStack_FloatMenu_DismissAll".Translate(),
                     () =>
                     {
                         var letters = __instance.LettersListForReading!.ListFullCopy()!;
@@ -58,7 +58,7 @@ internal static class Patch_LetterStack_LettersOnGUI_AddButtons
                     },
                     iconTex: Icons.Dismiss, iconColor: Color.white
                 ),
-                new("BetterLetters_LetterStack_FloatMenu_DismissExpired".Translate(),
+                FloatMenuOptionFactory.MakeFloatMenuOption("BetterLetters_LetterStack_FloatMenu_DismissExpired".Translate(),
                     () =>
                     {
                         var letters = __instance.LettersListForReading!.ListFullCopy()!;
@@ -75,7 +75,7 @@ internal static class Patch_LetterStack_LettersOnGUI_AddButtons
                     },
                     iconTex: Icons.Dismiss, iconColor: Color.white
                 ),
-                new("BetterLetters_LetterStack_FloatMenu_DismissSnoozed".Translate(),
+                FloatMenuOptionFactory.MakeFloatMenuOption("BetterLetters_LetterStack_FloatMenu_DismissSnoozed".Translate(),
                     () =>
                     {
                         var letters = __instance.LettersListForReading!.ListFullCopy()!;
@@ -87,7 +87,7 @@ internal static class Patch_LetterStack_LettersOnGUI_AddButtons
                     },
                     iconTex: Icons.Dismiss, iconColor: Color.white
                 ),
-                new("BetterLetters_LetterStack_FloatMenu_DismissReminders".Translate(),
+                FloatMenuOptionFactory.MakeFloatMenuOption("BetterLetters_LetterStack_FloatMenu_DismissReminders".Translate(),
                     () =>
                     {
                         var letters = __instance.LettersListForReading!.ListFullCopy()!;
@@ -99,7 +99,7 @@ internal static class Patch_LetterStack_LettersOnGUI_AddButtons
                     },
                     iconTex: Icons.Dismiss, iconColor: Color.white
                 ),
-                new("BetterLetters_LetterStack_FloatMenu_DismissPositive".Translate(),
+                FloatMenuOptionFactory.MakeFloatMenuOption("BetterLetters_LetterStack_FloatMenu_DismissPositive".Translate(),
                     () =>
                     {
                         var letters = __instance.LettersListForReading!.ListFullCopy()!;
@@ -111,7 +111,7 @@ internal static class Patch_LetterStack_LettersOnGUI_AddButtons
                     },
                     iconTex: LetterDefOf.PositiveEvent!.Icon!, iconColor: LetterDefOf.PositiveEvent.color
                 ),
-                new("BetterLetters_LetterStack_FloatMenu_DismissNeutral".Translate(),
+                FloatMenuOptionFactory.MakeFloatMenuOption("BetterLetters_LetterStack_FloatMenu_DismissNeutral".Translate(),
                     () =>
                     {
                         var letters = __instance.LettersListForReading!.ListFullCopy()!;
@@ -123,7 +123,7 @@ internal static class Patch_LetterStack_LettersOnGUI_AddButtons
                     },
                     iconTex: LetterDefOf.NeutralEvent!.Icon!, iconColor: LetterDefOf.NeutralEvent.color
                 ),
-                new("BetterLetters_LetterStack_FloatMenu_DismissNegative".Translate(),
+                FloatMenuOptionFactory.MakeFloatMenuOption("BetterLetters_LetterStack_FloatMenu_DismissNegative".Translate(),
                     () =>
                     {
                         var letters = __instance.LettersListForReading!.ListFullCopy()!;
@@ -135,7 +135,7 @@ internal static class Patch_LetterStack_LettersOnGUI_AddButtons
                     },
                     iconTex: LetterDefOf.NegativeEvent!.Icon!, iconColor: LetterDefOf.NegativeEvent.color
                 ),
-                new("BetterLetters_LetterStack_FloatMenu_DismissThreatSmall".Translate(),
+                FloatMenuOptionFactory.MakeFloatMenuOption("BetterLetters_LetterStack_FloatMenu_DismissThreatSmall".Translate(),
                     () =>
                     {
                         var letters = __instance.LettersListForReading!.ListFullCopy()!;
@@ -147,7 +147,7 @@ internal static class Patch_LetterStack_LettersOnGUI_AddButtons
                     },
                     iconTex: LetterDefOf.ThreatSmall!.Icon!, iconColor: LetterDefOf.ThreatSmall.color
                 ),
-                new("BetterLetters_LetterStack_FloatMenu_DismissThreatBig".Translate(),
+                FloatMenuOptionFactory.MakeFloatMenuOption("BetterLetters_LetterStack_FloatMenu_DismissThreatBig".Translate(),
                     () =>
                     {
                         var letters = __instance.LettersListForReading!.ListFullCopy()!;

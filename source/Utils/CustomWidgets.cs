@@ -407,18 +407,18 @@ internal static class CustomWidgets
 
                 // Only add the "Snooze for 1 day/hour" options if the letter won't expire before then
                 if (remainingTicks == -1 || remainingTicks > GenDate.TicksPerHour * 1.5f)
-                    floatMenuOptions.Add(LetterUtils.Snooze1HrFloatMenuOption(letter, OnSnooze));
+                    floatMenuOptions.Add(FloatMenuOptionFactory.Snooze1HrFloatMenuOption(letter, OnSnooze));
                 if (remainingTicks == -1 || remainingTicks > (GenDate.TicksPerDay + GenDate.TicksPerHour))
-                    floatMenuOptions.Add(LetterUtils.Snooze1DayFloatMenuOption(letter, OnSnooze));
+                    floatMenuOptions.Add(FloatMenuOptionFactory.Snooze1DayFloatMenuOption(letter, OnSnooze));
 
-                floatMenuOptions.AddRange(LetterUtils.RecentSnoozeDurationsFloatMenuOptions(letter, OnSnooze));
+                floatMenuOptions.AddRange(FloatMenuOptionFactory.RecentSnoozeDurationsFloatMenuOptions(letter, OnSnooze));
 
                 if (extraFloatMenuOptions != null)
                 {
                     floatMenuOptions.AddRange(extraFloatMenuOptions);
                 }
 
-                floatMenuOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(letter, OnSnooze));
+                floatMenuOptions.Add(FloatMenuOptionFactory.SnoozeDialogFloatMenuOption(letter, OnSnooze));
 
                 Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
                 SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();

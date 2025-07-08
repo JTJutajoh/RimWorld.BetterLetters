@@ -120,11 +120,11 @@ internal static class Patch_BundleLetter_SetLetters_AddOptions
             {
                 var snoozeOptions = new List<FloatMenuOption>()
                 {
-                    LetterUtils.Snooze1HrFloatMenuOption(__instance),
-                    LetterUtils.Snooze1DayFloatMenuOption(__instance),
+                    FloatMenuOptionFactory.Snooze1HrFloatMenuOption(__instance),
+                    FloatMenuOptionFactory.Snooze1DayFloatMenuOption(__instance),
                 };
-                snoozeOptions.AddRange(LetterUtils.RecentSnoozeDurationsFloatMenuOptions(__instance));
-                snoozeOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(__instance));
+                snoozeOptions.AddRange(FloatMenuOptionFactory.RecentSnoozeDurationsFloatMenuOptions(__instance));
+                snoozeOptions.Add(FloatMenuOptionFactory.SnoozeDialogFloatMenuOption(__instance));
                 Find.WindowStack?.Add(new FloatMenu(snoozeOptions));
             },
 #if !(v1_1 || v1_2 || v1_3 || v1_4 || v1_5)

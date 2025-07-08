@@ -136,28 +136,39 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
         {
             var floatMenuOptions = new List<FloatMenuOption>();
             // Unpin option is first in the list so it's under the player's mouse after they right click, meaning you can still do the vanilla behavior of spamming right click to remove all letters
-            floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
+            floatMenuOptions.Add(FloatMenuOptionFactory.MakeFloatMenuOption(
                 "BetterLetters_Unpin".Translate(),
                 () => { letter.Unpin(); },
-                iconTex: Icons.Dismiss,
+                iconTex: Icons.PinFloatMenu,
                 iconColor: Color.white
             ));
-            floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
+            floatMenuOptions.Add(FloatMenuOptionFactory.MakeFloatMenuOption(
                 "BetterLetters_UnpinAndDismiss".Translate(),
                 () => { letter.Unpin(true); },
-                iconTex: Icons.Dismiss,
+                iconTex: Icons.PinFloatMenu,
                 iconColor: ColorLibrary.RedReadable
             ));
-            floatMenuOptions.Add(LetterUtils.MakeFloatMenuOption(
+            floatMenuOptions.Add(FloatMenuOptionFactory.MakeFloatMenuOption(
                 "BetterLetters_DismissButStayPinned".Translate(),
                 () => { Find.LetterStack?.RemoveLetter(letter); },
                 iconTex: Icons.Dismiss,
                 iconColor: Color.gray
             ));
-            floatMenuOptions.Add(LetterUtils.Snooze1HrFloatMenuOption(letter));
-            floatMenuOptions.Add(LetterUtils.Snooze1DayFloatMenuOption(letter));
-            floatMenuOptions.AddRange(LetterUtils.RecentSnoozeDurationsFloatMenuOptions(letter));
-            floatMenuOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(letter));
+            if (letter.lookTargets is not null && letter.lookTargets.Any && letter.lookTargets.IsValid)
+            {
+                floatMenuOptions.Add(FloatMenuOptionFactory.MakeFloatMenuOption("JumpToLocation".Translate(),
+                    () =>
+                    {
+                        CameraJumper.TryJumpAndSelect(letter.lookTargets.PrimaryTarget);
+                    },
+                    iconTex: letter.lookTargets.PrimaryTarget.Thing?.def?.uiIcon!, iconColor: Color.white
+                ));
+            }
+
+            floatMenuOptions.Add(FloatMenuOptionFactory.Snooze1HrFloatMenuOption(letter));
+            floatMenuOptions.Add(FloatMenuOptionFactory.Snooze1DayFloatMenuOption(letter));
+            floatMenuOptions.AddRange(FloatMenuOptionFactory.RecentSnoozeDurationsFloatMenuOptions(letter));
+            floatMenuOptions.Add(FloatMenuOptionFactory.SnoozeDialogFloatMenuOption(letter));
 
             Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
             SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();
