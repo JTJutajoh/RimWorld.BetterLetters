@@ -2,14 +2,14 @@
 using System.Reflection;
 
 // ReSharper disable once CheckNamespace
-namespace BetterLetters.Utils.DarkLog;
+namespace BetterLetters.DarkLog;
 
 /// <summary>
-/// A utility class for my mods that helps automate some debug logging stuff.
-/// Mostly just a wrapper for Verse.Log.<br />
-/// Adds a prefix in format "[packageid]" to the start of each log.<br />
-/// Expects modInst to be set at mod initialization. If not set, defaults to the assembly name.<br />
-/// Also allows setting a PrefixColor.
+///     A utility class for my mods that helps automate some debug logging stuff.
+///     Mostly just a wrapper for Verse.Log.<br />
+///     Adds a prefix in format "[packageid]" to the start of each log.<br />
+///     Expects modInst to be set at mod initialization. If not set, defaults to the assembly name.<br />
+///     Also allows setting a PrefixColor.
 /// </summary>
 [StaticConstructorOnStartup]
 internal static class LogPrefixed
@@ -55,6 +55,15 @@ internal static class LogPrefixed
     internal static void Warning(string text)
     {
         Verse.Log.Warning(PrefixedMessage(text));
+    }
+
+    internal static void CompatibilityWarning(string text, bool warn = true)
+    {
+        var message = $"<color=orange>[COMPAT]</color> {text}";
+        if (warn)
+            Warning(message);
+        else
+            Message(message);
     }
 
     /// <summary>

@@ -113,7 +113,7 @@ namespace BetterLetters.Patches
                 else
                 {
                     // Not pinned or snoozed, show a float menu to pin or snooze it
-                    var updateDiaOptionText = (WorldComponent_SnoozeManager.Snooze? snooze) =>
+                    var updateDiaOptionText = (Snooze? snooze) =>
                     {
                         if (snooze == null)
                             option.SetText(pinnedText);
@@ -124,15 +124,16 @@ namespace BetterLetters.Patches
                     };
                     var floatMenuOptions = new List<FloatMenuOption>
                     {
-                        LetterUtils.PinFloatMenuOption(__instance, () =>
+                        FloatMenuOptionFactory.PinFloatMenuOption(__instance, () =>
                         {
                             option.SetText(pinnedText);
                             option.clickSound = SoundDefOf.Checkbox_TurnedOff!;
                         }),
-                        LetterUtils.Snooze1HrFloatMenuOption(__instance, updateDiaOptionText),
-                        LetterUtils.Snooze1DayFloatMenuOption(__instance, updateDiaOptionText),
-                        LetterUtils.SnoozeDialogFloatMenuOption(__instance, updateDiaOptionText)
+                        FloatMenuOptionFactory.Snooze1HrFloatMenuOption(__instance, updateDiaOptionText),
+                        FloatMenuOptionFactory.Snooze1DayFloatMenuOption(__instance, updateDiaOptionText),
                     };
+                    floatMenuOptions.AddRange(FloatMenuOptionFactory.RecentSnoozeDurationsFloatMenuOptions(__instance));
+                    floatMenuOptions.Add(FloatMenuOptionFactory.SnoozeDialogFloatMenuOption(__instance, updateDiaOptionText));
 
                     Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
                     SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();

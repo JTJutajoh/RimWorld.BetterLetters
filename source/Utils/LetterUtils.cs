@@ -23,10 +23,15 @@ namespace BetterLetters.Utils
             {
                 return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter) &&
                        WorldComponent_SnoozeManager.Snoozes[letter]?.SnoozeType !=
-                       WorldComponent_SnoozeManager.SnoozeTypes.Reminder;
+                       SnoozeTypes.Reminder;
             }
 
             return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter);
+        }
+
+        internal static bool WasEverSnoozed(this Letter letter)
+        {
+            return WorldComponent_SnoozeManager.AllSnoozesSeen.Contains(letter.ID);
         }
 
         public static void Pin(this Letter letter, bool suppressSnoozeCanceledMessage = false)
@@ -73,18 +78,18 @@ namespace BetterLetters.Utils
             WorldComponent_SnoozeManager.AddSnooze(letter, durationTicks, pinWhenFinished, openWhenFinished);
         }
 
-        public static bool UnSnooze(this Letter letter)
+        public static bool UnSnooze(this Letter letter, bool suppressCancelMessage = false)
         {
-            return WorldComponent_SnoozeManager.RemoveSnooze(letter);
+            return WorldComponent_SnoozeManager.RemoveSnooze(letter, suppressCancelMessage);
         }
 
         public static void AddReminder(this Letter letter, int durationTicks, bool isPinned = false,
             bool openWhenFinished = false)
         {
-            WorldComponent_SnoozeManager.AddSnooze(new WorldComponent_SnoozeManager.Snooze(letter, durationTicks,
-                openWhenFinished,
-                isPinned,
-                WorldComponent_SnoozeManager.SnoozeTypes.Reminder), suppressMessage: true);
+            WorldComponent_SnoozeManager.AddSnooze(new Snooze(letter, durationTicks,
+                pinWhenFinished: isPinned,
+                openWhenFinished: openWhenFinished,
+                snoozeType: SnoozeTypes.Reminder), suppressMessage: true);
             if (durationTicks > 0)
             {
                 Messages.Message(new Message(
@@ -113,6 +118,12 @@ namespace BetterLetters.Utils
 
         public static bool IsReminder(this Letter letter)
         {
+            if (letter.def!.defName == "Reminder" ||
+                WorldComponent_SnoozeManager.AllRemindersSeen.Contains(letter.ID))
+            {
+                return true;
+            }
+
             return WorldComponent_SnoozeManager.Snoozes.ContainsKey(letter) &&
                    (WorldComponent_SnoozeManager.Snoozes[letter]?.IsReminder ?? false);
         }
@@ -152,78 +163,6 @@ namespace BetterLetters.Utils
             // Cache null results too so we don't have to search for them again. A quest won't gain a letter if it didn't have one
             QuestLetterCache[quest] = null;
             return null;
-        }
-
-        /// <summary>
-        /// Catch-all helper function to create float menus related to this mod.<br />
-        /// Used partially to help with multi-version support since not all features are available in all versions.
-        /// </summary>
-        public static FloatMenuOption MakeFloatMenuOption(string label, Action action, Texture2D iconTex,
-            Color iconColor)
-        {
-            FloatMenuOption option = new(label: label, action: action
-#if v1_6
-                , iconTex: iconTex,
-                iconColor: iconColor // Only RimWorld 1.6+ has a constructor that takes icons as parameters
-#endif
-            ); // Legacy versions just ignore the icon parameters
-
-            return option;
-        }
-
-        public static FloatMenuOption PinFloatMenuOption(Letter letter, Action? onPinned = null)
-        {
-            return MakeFloatMenuOption(
-                "BetterLetters_Pin".Translate(),
-                action: () =>
-                {
-                    letter.Pin();
-                    onPinned?.Invoke();
-                },
-                iconTex: Icons.PinFloatMenu,
-                iconColor: Color.white
-            );
-        }
-
-        public static FloatMenuOption Snooze1HrFloatMenuOption(Letter letter,
-            Action<WorldComponent_SnoozeManager.Snooze?>? onClicked = null)
-        {
-            return MakeFloatMenuOption(
-                "BetterLetters_SnoozeFor1Hour".Translate(),
-                action: () =>
-                {
-                    var snooze = WorldComponent_SnoozeManager.AddSnooze(letter, GenDate.TicksPerHour);
-                    onClicked?.Invoke(snooze);
-                },
-                iconTex: Icons.SnoozeFloatMenu,
-                iconColor: new Color(0.2f, 0.2f, 0.2f)
-            );
-        }
-
-        public static FloatMenuOption Snooze1DayFloatMenuOption(Letter letter,
-            Action<WorldComponent_SnoozeManager.Snooze?>? onClicked = null)
-        {
-            return MakeFloatMenuOption(
-                "BetterLetters_SnoozeFor1Day".Translate(),
-                action: () =>
-                {
-                    var snooze = WorldComponent_SnoozeManager.AddSnooze(letter, GenDate.TicksPerDay);
-                    onClicked?.Invoke(snooze);
-                },
-                iconTex: Icons.SnoozeFloatMenu,
-                iconColor: new Color(0.4f, 0.4f, 0.4f)
-            );
-        }
-
-        public static FloatMenuOption SnoozeDialogFloatMenuOption(Letter letter,
-            Action<WorldComponent_SnoozeManager.Snooze?>? onSnoozed = null)
-        {
-            return MakeFloatMenuOption(
-                "BetterLetters_SnoozeForFloatMenuOption".Translate(),
-                action: () => { WorldComponent_SnoozeManager.ShowSnoozeDialog(letter, onSnoozed); },
-                iconTex: Icons.SnoozeFloatMenu,
-                iconColor: Color.white
-            );
         }
 
         /// <summary>
@@ -268,8 +207,8 @@ namespace BetterLetters.Utils
             if (years > 0)
             {
                 ticksToPeriodVeryVerbose += years != 1
-                    ? (string)"PeriodYears".Translate(years)
-                    : (string)"Period1Year".Translate();
+                    ? (string)"BetterLetters_PeriodYears".Translate(years)
+                    : (string)"BetterLetters_Period1Year".Translate();
                 ticksToPeriodVeryVerbose += ", ";
             }
 
@@ -284,8 +223,8 @@ namespace BetterLetters.Utils
             if (days > 0 || quadrums > 0 || years > 0)
             {
                 ticksToPeriodVeryVerbose += days != 1
-                    ? (string)("PeriodDays".Translate(days))
-                    : (string)("Period1Day".Translate());
+                    ? (string)("BetterLetters_PeriodDays".Translate(days))
+                    : (string)("BetterLetters_Period1Day".Translate());
                 if (!Mathf.Approximately(hoursFloat, 0f)) ticksToPeriodVeryVerbose += ", ";
             }
 
@@ -300,18 +239,24 @@ namespace BetterLetters.Utils
                 else if (Mathf.Approximately(hoursFloat % 1, 0f))
                 {
                     ticksToPeriodVeryVerbose += hours == 1
-                        ? (string)("Period1Hour".Translate())
-                        : (string)("PeriodHours".Translate(hours));
+                        ? (string)("BetterLetters_Period1Hour".Translate())
+                        : (string)("BetterLetters_PeriodHours".Translate(hours));
                 }
                 else
                 {
                     ticksToPeriodVeryVerbose += Mathf.Approximately(hoursFloat, 1f)
-                        ? (string)("Period1Hour".Translate())
-                        : (string)("PeriodHours".Translate(hoursFloat.ToString("F1")));
+                        ? (string)("BetterLetters_Period1Hour".Translate())
+                        : (string)("BetterLetters_PeriodHours".Translate(hoursFloat.ToString("F1")));
                 }
             }
 
             return color != null ? ticksToPeriodVeryVerbose.Colorize(color.Value)! : ticksToPeriodVeryVerbose;
+        }
+
+        internal static int TicksFromPeriod(int ticks, float hours, int days, int quadrums, int years)
+        {
+            return ticks + Mathf.RoundToInt(hours * GenDate.TicksPerHour) + days * GenDate.TicksPerDay +
+                   quadrums * GenDate.TicksPerSeason + years * GenDate.TicksPerYear;
         }
 
         internal enum TimeUnits

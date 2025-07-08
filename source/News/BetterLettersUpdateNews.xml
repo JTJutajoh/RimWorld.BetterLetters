@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <HugsLib.UpdateFeatureDef Abstract="true" Name="BetterLettersUpdateFeatureBase">
+        <modNameReadable>Better Letters</modNameReadable>
+        <modIdentifier>Dark.BetterLetters</modIdentifier>
+        <linkUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2958683488</linkUrl>
+    </HugsLib.UpdateFeatureDef>
+
+    <HugsLib.UpdateFeatureDef ParentName="BetterLettersUpdateFeatureBase">
+        <defName>BetterLetters_1.0.0</defName>
+        <assemblyVersion>1.0.0</assemblyVersion>
+        <content>Welcome to Better Letters
+|
+</content>
+        <targetAudience>NewPlayers</targetAudience>
+    </HugsLib.UpdateFeatureDef>
+</Defs>

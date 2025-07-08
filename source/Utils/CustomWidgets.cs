@@ -13,10 +13,145 @@ namespace BetterLetters.Utils;
 /// </summary>
 internal static class CustomWidgets
 {
-    private static string _editBufferSnooze = "null";
+    internal static void TimeEntryColumn(
+        Rect inRect,
+        ref float curX,
+        string label,
+        ref int value,
+        ref string editBuffer
+    )
+    {
+        const float textFieldHeight = 32f;
+        const float buttonHeight = 24f;
+        const float buttonWidth = 42f;
+        var columnWidth = inRect.width / 5f - 4f;
 
-    internal static LetterUtils.TimeUnits SnoozeTimeUnit = LetterUtils.TimeUnits.Hours;
+        curX += 2f;
 
+        var columnRect = new Rect(curX, inRect.yMin, columnWidth, inRect.height);
+
+        var textFieldRect = columnRect.MiddlePartPixels(columnWidth, textFieldHeight);
+        textFieldRect = textFieldRect.MiddlePartPixels(buttonWidth, textFieldRect.height);
+        var incButtonRect = columnRect with { yMin = textFieldRect.yMin - 2f - buttonHeight, height = buttonHeight };
+        incButtonRect = incButtonRect.MiddlePartPixels(buttonWidth, incButtonRect.height);
+        var labelRect = columnRect with { yMin = incButtonRect.yMin - 2f - buttonHeight, height = buttonHeight };
+        var decButtonRect = columnRect with { yMin = textFieldRect.yMax + 2f, height = buttonHeight };
+        decButtonRect = decButtonRect.MiddlePartPixels(buttonWidth, decButtonRect.height);
+        var clearButtonRect = columnRect with { yMin = decButtonRect.yMax + 2f, height = buttonHeight };
+        clearButtonRect = clearButtonRect.MiddlePartPixels(buttonWidth, clearButtonRect.height);
+
+        // Label
+        Text.Anchor = TextAnchor.LowerCenter;
+        Widgets.Label(labelRect, label);
+        Text.Anchor = TextAnchor.UpperLeft;
+
+        if (Widgets.ButtonText(incButtonRect, "+"))
+        {
+            value++;
+        }
+
+        if (Widgets.ButtonText(decButtonRect, "-"))
+        {
+            value--;
+        }
+
+        GUI.color = ColorLibrary.RedReadable;
+        if (Widgets.ButtonText(clearButtonRect, "X"))
+        {
+            value = 0;
+        }
+
+        GUI.color = Color.white;
+
+        editBuffer = value.ToStringCached() ?? value.ToString();
+        Widgets.TextFieldNumeric(textFieldRect, ref value, ref editBuffer);
+        if (int.TryParse(editBuffer!, out var editBufferAsInt))
+        {
+            value = editBufferAsInt;
+        }
+
+        curX += columnWidth + 2f;
+    }
+
+    private static string _editBufferTicks = "";
+    private static string _editBufferHours = "";
+    private static string _editBufferDays = "";
+    private static string _editBufferQuadrums = "";
+    private static string _editBufferYears = "";
+
+    internal static void TimeEntry(
+        Rect inRect,
+        ref int durationTicks,
+        int? maxDurationOverride = null,
+        int? minDurationOverride = null
+    )
+    {
+        const float inputsWidth = 64f * 5;
+        const float overallWidth = inputsWidth + 20f;
+        Widgets.DrawMenuSection(inRect.MiddlePartPixels(overallWidth, inRect.height));
+        inRect = inRect.ContractedBy(10f, 4f);
+
+        durationTicks.TicksToPeriod(out var years, out var quadrums, out var days, out var hoursFloat);
+        var hours = (int)hoursFloat;
+        var remainderTicks = durationTicks % GenDate.TicksPerHour;
+
+        var labelHeight = Text.LineHeightOf(GameFont.Small);
+        var labelRect = inRect with
+        {
+            yMin = inRect.yMax - labelHeight * 2 - 4f, height = labelHeight * 2
+        };
+        var inputRect = inRect.MiddlePartPixels(inputsWidth, 142f);
+        inputRect.y -= labelHeight * 2 / 2f;
+
+        var curX = inputRect.xMin;
+
+
+        // Label column
+        var endDateString =
+            GenDate.DateFullStringWithHourAt(GenTicks.TicksAbs + durationTicks, QuestUtility.GetLocForDates());
+        var durationString = durationTicks.ToStringTicksToPeriodVeryVerbose();
+        if (durationTicks <= Settings.MinSnoozeDuration)
+        {
+            durationString = durationString + " " + "BetterLetters_MinimumDuration".Translate(durationTicks);
+            TooltipHandler.TipRegionByKey(labelRect, "BetterLetters_MinimumDuration_Tooltip");
+        }
+        else if (durationTicks >= (maxDurationOverride ?? Settings.MaxSnoozeDuration))
+        {
+            durationString = durationString + " " + "BetterLetters_MaximumDuration".Translate();
+            TooltipHandler.TipRegionByKey(labelRect, "BetterLetters_MaximumDuration_Tooltip");
+        }
+
+        Text.Anchor = TextAnchor.LowerCenter;
+        Widgets.Label(labelRect.TopHalf(), "BetterLetters_SnoozeUntil".Translate(endDateString));
+        GUI.color = ColorLibrary.Beige;
+        Text.Font = GameFont.Tiny;
+        Widgets.Label(labelRect.BottomHalf(), "BetterLetters_SnoozeFor".Translate(durationString));
+        Text.Font = GameFont.Small;
+        GUI.color = Color.white;
+        Text.Anchor = TextAnchor.UpperLeft;
+
+        // Ticks column
+        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Ticks".Translate(), ref remainderTicks,
+            ref _editBufferTicks);
+        // Hours column
+        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Hours".Translate(), ref hours, ref _editBufferHours);
+        // Days column
+        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Days".Translate(), ref days, ref _editBufferDays);
+        // Quadrums column
+        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Seasons".Translate(), ref quadrums,
+            ref _editBufferQuadrums);
+        // Years column
+        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Years".Translate(), ref years, ref _editBufferYears);
+
+        durationTicks = Mathf.Clamp(LetterUtils.TicksFromPeriod(remainderTicks, hours, days, quadrums, years),
+            minDurationOverride ?? Settings.MinSnoozeDuration, maxDurationOverride ?? Settings.MaxSnoozeDuration);
+    }
+
+    [Obsolete] private static string _editBufferSnooze = "null";
+
+    [Obsolete] internal static LetterUtils.TimeUnits SnoozeTimeUnit = LetterUtils.TimeUnits.Hours;
+
+    [Obsolete]
     private static void RefreshEditBuffer(int durationTicks)
     {
         if (_editBufferSnooze == "") return;
@@ -24,8 +159,9 @@ internal static class CustomWidgets
             durationTicks == 0 ? "" : ((int)Math.Floor(durationTicks / (float)SnoozeTimeUnit)).ToStringCached()!;
     }
 
-    private static float? _lastSnoozeSettingsHeight = null;
+    [Obsolete] private static float? _lastSnoozeSettingsHeight;
 
+    [Obsolete]
     internal static void SnoozeSettings(float x,
         ref float y,
         float width,
@@ -260,7 +396,7 @@ internal static class CustomWidgets
             }
             else
             {
-                void OnSnooze(WorldComponent_SnoozeManager.Snooze? snooze)
+                void OnSnooze(Snooze? snooze)
                 {
                     SoundDefOf.Tick_High!.PlayOneShotOnCamera();
                     snoozed = true;
@@ -271,16 +407,18 @@ internal static class CustomWidgets
 
                 // Only add the "Snooze for 1 day/hour" options if the letter won't expire before then
                 if (remainingTicks == -1 || remainingTicks > GenDate.TicksPerHour * 1.5f)
-                    floatMenuOptions.Add(LetterUtils.Snooze1HrFloatMenuOption(letter, OnSnooze));
+                    floatMenuOptions.Add(FloatMenuOptionFactory.Snooze1HrFloatMenuOption(letter, OnSnooze));
                 if (remainingTicks == -1 || remainingTicks > (GenDate.TicksPerDay + GenDate.TicksPerHour))
-                    floatMenuOptions.Add(LetterUtils.Snooze1DayFloatMenuOption(letter, OnSnooze));
+                    floatMenuOptions.Add(FloatMenuOptionFactory.Snooze1DayFloatMenuOption(letter, OnSnooze));
+
+                floatMenuOptions.AddRange(FloatMenuOptionFactory.RecentSnoozeDurationsFloatMenuOptions(letter, OnSnooze));
 
                 if (extraFloatMenuOptions != null)
                 {
                     floatMenuOptions.AddRange(extraFloatMenuOptions);
                 }
 
-                floatMenuOptions.Add(LetterUtils.SnoozeDialogFloatMenuOption(letter, OnSnooze));
+                floatMenuOptions.Add(FloatMenuOptionFactory.SnoozeDialogFloatMenuOption(letter, OnSnooze));
 
                 Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
                 SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();
@@ -336,7 +474,7 @@ internal static class CustomWidgets
         var tex = Icons.Gear;
         if (Widgets.ButtonImage(rect, tex))
         {
-            Settings.CurrentTab = Settings.SettingsTab.Pinning;
+            Settings.CurrentTab = Settings.SettingsTab.Main;
             Find.WindowStack!.Add(new Dialog_ModSettings(BetterLettersMod.Instance!));
         }
 
@@ -347,11 +485,54 @@ internal static class CustomWidgets
 #endif
     }
 
+    internal static void CheckboxLabeled(
+        // ReSharper disable once InconsistentNaming
+        this Listing_Standard _this,
+        string label,
+        ref bool checkOn,
+        bool disabled,
+        string? tooltip = null,
+        float height = 0.0f,
+        float labelPct = 1f)
+    {
+        Rect rect = _this.GetRect(height != 0.0 ? height : Text.CalcHeight(label, _this.ColumnWidth * labelPct),
+            labelPct);
+        rect.width = Math.Min(rect.width + 24f, _this.ColumnWidth);
+        Rect? boundingRectCached = _this.BoundingRectCached;
+        if (boundingRectCached.HasValue)
+        {
+            ref Rect local = ref rect;
+            boundingRectCached = _this.BoundingRectCached!;
+            Rect other = boundingRectCached.Value;
+            if (!local.Overlaps(other))
+                goto label_7;
+        }
+
+        if (!tooltip!.NullOrEmpty())
+        {
+            if (Mouse.IsOver(rect))
+                Widgets.DrawHighlight(rect);
+            TooltipHandler.TipRegion(rect, (TipSignal)tooltip);
+        }
+
+        Widgets.CheckboxLabeled(rect, label, ref checkOn, disabled: disabled);
+        label_7:
+        _this.Gap(_this.verticalSpacing);
+    }
+
     internal static void SectionHeader(this Listing_Standard snoozeSection, string sectionKey)
     {
         Text.Anchor = TextAnchor.UpperCenter;
         snoozeSection.Label(sectionKey.Translate());
         Text.Anchor = TextAnchor.UpperLeft;
         snoozeSection.GapLine(8f);
+    }
+
+    internal static void DrawSeparatorLine(float x, ref float curY, float width)
+    {
+        GUI.color = Widgets.SeparatorLineColor;
+        Widgets.DrawLineHorizontal(x, curY, width);
+        GUI.color = Color.white;
+        curY += 3f;
     }
 }

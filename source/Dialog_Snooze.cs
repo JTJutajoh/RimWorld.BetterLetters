@@ -6,31 +6,32 @@ namespace BetterLetters;
 
 public class Dialog_Snooze : Window
 {
-    public override Vector2 InitialSize => new Vector2(440, 200);
+    public override Vector2 InitialSize => new Vector2(440, 340);
 
     private static Dialog_Snooze? _instance;
 
-    private readonly Action<int> _onConfirmed;
+    private readonly Action<int, bool, bool> _onConfirmed;
     private int _durationTicks = GenDate.TicksPerDay;
 
     internal int DurationTicks => _durationTicks;
 
     // Maximum duration in days set in settings
-    private int? _maxDurationOverride;
+    private readonly int? _maxDurationOverride;
     private bool _openWhenFinished;
+    private bool _pinWhenFinished;
 
-    public Dialog_Snooze(Action<int> onConfirmedAction, int? maxDurationOverride = null)
+    public Dialog_Snooze(Action<int, bool, bool> onConfirmedAction, int? maxDurationOverride = null)
     {
         _instance?.Close();
         _instance = this;
+        _openWhenFinished = Settings.SnoozeOpen;
+        _pinWhenFinished = Settings.SnoozePinned;
         _onConfirmed = onConfirmedAction;
         _maxDurationOverride = maxDurationOverride;
         closeOnClickedOutside = true;
         absorbInputAroundWindow = true;
         doCloseButton = false;
         doCloseX = true;
-
-        CustomWidgets.SnoozeTimeUnit = LetterUtils.TimeUnits.Hours;
     }
 
     public override void DoWindowContents(Rect inRect)
@@ -39,27 +40,31 @@ public class Dialog_Snooze : Window
         var mainRect = inRect.TopPartPixels(inRect.yMax - buttonsSize.y - 4);
         mainRect.yMin += 8f;
 
-        var upperRect = mainRect.TopPart(0.7f);
-        var labelsRect = mainRect.BottomPart(0.3f);
+        var upperRect = mainRect.TopPart(0.85f);
+        var labelsRect = mainRect.BottomPart(0.15f);
 
         var curY = upperRect.yMin;
-        CustomWidgets.SnoozeSettings(upperRect.x, ref curY, upperRect.width, ref _durationTicks,
-            maxDurationOverride: _maxDurationOverride);
+        CustomWidgets.TimeEntry(upperRect, ref _durationTicks, _maxDurationOverride);
+        curY += upperRect.height + 4f;
 
         var checkboxLabelString = "BetterLetters_OpenWhenFinished".Translate();
         var checkboxLabelSize = Text.CalcSize(checkboxLabelString);
         checkboxLabelSize.x += 32f;
         Widgets.CheckboxLabeled(
-            new Rect(upperRect.xMin + (upperRect.width - checkboxLabelSize.x) / 2f, curY, checkboxLabelSize.x, 32f),
+            new Rect(labelsRect.xMin + (labelsRect.width - checkboxLabelSize.x) / 2f, curY, checkboxLabelSize.x, 32f),
             "BetterLetters_OpenWhenFinished".Translate(),
             ref _openWhenFinished, placeCheckboxNearText: true);
+        // Pin button
+        var pinRect = new Rect(inRect.xMax - 32f, inRect.yMax - 32f, 32f, 32f);
+        Widgets.Checkbox(pinRect.x, pinRect.y, ref _pinWhenFinished, pinRect.width, texChecked: Icons.PinIcon, texUnchecked: Icons.PinOutline);
+        TooltipHandler.TipRegionByKey(pinRect, "BetterLetters_PinReminder");
 
         var buttonsRect = inRect.BottomPartPixels(buttonsSize.y + 10);
 
         if (Widgets.ButtonText(buttonsRect.MiddlePartPixels(buttonsSize.x, buttonsSize.y),
                 "BetterLetters_Snooze".Translate()))
         {
-            _onConfirmed(DurationTicks);
+            _onConfirmed(DurationTicks, _pinWhenFinished, _openWhenFinished);
             Close();
         }
     }

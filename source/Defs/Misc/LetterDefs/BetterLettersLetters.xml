@@ -7,6 +7,7 @@
     <flashColor>(110, 190, 128)</flashColor>
     <flashInterval>10</flashInterval>
     <arriveSound>LetterArrive_Good</arriveSound>
+    <!-- <icon>UI/Letters/LetterReminder</icon> -->
   </LetterDef>
 
 </Defs>
