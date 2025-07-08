@@ -201,8 +201,6 @@ internal static class Patch_HistoryTab_DoArchivableRow
 
             #endregion OverrideClickBehavior
 
-            //MAYBE: Resize the letter icon based on the texture size
-
             // Emitting the original IL instruction
             yield return codes[i]!;
         }
