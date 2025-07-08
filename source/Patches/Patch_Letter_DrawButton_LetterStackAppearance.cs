@@ -63,8 +63,10 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
                     QuestState.NotYetAccepted => Icons.LetterQuestAvailable,
                     _ => Icons.LetterQuest
                 };
+
+            return;
         }
-        else if (__instance.IsPinned())
+        if (__instance.IsPinned())
         {
             LetterIconTexture = Icons.LetterPinned;
         }
