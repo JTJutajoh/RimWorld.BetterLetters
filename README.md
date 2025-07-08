@@ -1,39 +1,44 @@
+---
+modified: 2025-07-08T04:29:06-07:00
+---
 # BetterLetters
 **Stop losing track of important events because you opened the notification for them!**
   
-Quality of Life UI mod designed to make it easier to keep track of Letters
-
+Quality of Life UI mod designed to make it easier to keep track of Letters.
 Letters are the notification boxes on the right of the screen. These:
+
 ![Letter](https://imgur.com/dgh2X8o.png)
 
 
-![Preview](https://github.com/JTJutajoh/RimWorld.BetterLetters/blob/master/About/Preview.png?raw=true)
+![Preview](https://github.com/JTJutajoh/RimWorld.BetterLetters/blob/master/source/About/Preview.png?raw=true)
 
 ## Features
- - "Pin" option added to (almost) all letters
- - Pinned letters do not go away when closed
- - Pinned letters stay at the bottom of the list, before new unpinned letters
- - Pinning a letter from the Message Archive brings it back to the Letter Stack
-
-![Gif example of pinning from the Letter dialog window](https://github.com/JTJutajoh/RimWorld.BetterLetters/blob/master/source/About/DialogPin.gif?raw=true)
-![Gif example of pinning from the Letter Stack](https://github.com/JTJutajoh/RimWorld.BetterLetters/blob/master/source/About/LetterStackPin.gif?raw=true)
-
-## How it works
-The Message Archive in vanilla RimWorld (the book button on the bottom bar) already has a button to pin messages. In vanilla, all this button does is prevent the message from being deleted after it goes beyond the end of the list. This mod extends that functionality to the Letter Stack (The list of notifications on the right side of the screen). Pinning a message from the Message Archive will add the letter back to the stack. Pinned letters cannot be removed from the stack by a simple right click, instead opening a context menu. Most importantly, pinned letters are not removed from the letter stack when they are closed like they do in vanilla. 
-Utilizing this relatively unknown feature of vanilla RimWorld means that *this mod does not need to add anything to your save file*, so it is **completely safe to add to or remove from an ongoing save.**
-
-## Known issues
-*Please report any bugs or issues that you find in the discussion post on the mod's Workshop page*
+- Pinning letters (opening a pinned letter won't dismiss it)
+- Snoozing letters
+- Setting custom reminders for specific in-game dates and times
+- Custom icons for various types of Letters like quests, deaths, and more
+- Custom status icons for letters such as quest status
+- Letters for expired quests change to "Quest Expired"
+- Snooze letters with an expiration (like quest offers) until 1 day or 1 hour before they expire
+- Raid letters include more details about the raid (like if they will attack immediately, # of groups, and more)
+- Disable bouncing/flashing for letters (only pinned letters by default)
+- Button to bulk to dismiss all letters with multiple filtering options
+- Filters in the History tab to show/hide reminders and snoozed letters
+- **Highly configurable!** Check mod settings
  
 ## Compatibility
 - **Safe to add/remove in an ongoing save**
-- Supports RimWorld versions 1.1, 1.2, 1.3, and 1.4. Versions earlier than 1.4 are untested and may be slightly buggy
-- Mods that add custom types of Letters *might* be missing the Pin button. Please report any you find.
+- **Made for RimWorld 1.6 and 1.5**
+- Supports RimWorld 1.2-1.4 as well, some features may not be available on older versions
+- Mods that add custom types of letters will not use any of the icons from this mod, in most cases, without a patch
 - UI mods that alter the way Letters are drawn might conflict. Please let me know if you discover any such incompatibilities.
-- *No other known incompatibilities.*
 
 ## Translations
 *None currently. If you translate this mod to another language, please let me know and I will add a link to it here, or add the translation to the base mod itself.*
+
+## Bug Reports
+**Include your log file!** Without a log if I cannot reproduce the error myself, I cannot even begin to fix it.
+Report bugs either on Steam Workshop page or create a [GitHub issue](https://github.com/JTJutajoh/RimWorld.BetterLetters/issues/new).
 
 ## Source code
 [GitHub repository](https://github.com/JTJutajoh/RimWorld.BetterLetters)
