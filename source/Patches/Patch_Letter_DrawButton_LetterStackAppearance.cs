@@ -21,6 +21,8 @@ namespace BetterLetters.Patches;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class Patch_Letter_DrawButton_LetterStackAppearance
 {
+    private const float LetterLabelXOffset = 52f;
+
     // Not using a nullable type because the raw field is used in emitted ILs. The prefix that sets it to a non-null value
     // is basically guaranteed to run before it is used, so it should be fine.
     static Texture2D LetterIconTexture = null!;
@@ -120,6 +122,14 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
             (LetterIconTexture.height / 2f - rect.height) / 2f);
     }
 
+    static Rect ModifyLabelRect(Rect rect)
+    {
+        if (Settings.OffsetLetterLabels)
+            rect.x -= LetterLabelXOffset + Settings.LetterLabelsOffsetAmount;
+
+        return rect;
+    }
+
     /// Generates and shows a float menu for pinned letters.
     static void DoPinnedFloatMenu(Letter letter, Rect rect)
     {
@@ -157,10 +167,7 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
             if (letter.lookTargets is not null && letter.lookTargets.Any && letter.lookTargets.IsValid)
             {
                 floatMenuOptions.Add(FloatMenuFactory.MakeFloatMenuOption("JumpToLocation".Translate(),
-                    () =>
-                    {
-                        CameraJumper.TryJumpAndSelect(letter.lookTargets.PrimaryTarget);
-                    },
+                    () => { CameraJumper.TryJumpAndSelect(letter.lookTargets.PrimaryTarget); },
                     iconTex: letter.lookTargets.PrimaryTarget.Thing?.def?.uiIcon!, iconColor: Color.white
                 ));
             }
@@ -185,8 +192,14 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
     static readonly MethodInfo? LetterDefIconGetterAnchor =
         typeof(LetterDef).GetProperty("Icon")?.GetGetMethod();
 
-    static readonly ConstructorInfo? RectConstructor =
+    static readonly ConstructorInfo? RectConstructorAnchor =
         typeof(Rect).GetConstructor(new[] { typeof(Rect) });
+
+    static readonly FieldInfo? GrayTextBGFieldAnchor =
+        typeof(TexUI).GetField(nameof(TexUI.GrayTextBG));
+
+    private static readonly MethodInfo? TextWordWrapSetAnchor =
+        typeof(Text).PropertySetter(nameof(Text.WordWrap));
 
     /// Patch for moving the texture, label, and altering right-click behavior
     [HarmonyPatch(typeof(Letter), nameof(Letter.DrawButtonAt))]
@@ -200,21 +213,28 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
         if (LetterDefIconGetterAnchor == null)
             throw new InvalidOperationException(
                 $"Couldn't find {nameof(LetterDefIconGetterAnchor)} method for {nameof(Patch_Letter_DrawButton_LetterStackAppearance)}.{MethodBase.GetCurrentMethod()} patch");
-        if (RectConstructor == null)
+        if (RectConstructorAnchor == null)
             throw new InvalidOperationException(
-                $"Couldn't find {nameof(RectConstructor)} method for {nameof(Patch_Letter_DrawButton_LetterStackAppearance)}.{MethodBase.GetCurrentMethod()} patch");
+                $"Couldn't find {nameof(RectConstructorAnchor)} method for {nameof(Patch_Letter_DrawButton_LetterStackAppearance)}.{MethodBase.GetCurrentMethod()} patch");
+        if (GrayTextBGFieldAnchor == null)
+            throw new InvalidOperationException(
+                $"Couldn't find {nameof(GrayTextBGFieldAnchor)} method for {nameof(Patch_Letter_DrawButton_LetterStackAppearance)}.{MethodBase.GetCurrentMethod()} patch");
+        if (TextWordWrapSetAnchor == null)
+            throw new InvalidOperationException(
+                $"Couldn't find {nameof(TextWordWrapSetAnchor)} method for {nameof(Patch_Letter_DrawButton_LetterStackAppearance)}.{MethodBase.GetCurrentMethod()} patch");
 
         var codes = new List<CodeInstruction>(instructions);
 
         var hasInjectedRectOverride = false;
         var hasInjectedTextureOverride = false;
+        var hasInjectedLabelOverride = false;
         // ReSharper disable once ForCanBeConvertedToForeach
         for (int i = 0; i < codes.Count; i++)
         {
             // PATCH 1:
             // Altering the Letter icon Rect
             if (!hasInjectedRectOverride && codes[i]!.opcode == OpCodes.Call &&
-                (ConstructorInfo?)codes[i]!.operand == RectConstructor)
+                (ConstructorInfo?)codes[i]!.operand == RectConstructorAnchor)
             {
                 // About to construct the second rect
                 // address of first rect is on the stack
@@ -271,6 +291,25 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
                 // Replace the original LetterDef.flashInterval getter
                 yield return CodeInstruction.CallClosure<Func<LetterDef, Letter, float>>(OverrideFlash)!;
                 continue; // Skip over the original getter
+            }
+
+            // PATCH 6:
+            // Offsetting the label
+            // Offsetting the label BG first
+            if (codes[i]!.LoadsField(GrayTextBGFieldAnchor))
+            {
+                yield return CodeInstruction.Call(typeof(Patch_Letter_DrawButton_LetterStackAppearance),
+                    nameof(ModifyLabelRect))!;
+            }
+
+            // Offsetting the label itself next
+            if (!hasInjectedLabelOverride && i + 2 < codes.Count && codes[i + 1]!.Calls(TextWordWrapSetAnchor))
+            {
+                yield return CodeInstruction.Call(typeof(Patch_Letter_DrawButton_LetterStackAppearance),
+                    nameof(ModifyLabelRect))!;
+
+                // Text.WordWrap is set twice, so make sure to only inject before the first time
+                hasInjectedLabelOverride = true;
             }
 
             // Emitting the original IL instruction

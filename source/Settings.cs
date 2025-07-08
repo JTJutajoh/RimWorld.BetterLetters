@@ -79,6 +79,8 @@ internal class Settings : ModSettings
     [Setting] internal static bool RemindersOpen = false;
     [Setting] internal static bool DoCreateReminderPlaySetting = true;
     [Setting] internal static bool AutoSelectThingForReminders = true;
+    [Setting] internal static bool OffsetLetterLabels = true;
+    [Setting] internal static float LetterLabelsOffsetAmount = 0f;
 
     [Setting] internal static bool DismissedQuestsDismissLetters = true;
     [Setting] internal static bool KeepQuestLettersOnStack = true;
@@ -151,14 +153,14 @@ internal class Settings : ModSettings
         Log.Trace("Default settings loaded");
     }
 
-    internal static string GetSettingLabel(string key, bool showValue = false)
+    internal static string GetSettingLabel(string key, bool showValue = false, string unitString = "")
     {
         if (!showValue) return $"BetterLetters_Settings_{key}".Translate();
 
         var value = AccessTools.Field(typeof(Settings), key)?.GetValue(null!)?.ToString() ?? null;
         if (value is null) return $"BetterLetters_Settings_{key}".Translate();
 
-        return $"BetterLetters_Settings_{key}".Translate() + ": " + value;
+        return $"BetterLetters_Settings_{key}".Translate() + ": " + value + unitString;
     }
 
     internal static string GetSettingTooltip(string key)
@@ -443,6 +445,17 @@ internal class Settings : ModSettings
         section.CheckboxLabeled(GetSettingLabel("AddBulkDismissButton"), ref AddBulkDismissButton,
             GetSettingTooltip("AddBulkDismissButton"), 36f);
 
+        section.CheckboxLabeled(GetSettingLabel("OffsetLetterLabels"), ref OffsetLetterLabels,
+            GetSettingTooltip("OffsetLetterLabels"), 36f);
+
+        if (!OffsetLetterLabels)
+            GUI.color = new Color(1f, 1f, 1f, 0.5f);
+        var tempOffsetAmount = section.SliderLabeled(GetSettingLabel("LetterLabelsOffsetAmount", true, "px"),
+            LetterLabelsOffsetAmount, -52f, 52f, 0.7f, GetSettingTooltip("LetterLabelsOffsetAmount"));
+        if (OffsetLetterLabels)
+            LetterLabelsOffsetAmount = Mathf.RoundToInt(tempOffsetAmount);
+        GUI.color = Color.white;
+
         section.GapLine();
 
         section.Label("BetterLetters_Settings_ReplaceLetterIconsInLetterStack".Translate());
@@ -637,7 +650,7 @@ internal class Settings : ModSettings
 
         // section.SliderSetting(ref MaxSnoozeDuration, "MaxSnoozeDuration");
 
-        SnoozeTickPeriod = Mathf.RoundToInt(section.SliderLabeled(GetSettingLabel("SnoozeTickPeriod", true),
+        SnoozeTickPeriod = Mathf.RoundToInt(section.SliderLabeled(GetSettingLabel("SnoozeTickPeriod", true, " ticks"),
             SnoozeTickPeriod, GenDate.TicksPerHour / 4f, GenDate.TicksPerHour * 4f, 0.7f,
             GetSettingTooltip("SnoozeTickPeriod")));
 
@@ -928,6 +941,12 @@ internal class Settings : ModSettings
 
         Scribe_Values.Look(ref ChangeExpiredQuestLetters, "ChangeExpiredQuestLetters",
             (bool)DefaultSettings[nameof(ChangeExpiredQuestLetters)]);
+
+        Scribe_Values.Look(ref OffsetLetterLabels, "OffsetLetterLabels",
+            (bool)DefaultSettings[nameof(OffsetLetterLabels)]);
+
+        Scribe_Values.Look(ref LetterLabelsOffsetAmount, "LetterLabelsOffsetAmount",
+            (float)DefaultSettings[nameof(LetterLabelsOffsetAmount)]);
 
         Scribe_Values.Look(ref RecentSnoozesMax, "RecentSnoozesMax",
             (int)DefaultSettings[nameof(RecentSnoozesMax)]);

@@ -246,6 +246,10 @@ Icons adds an icon for pinning and an icon for snoozing to the corner of letter 
 You can enable both or neither if you do not want this feature.</BetterLetters_Settings_LetterButtonTypes_Desc>
   <BetterLetters_Settings_LetterButtonTypes_DiaOptions>Dialog Options</BetterLetters_Settings_LetterButtonTypes_DiaOptions>
   <BetterLetters_Settings_LetterButtonTypes_Icons>Icons</BetterLetters_Settings_LetterButtonTypes_Icons>
+  <BetterLetters_Settings_OffsetLetterLabels>Move Letter labels to prevent overlap</BetterLetters_Settings_OffsetLetterLabels>
+  <BetterLetters_Settings_OffsetLetterLabels_Desc>If enabled, the labels that are usually drawn on top of letters will be offset to the left so that they are instead drawn next to the letter icon, without overlapping it.</BetterLetters_Settings_OffsetLetterLabels_Desc>
+  <BetterLetters_Settings_LetterLabelsOffsetAmount>Letter labels offset amount</BetterLetters_Settings_LetterLabelsOffsetAmount>
+  <BetterLetters_Settings_LetterLabelsOffsetAmount_Desc>If the above setting is enabled, use this slider to fine-tune the exact x offset of the label to your liking.</BetterLetters_Settings_LetterLabelsOffsetAmount_Desc>
 
   <BetterLetters_Settings_CurrentlySnoozed>Snoozed letters in the current game ({0}/{1}):</BetterLetters_Settings_CurrentlySnoozed>
   <BetterLetters_Settings_NoSnoozedLetters>None</BetterLetters_Settings_NoSnoozedLetters>
