@@ -232,7 +232,7 @@ namespace BetterLetters.Utils
                 SoundDefOf.Checkbox_TurnedOn!.PlayOneShotOnCamera();
             }
 
-            Widgets.TextFieldNumeric<int>(
+            Widgets.TextFieldNumeric(
                 new Rect(rect.xMin + (float)(width * 2), rect.yMin, rect.width - (float)(width * 4), rect.height),
                 ref value, ref editBuffer, min);
         }

@@ -249,7 +249,7 @@ internal static class CustomWidgets
                 letter.ShowSnoozeFloatMenu(snooze =>
                 {
                     SoundDefOf.Tick_High!.PlayOneShotOnCamera();
-                    snoozed = true;
+                    snoozed = snooze is not null;
                 }, extraFloatMenuOptions: extraFloatMenuOptions);
             }
         }

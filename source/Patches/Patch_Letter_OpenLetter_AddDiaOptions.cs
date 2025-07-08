@@ -121,7 +121,7 @@ namespace BetterLetters.Patches
                             option.clickSound = SoundDefOf.Checkbox_TurnedOff!;
                         }),
                     };
-                    floatMenuOptions.AddRange(FloatMenuFactory.SnoozeFloatMenuOptions(__instance, (Action<Snooze?>?)((Snooze? snooze) =>
+                    floatMenuOptions.AddRange(FloatMenuFactory.SnoozeFloatMenuOptions(__instance, snooze =>
                     {
                         if (snooze == null)
                             option.SetText(pinnedText);
@@ -129,7 +129,7 @@ namespace BetterLetters.Patches
                             option.SetText("BetterLetters_CancelSnooze".Translate(
                                 snooze.Duration.ToStringTicksToPeriodVague(vagueMin: false)));
                         option.clickSound = SoundDefOf.Checkbox_TurnedOff!;
-                    })));
+                    }));
 
                     Find.WindowStack?.Add(new FloatMenu(floatMenuOptions));
                     SoundDefOf.FloatMenu_Open!.PlayOneShotOnCamera();
