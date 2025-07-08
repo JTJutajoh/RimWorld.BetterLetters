@@ -1,6 +1,3 @@
----
-modified: 2025-07-08T04:29:06-07:00
----
 # BetterLetters
 **Stop losing track of important events because you opened the notification for them!**
   
