@@ -8,6 +8,35 @@ using Verse.AI;
 
 namespace BetterLetters.Patches;
 
+/// <summary>
+/// Class responsible for all of the patching and logic for replacing letter icons.<para />
+/// The actual patch that uses the custom icons is in <see cref="Patch_Letter_DrawButton_LetterStackAppearance"/>.<para />
+/// Composed of four main parts:
+/// <list type="number">
+///     <item>
+///         <term><see cref="LetterIcons"/>: </term>
+///         <description>Cache of all the actual static-loaded custom letter icons, accessible based on their name.</description>
+///     </item>
+///     <item>
+///         <term><see cref="GameConditionLetterIcons"/> and <see cref="IncidentLetterIcons"/>: </term>
+///         <description>Mappings of conditions/incidents and their corresponding letter replacements, as strings which
+///             match keys in <see cref="LetterIcons"/><br />
+///             These are used in the <see cref="CacheIncidentLetter"/> and <see cref="CacheGameConditionLetter"/> patches
+///             which together catch a lot of vanilla letters.</description>
+///     </item>
+///     <item>
+///         <term><see cref="LetterIconsCache"/>: </term>
+///         <description>Runtime-populated cache of letter IDs mapped to replacement icons.<br />
+///             Serialized in <see cref="LetterIconsCacheExposeData"/>, which is a patch for <see cref="LetterStack"/> that injects the
+///             contents of <see cref="LetterIconsCache"/> into the save file.</description>
+///     </item>
+///     <item>
+///         <term>Post-<see cref="ReceiveLetter"/> patches: </term>
+///         <description>A bunch of small patches that fire immediately after letters are sent to the <see cref="LetterStack"/>
+///             and uses the <see cref="MostRecentLetter"/> reference to cache corresponding icon overrides.</description>
+///     </item>
+/// </list>
+/// </summary>
 [StaticConstructorOnStartup]
 [HarmonyPatch]
 [HarmonyPatchCategory("LetterIconCaching")]
@@ -15,6 +44,11 @@ namespace BetterLetters.Patches;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class Patch_LetterStack_OverrideIcons
 {
+    /// <summary>
+    /// Statically-loaded mapping of all letter icon overrides.<br />
+    /// Keys are the "name" of the override.
+    /// </summary>
+    /// <remarks>Keys MUST match the filename of the texture exactly, as it is used during deserialization.</remarks>
     // ReSharper disable AssignNullToNotNullAttribute
     internal static readonly Dictionary<string, Texture2D> LetterIcons = new()
     {
@@ -23,25 +57,32 @@ internal static class Patch_LetterStack_OverrideIcons
         { "LetterFlashstorm", ContentFinder<Texture2D>.Get("UI/Letters/LetterFlashstorm") },
         { "LetterVolcanicWinter", ContentFinder<Texture2D>.Get("UI/Letters/LetterVolcanicWinter") },
         { "LetterEclipse", ContentFinder<Texture2D>.Get("UI/Letters/LetterEclipse") },
-        { "LetterRaid", ContentFinder<Texture2D>.Get("UI/Letters/LetterRaid") },
-        { "LetterTraderCaravan", ContentFinder<Texture2D>.Get("UI/Letters/LetterTraderCaravan") },
-        { "LetterTraderOrbital", ContentFinder<Texture2D>.Get("UI/Letters/LetterTraderOrbital") },
         { "LetterToxicFallout", ContentFinder<Texture2D>.Get("UI/Letters/LetterToxicFallout") },
         { "LetterColdSnap", ContentFinder<Texture2D>.Get("UI/Letters/LetterColdSnap") },
         { "LetterHeatWave", ContentFinder<Texture2D>.Get("UI/Letters/LetterHeatWave") },
         { "LetterAurora", ContentFinder<Texture2D>.Get("UI/Letters/LetterAurora") },
-        { "LetterAnomaly", ContentFinder<Texture2D>.Get("UI/Letters/LetterAnomaly") },
+        { "LetterPsychicDrone", ContentFinder<Texture2D>.Get("UI/Letters/LetterPsychicDrone") },
+        { "LetterPsychicSoothe", ContentFinder<Texture2D>.Get("UI/Letters/LetterPsychicSoothe") },
+
+        { "LetterRaid", ContentFinder<Texture2D>.Get("UI/Letters/LetterRaid") },
+
+        { "LetterTraderCaravan", ContentFinder<Texture2D>.Get("UI/Letters/LetterTraderCaravan") },
+        { "LetterTraderOrbital", ContentFinder<Texture2D>.Get("UI/Letters/LetterTraderOrbital") },
+
         { "LetterIdeology", ContentFinder<Texture2D>.Get("UI/Letters/LetterIdeology") },
+
+        { "LetterAnomaly", ContentFinder<Texture2D>.Get("UI/Letters/LetterAnomaly") },
     };
     // ReSharper restore AssignNullToNotNullAttribute
 
-    internal static readonly Dictionary<GameConditionDef, string> GameConditionLetterIcons = new()
+    /// <summary>
+    /// Mapping of <see cref="GameConditionDef"/>s to the key in <see cref="LetterIcons"/> of the icon that should override
+    /// its letter.
+    /// </summary>
+    private static readonly Dictionary<GameConditionDef, string> GameConditionLetterIcons = new()
     {
         { GameConditionDefOf.ColdSnap, "LetterColdSnap" },
         { GameConditionDefOf.HeatWave, "LetterHeatWave" },
-        { GameConditionDefOf.PsychicDrone, "LetterPsychicDrone" },
-        { GameConditionDefOf.PsychicSuppression, "LetterPsychicDrone" },
-        { GameConditionDefOf.PsychicSoothe, "LetterPsychicSoothe" },
         { GameConditionDefOf.VolcanicWinter, "LetterVolcanicWinter" },
         { GameConditionDefOf.Aurora, "LetterAurora" },
         { GameConditionDefOf.EMIField, "LetterSolarFlare" },
@@ -58,7 +99,11 @@ internal static class Patch_LetterStack_OverrideIcons
 // #endif
     };
 
-    internal static readonly Dictionary<IncidentDef, string> IncidentLetterIcons = new()
+    /// <summary>
+    /// Mapping of <see cref="IncidentDef"/>s to the key in <see cref="LetterIcons"/> of the icon that should override
+    /// its letter.
+    /// </summary>
+    private static readonly Dictionary<IncidentDef, string> IncidentLetterIcons = new()
     {
         { IncidentDefOf.SolarFlare, "LetterSolarFlare" },
         { IncidentDefOf.Eclipse, "LetterEclipse" },
@@ -83,10 +128,38 @@ internal static class Patch_LetterStack_OverrideIcons
 // #endif
     };
 
+    /// <summary>
+    /// Runtime cache of letters and their overriding icons.<para />
+    /// Key is the "ID" property on <see cref="Letter"/>, value is a texture loaded from <see cref="LetterIcons"/><br />
+    /// Serialized in the <see cref="LetterIconsCacheExposeData"/> patch.
+    /// </summary>
     internal static Dictionary<int, Texture2D> LetterIconsCache = new();
 
-    internal static Letter? MostRecentLetter = null;
+    /// <summary>
+    /// Reference to the most recent letter added to the stack. Set by the <see cref="ReceiveLetter"/> patch.
+    /// Accessed try <see cref="TryOverrideMostRecentLetterIcon"/>, which automatically clears the reference as soon as
+    /// it is used.
+    /// </summary>
+    private static Letter? MostRecentLetter = null;
 
+    /// <summary>
+    /// Attempts to set the override icon for <see cref="MostRecentLetter"/> to a texture in <see cref="LetterIcons"/>
+    /// using <paramref name="iconName"/> as the key.<para />
+    /// If <see cref="MostRecentLetter"/> is null (no letter has been received by the stack since the last one was overridden),
+    /// nothing happens.<br />
+    /// Clears the <see cref="MostRecentLetter"/> reference so that it is only used once.
+    /// </summary>
+    private static void TryOverrideMostRecentLetterIcon(string? iconName)
+    {
+        MostRecentLetter?.OverrideIcon(iconName);
+        MostRecentLetter = null;
+    }
+
+    /// <summary>
+    /// Patch that catches every letter added to the <see cref="LetterStack"/> and saves it to <see cref="MostRecentLetter"/>
+    /// to be used in the other patches in this class.
+    /// </summary>
+    /// <param name="let">The letter that was just added to the stack</param>
 #if v1_1 || v1_2 || v1_3 || v1_4
     // LetterStack.ReceiveLetter method signature changed in 1.5
     [HarmonyPatch(typeof(LetterStack), nameof(LetterStack.ReceiveLetter),
@@ -100,13 +173,15 @@ internal static class Patch_LetterStack_OverrideIcons
     static void ReceiveLetter(Letter let)
     {
         MostRecentLetter = let;
+        //BUG: What happens if this reference is not used by whatever added it, and the next time it's accessed it should be null?
+        // for example if Letter A has no override (reference is stored but not cleared) and Letter B does not get added to the stack but a patch runs and thinks that it did (like if a mental state fails to get added, for example)
     }
 
     /// <summary>
     /// Extension method that saves the provided texture to <see cref="LetterIconsCache"/> to be used in
     /// <see cref="Patch_Letter_DrawButton_LetterStackAppearance"/>
     /// </summary>
-    internal static void OverrideIcon(this Letter letter, string? iconName)
+    public static void OverrideIcon(this Letter letter, string? iconName)
     {
         if (iconName != null)
         {
@@ -119,11 +194,14 @@ internal static class Patch_LetterStack_OverrideIcons
             LetterIconsCache.Remove(letter.ID);
     }
 
-    // Hijack LetterStack's own ExposeData call to inject the cache into it
+    /// <summary>
+    /// Hijack <see cref="LetterStack" />'s own <see cref="LetterStack.ExposeData" /> call to inject <see cref="LetterIconsCache"/> into it.<br />
+    /// Since references to <see cref="Texture2D"/> cannot be serialized, they need to be converted to/from strings.
+    /// </summary>
     [HarmonyPatch(typeof(LetterStack), nameof(LetterStack.ExposeData))]
     [HarmonyPostfix]
     [UsedImplicitly]
-    static void ExposeData()
+    static void LetterIconsCacheExposeData()
     {
         Dictionary<int, string> letterIconsCacheAsNames = new();
         if (Scribe.mode == LoadSaveMode.Saving)
@@ -131,10 +209,12 @@ internal static class Patch_LetterStack_OverrideIcons
             foreach (var kvp in LetterIconsCache)
             {
                 if (kvp.Value == null) continue;
+                // Use the "name" field on the texture, which matches its filename
                 letterIconsCacheAsNames[kvp.Key] = kvp.Value.name;
             }
         }
 
+        // Include a prefix to prevent data collisions
         Scribe_Collections.Look(ref letterIconsCacheAsNames, "BetterLetters_LetterIconsCache", LookMode.Value,
             LookMode.Value);
 
@@ -151,21 +231,23 @@ internal static class Patch_LetterStack_OverrideIcons
         }
     }
 
+
+    // Below are all the minor patches that fire right after a letter is added to cache an override texture
+
     #region Letter Interceptions
-    //BUG: For all of the "Try" ones, need to check if it succeeded before assuming it did.
-    // Maybe simply clear the MostRecentLetter reference each time that it's used so that it can't
 
     [HarmonyPatch(typeof(MentalStateHandler), nameof(MentalStateHandler.TryStartMentalState))]
     [HarmonyPostfix]
     [UsedImplicitly]
-    static void CacheMentalStateLetter(MentalStateDef stateDef)
+    static void CacheMentalStateLetter(bool __result, MentalStateDef stateDef, bool transitionSilently, Pawn ___pawn)
     {
-        if (!Settings.ReplaceLetterIconsInXML) return;
+        if (!__result ||
+            transitionSilently ||
+            !PawnUtility.ShouldSendNotificationAbout(___pawn))
+            return;
 
-        MostRecentLetter?.OverrideIcon("LetterMentalBreak");
-        MostRecentLetter = null;
+        TryOverrideMostRecentLetterIcon("LetterMentalBreak");
     }
-
 
     [HarmonyPatch(typeof(IncidentWorker), nameof(IncidentWorker.SendIncidentLetter))]
     [HarmonyPostfix]
@@ -183,17 +265,16 @@ internal static class Patch_LetterStack_OverrideIcons
 
         if (iconName != null)
         {
-            MostRecentLetter?.OverrideIcon(iconName);
-            MostRecentLetter = null;
+            TryOverrideMostRecentLetterIcon(iconName);
         }
     }
 
     [HarmonyPatch(typeof(IncidentWorker_MakeGameCondition), "TryExecuteWorker")]
     [HarmonyPostfix]
     [UsedImplicitly]
-    static void CacheGameConditionLetter(IncidentParms parms, IncidentDef ___def)
+    static void CacheGameConditionLetter(bool __result, IncidentParms parms, IncidentDef ___def)
     {
-        if (___def?.letterDef is null && ___def?.gameCondition?.letterDef is null) return;
+        if (!__result || (___def?.letterDef is null && ___def?.gameCondition?.letterDef is null)) return;
 
         string? iconName = null;
 
@@ -204,18 +285,28 @@ internal static class Patch_LetterStack_OverrideIcons
 
         if (iconName != null)
         {
-            MostRecentLetter?.OverrideIcon(iconName);
-            MostRecentLetter = null;
+            TryOverrideMostRecentLetterIcon(iconName);
         }
     }
 
     [HarmonyPatch(typeof(IncidentWorker_RaidEnemy), "TryExecuteWorker")]
     [HarmonyPostfix]
     [UsedImplicitly]
-    static void CacheRaidLetter(IncidentParms parms)
+    static void CacheRaidLetter(bool __result, IncidentParms parms)
     {
-        MostRecentLetter?.OverrideIcon("LetterRaid");
-        MostRecentLetter = null;
+        if (!__result) return;
+
+        TryOverrideMostRecentLetterIcon("LetterRaid");
+    }
+
+    [HarmonyPatch(typeof(IncidentWorker_OrbitalTraderArrival), "TryExecuteWorker")]
+    [HarmonyPostfix]
+    [UsedImplicitly]
+    static void CacheTraderOrbitalLetter(bool __result, IncidentParms parms)
+    {
+        if (!__result) return;
+
+        TryOverrideMostRecentLetterIcon("LetterTraderOrbital");
     }
 
     [HarmonyPatch(typeof(IncidentWorker_TraderCaravanArrival), "SendLetter")]
@@ -223,17 +314,23 @@ internal static class Patch_LetterStack_OverrideIcons
     [UsedImplicitly]
     static void CacheTraderCaravanLetter(IncidentParms parms, TraderKindDef traderKind)
     {
-        MostRecentLetter?.OverrideIcon("LetterTraderCaravan");
-        MostRecentLetter = null;
+        TryOverrideMostRecentLetterIcon("LetterTraderCaravan");
     }
 
-    [HarmonyPatch(typeof(IncidentWorker_OrbitalTraderArrival), "TryExecuteWorker")]
+    [HarmonyPatch(typeof(IncidentWorker_PsychicSoothe), "DoConditionAndLetter")]
     [HarmonyPostfix]
     [UsedImplicitly]
-    static void CacheTraderOrbitalLetter(IncidentParms parms)
+    static void CachePsychicSootheLetter(IncidentParms parms, Gender gender)
     {
-        MostRecentLetter?.OverrideIcon("LetterTraderOrbital");
-        MostRecentLetter = null;
+        TryOverrideMostRecentLetterIcon("LetterPsychicSoothe");
+    }
+
+    [HarmonyPatch(typeof(IncidentWorker_PsychicDrone), "DoConditionAndLetter")]
+    [HarmonyPostfix]
+    [UsedImplicitly]
+    static void CachePsychicDroneLetter(IncidentParms parms, Gender gender)
+    {
+        TryOverrideMostRecentLetterIcon("LetterPsychicDrone");
     }
 
     #endregion Letter Interceptions
