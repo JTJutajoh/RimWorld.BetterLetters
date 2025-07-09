@@ -108,6 +108,7 @@ internal class Settings : ModSettings
         "QuestsTab_Buttons",
         "RaidLetter_AddDetails",
         "LetterStack_AddButtons",
+        "LetterIconCaching",
     };
 
     [Setting] internal static List<string> DisabledPatchCategories = new();

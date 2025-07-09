@@ -99,11 +99,13 @@
     <Compile Include="FloatMenuFactory.cs" />
     <Compile Include="GlobalUsings.cs" />
     <Compile Include="Icons.cs" />
+    <Compile Include="MissingVanillaDefOf.cs" />
     <Compile Include="ModCompatibility.cs" />
     <Compile Include="Patches\Patch_BundleLetter_SetLetters_AddOptions.cs" />
     <Compile Include="Patches\Patch_HistoryTab_DoArchivableRow.cs" />
     <Compile Include="Patches\Patch_HistoryTab_FilteringButtons.cs" />
     <Compile Include="Patches\Patch_IncidentWorkerRaid_GetLetterLabel_AddDetails.cs" />
+    <Compile Include="Patches\Patch_LetterStack_OverrideIcons.cs" />
     <Compile Include="Patches\Patch_LetterStack_LettersOnGUI_AddButtons.cs" />
     <Compile Include="Patches\Patch_Letter_CanCull_KeepSnoozes.cs" />
     <Compile Include="Patches\Patch_LetterStack_ReceiveLetter_SortPinned.cs" />

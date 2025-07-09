@@ -23,8 +23,6 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
 {
     private const float LetterLabelXOffset = 52f;
 
-    // Not using a nullable type because the raw field is used in emitted ILs. The prefix that sets it to a non-null value
-    // is basically guaranteed to run before it is used, so it should be fine.
     static Texture2D LetterIconTexture = null!;
 
     /// <summary>
@@ -38,6 +36,12 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
         if (!Settings.ReplaceLetterIconsInLetterStack)
         {
             LetterIconTexture = __instance.def!.Icon!;
+            return;
+        }
+
+        if (Patch_LetterStack_OverrideIcons.LetterIconsCache.TryGetValue(__instance.ID, out var texture) && texture != null)
+        {
+            LetterIconTexture = texture;
             return;
         }
 
@@ -66,6 +70,7 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
 
             return;
         }
+
         if (__instance.IsPinned())
         {
             LetterIconTexture = Icons.LetterPinned;
