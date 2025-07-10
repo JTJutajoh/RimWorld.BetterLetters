@@ -28,9 +28,11 @@ internal static class Patch_HistoryTab_DoArchivableRow
     {
         if (LegacySupport.CurrentRWVersion < RWVersion.v1_4)
         {
-            Log.Warning($"{nameof(Patch_HistoryTab_DoArchivableRow)} requires RimWorld 1.4+.\nMessage history filters and extra snooze/pin buttons will not be available in history tab.");
+            Log.Warning(
+                $"{nameof(Patch_HistoryTab_DoArchivableRow)} requires RimWorld 1.4+.\nMessage history filters and extra snooze/pin buttons will not be available in history tab.");
             return false;
         }
+
         return true;
     }
 
@@ -63,7 +65,7 @@ internal static class Patch_HistoryTab_DoArchivableRow
             // PATCH 1:
             // Replace the pin icon with the snooze icon if the letter is snoozed...
 
-            #region ReplaceIcon
+            #region ReplacePinButton
 
             // Searching for when the Rect for the pin icon is created and stored into local variable 4
             if (codes[i]!.opcode == OpCodes.Stloc_S &&
@@ -122,7 +124,7 @@ internal static class Patch_HistoryTab_DoArchivableRow
                 }
             }
 
-            #endregion ReplaceIcon
+            #endregion ReplacePinButton
 
             // PATCH 2:
             // Override the tooltip for the pin button
@@ -200,6 +202,8 @@ internal static class Patch_HistoryTab_DoArchivableRow
             }
 
             #endregion OverrideClickBehavior
+
+            //TODO: Use the overridden letter icon
 
             // Emitting the original IL instruction
             yield return codes[i]!;

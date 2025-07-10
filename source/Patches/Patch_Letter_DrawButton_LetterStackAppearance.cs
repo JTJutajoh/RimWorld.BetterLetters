@@ -39,25 +39,18 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
             return;
         }
 
-        if (Patch_LetterStack_OverrideIcons.LetterIconsCache.TryGetValue(__instance.ID, out var texture) && texture != null)
+        if (__instance.TryGetLetterIcon(out var texture) && texture != null)
         {
             LetterIconTexture = texture;
             return;
         }
 
+        //TODO: Switch this to using the override cache system
         if (__instance is ChoiceLetter { quest: { } quest })
         {
-            if (__instance.IsPinned())
-            {
-                LetterIconTexture = Icons.LetterQuestPinned;
-            }
-            else if (quest.Historical || quest.dismissed)
+            if (quest.Historical || quest.dismissed)
             {
                 LetterIconTexture = Icons.LetterQuestExpired;
-            }
-            else if (quest.GetQuestLetter()?.WasEverSnoozed() ?? false)
-            {
-                LetterIconTexture = Icons.LetterQuestSnoozed;
             }
             else
                 LetterIconTexture = quest.State switch
@@ -67,23 +60,7 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
                     QuestState.NotYetAccepted => Icons.LetterQuestAvailable,
                     _ => Icons.LetterQuest
                 };
-
-            return;
         }
-
-        if (__instance.IsPinned())
-        {
-            LetterIconTexture = Icons.LetterPinned;
-        }
-        else if (__instance.IsReminder())
-        {
-            LetterIconTexture = Icons.LetterReminder;
-        }
-        else if (__instance.WasEverSnoozed())
-        {
-            LetterIconTexture = Icons.LetterSnoozed;
-        }
-        //TODO: Other types of letter icon overrides
         else
         {
             LetterIconTexture = __instance.def!.Icon!;
@@ -131,6 +108,7 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
 
     static Rect ModifyLabelRect(Rect rect)
     {
+        //MAYBE: Only offset if there's a custom icon
         if (Settings.OffsetLetterLabels)
             rect.x -= LetterLabelXOffset + Settings.LetterLabelsOffsetAmount;
 
@@ -188,6 +166,31 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
         else
         {
             // Right-click functionality for NOT pinned letters would go here in the future
+        }
+    }
+
+    static void DrawLetterDecorator(Letter letter, Rect rect)
+    {
+        const float DecoratorSize = 32f;
+        const float VanillaLetterHeight = 30f;
+        Texture2D? decoratorTexture = null;
+        var decoratorRect = new Rect(
+            rect.xMin - DecoratorSize / 2f,
+            rect.center.y - VanillaLetterHeight / 2f - DecoratorSize / 2f,
+            DecoratorSize, DecoratorSize
+        );
+        if (letter.IsPinned())
+        {
+            decoratorTexture = Icons.LetterDecoratorPinned;
+        }
+        else if (letter.WasEverSnoozed())
+        {
+            decoratorTexture = Icons.LetterDecoratorSnoozed;
+        }
+
+        if (decoratorTexture != null)
+        {
+            GUI.DrawTexture(decoratorRect, decoratorTexture);
         }
     }
 
@@ -266,6 +269,15 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
                 hasInjectedTextureOverride = true;
                 // Skip over the original call to Letter.def.Icon
                 i += 3;
+                // Yield the call to GUI.DrawTexture
+                yield return codes[i++]!;
+                // Load the Letter "this" instance
+                yield return CodeInstruction.LoadArgument(0)!;
+                // Load the rect that was just used to draw the letter icon itself
+                yield return CodeInstruction.LoadLocal(2)!;
+                // Call the static function to add a decorator on top of the letter icon
+                yield return CodeInstruction.Call(typeof(Patch_Letter_DrawButton_LetterStackAppearance),
+                    nameof(DrawLetterDecorator))!;
             }
 
             // PATCH 3:

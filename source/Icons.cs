@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace BetterLetters;
@@ -45,14 +46,12 @@ internal static class Icons
 
     internal static readonly Texture2D Gear = ContentFinder<Texture2D>.Get("UI/Icons/Gear");
 
-    internal static readonly Texture2D LetterPinned = ContentFinder<Texture2D>.Get("UI/Letters/LetterPinned");
-    internal static readonly Texture2D LetterSnoozed = ContentFinder<Texture2D>.Get("UI/Letters/LetterSnoozed");
-    internal static readonly Texture2D LetterReminder = ContentFinder<Texture2D>.Get("UI/Letters/LetterReminder");
     internal static readonly Texture2D LetterQuest = ContentFinder<Texture2D>.Get("UI/Letters/LetterQuest");
     internal static readonly Texture2D LetterQuestAvailable = ContentFinder<Texture2D>.Get("UI/Letters/LetterQuestAvailable");
     internal static readonly Texture2D LetterQuestExpired = ContentFinder<Texture2D>.Get("UI/Letters/LetterQuestExpired");
     internal static readonly Texture2D LetterQuestAccepted = ContentFinder<Texture2D>.Get("UI/Letters/LetterQuestAccepted");
     internal static readonly Texture2D LetterQuestSuccess = ContentFinder<Texture2D>.Get("UI/Letters/LetterQuestAccepted");
-    internal static readonly Texture2D LetterQuestSnoozed = ContentFinder<Texture2D>.Get("UI/Letters/LetterQuestSnoozed");
-    internal static readonly Texture2D LetterQuestPinned = ContentFinder<Texture2D>.Get("UI/Letters/LetterQuestPinned");
+
+    internal static readonly Texture2D LetterDecoratorPinned = ContentFinder<Texture2D>.Get("UI/Letters/Decorators/LetterPin");
+    internal static readonly Texture2D LetterDecoratorSnoozed = ContentFinder<Texture2D>.Get("UI/Letters/Decorators/LetterSnoozed");
 }

@@ -99,6 +99,11 @@
     <Compile Include="FloatMenuFactory.cs" />
     <Compile Include="GlobalUsings.cs" />
     <Compile Include="Icons.cs" />
+    <Compile Include="LetterIconOverrideDef.cs" />
+    <Compile Include="LetterIconOverrideDefOf.cs" />
+    <Compile Include="LetterIconOverrideResolver.cs" />
+    <Compile Include="LetterIconOverrideResolvers\GenderIconOverrideResolver.cs" />
+    <Compile Include="LetterIconOverrides.cs" />
     <Compile Include="MissingVanillaDefOf.cs" />
     <Compile Include="ModCompatibility.cs" />
     <Compile Include="Patches\Patch_BundleLetter_SetLetters_AddOptions.cs" />
@@ -138,6 +143,7 @@
       <Link>harmony.log.txt</Link>
     </Content>
     <Content Include="Defs\Misc\LetterDefs\BetterLettersLetters.xml" />
+    <Content Include="Defs\Misc\LetterIconOverrideDefs\BetterLettersLetterIconOverrides.xml" />
     <Content Include="Languages\English\Keyed\BetterLetters_Keys.xml" />
     <Content Include="News\BetterLettersUpdateNews.xml" />
     <Content Include="Patches\LetterIconPatches.xml" />

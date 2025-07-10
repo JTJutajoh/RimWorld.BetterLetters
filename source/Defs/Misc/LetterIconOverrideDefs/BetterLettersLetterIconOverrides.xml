@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>MentalBreak</defName>
+        <iconPath>UI/Letters/LetterMentalBreak</iconPath>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Manhunter</defName>
+        <iconPath>UI/Letters/Manhunter</iconPath>
+        <incidents>
+            <li>ManhunterPack</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Infestation</defName>
+        <iconPath>UI/Letters/Infestation</iconPath>
+        <incidents>
+            <li>Infestation</li>
+            <li>Infestation_Jelly</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>MechCluster</defName>
+        <iconPath>UI/Letters/MechCluster</iconPath>
+        <incidents>
+            <li>MechCluster</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>SolarFlare</defName>
+        <iconPath>UI/Letters/LetterSolarFlare</iconPath>
+        <gameConditions>
+            <li>EMIField</li>
+        </gameConditions>
+        <incidents>
+            <li>SolarFlare</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Flashstorm</defName>
+        <iconPath>UI/Letters/LetterFlashstorm</iconPath>
+        <incidents>
+            <li>Flashstorm</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>VolcanicWinter</defName>
+        <iconPath>UI/Letters/LetterVolcanicWinter</iconPath>
+        <gameConditions>
+            <li>VolcanicWinter</li>
+        </gameConditions>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Eclipse</defName>
+        <iconPath>UI/Letters/LetterEclipse</iconPath>
+        <incidents>
+            <li>Eclipse</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>ToxicFallout</defName>
+        <iconPath>UI/Letters/LetterToxicFallout</iconPath>
+        <incidents>
+            <li>ToxicFallout</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>ColdSnap</defName>
+        <iconPath>UI/Letters/LetterColdSnap</iconPath>
+        <gameConditions>
+            <li>ColdSnap</li>
+        </gameConditions>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>HeatWave</defName>
+        <iconPath>UI/Letters/LetterHeatWave</iconPath>
+        <gameConditions>
+            <li>HeatWave</li>
+        </gameConditions>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Aurora</defName>
+        <iconPath>UI/Letters/LetterAurora</iconPath>
+        <gameConditions>
+            <li>Aurora</li>
+        </gameConditions>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>PsychicDrone</defName>
+        <iconPath>UI/Letters/LetterPsychicDrone</iconPath>
+        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.GenderIconOverrideResolver</iconResolverClass>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>PsychicSoothe</defName>
+        <iconPath>UI/Letters/LetterPsychicSoothe</iconPath>
+        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.GenderIconOverrideResolver</iconResolverClass>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Raid</defName>
+        <iconPath>UI/Letters/LetterRaid</iconPath>
+        <incidents>
+            <li>RaidEnemy</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>TraderCaravan</defName>
+        <iconPath>UI/Letters/LetterTraderCaravan</iconPath>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>TraderOrbital</defName>
+        <iconPath>UI/Letters/LetterTraderOrbital</iconPath>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <!-- All Ideology-related letters -->
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Ideology</defName>
+        <iconPath>UI/Letters/LetterIdeology</iconPath>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <!-- All Anomaly-related letters -->
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Anomaly</defName>
+        <iconPath>UI/Letters/LetterAnomaly</iconPath>
+        <gameConditions>
+            <li>DeathPall</li>
+            <li>GrayPall</li>
+            <li>BloodRain</li>
+            <li>HateChantDrone</li>
+            <li>UnnaturalDarkness</li>
+            <li>UnnaturalHeat</li>
+        </gameConditions>
+        <incidents>
+            <li>HarbingerTreeSpawn</li>
+            <li>FrenziedAnimals</li>
+            <li>PitGate</li>
+            <li>ShamblerSwarm</li>
+            <li>PsychicRitualSiege</li>
+            <li>VoidCuriosity</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <!-- All Odyssey-related letters -->
+    <!-- DISABLED UNTIL DLC RELEASES -->
+    <!--<BetterLetters.LetterIconOverrideDef>
+        <defName>GillRot</defName>
+        <iconPath></iconPath>
+        <gameConditions>
+            <li>GillRot</li>
+        </gameConditions>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Drought</defName>
+        <iconPath></iconPath>
+        <incidents>
+            <li>Drought</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>LavaFlow</defName>
+        <iconPath></iconPath>
+        <incidents>
+            <li>LavaFlow</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>-->
+
+</Defs>
