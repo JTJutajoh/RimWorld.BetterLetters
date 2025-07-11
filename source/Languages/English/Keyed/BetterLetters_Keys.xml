@@ -162,26 +162,21 @@ Has several options for what types of letters to dismiss, such as expired quests
 Default: {0}</BetterLetters_Settings_DefaultSuffix>
   <BetterLetters_Settings_RequiresRestart>(Requires restart)</BetterLetters_Settings_RequiresRestart>
   
-  <BetterLetters_Settings_DisableRightClickPinnedLetters>Disable right click float menu for pinned letters</BetterLetters_Settings_DisableRightClickPinnedLetters>
-  <BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>By default, pinned letters replace the vanilla "Right click to delete" functionality with a context menu that has several options including dismissing. Enable this if you want right click to always unpin pinned letters instead.</BetterLetters_Settings_DisableRightClickPinnedLetters_Desc>
+  <BetterLetters_Settings_EnableRightClickPinnedLetters>Enable right click float menu for pinned letters</BetterLetters_Settings_EnableRightClickPinnedLetters>
+  <BetterLetters_Settings_EnableRightClickPinnedLetters_Desc>By default, pinned letters replace the vanilla "Right click to delete" functionality with a context menu that has several options including dismissing. Enable this if you want right click to always unpin pinned letters instead.</BetterLetters_Settings_EnableRightClickPinnedLetters_Desc>
   <BetterLetters_Settings_ModifyLetterText>Add information to Letter labels (new Letters only)</BetterLetters_Settings_ModifyLetterText>
   <BetterLetters_Settings_ModifyLetterText_Desc>Whether or not to modify labels of letters to add more information at a glance.
 For example, whether a raid will attack immediately or wait a while.</BetterLetters_Settings_ModifyLetterText_Desc>
   <BetterLetters_Settings_ModifyLetterText_Enabled>Enable modified Letter labels</BetterLetters_Settings_ModifyLetterText_Enabled>
   <BetterLetters_Settings_ModifyLetterText_Disabled>Vanilla Letter labels</BetterLetters_Settings_ModifyLetterText_Disabled>
-  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack>Letter status icons</BetterLetters_Settings_ReplaceLetterIconsInLetterStack>
-  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Desc>Whether or not to replace the standard vanilla letter icon with new icons that reflect their status. For example, snoozed letters or new/expired quests.
-Only effects the Letter Stack, not anywhere else that Letters appear (like the History archive).
+  <BetterLetters_Settings_EnableLetterAppearancePatches>Enable/disable ALL letter appearance features</BetterLetters_Settings_EnableLetterAppearancePatches>
+  <BetterLetters_Settings_ReplaceLetterIcons>Replaced Letter icons</BetterLetters_Settings_ReplaceLetterIcons>
+  <BetterLetters_Settings_ReplaceLetterIcons_RequiresRestart>Requires restart for all letters to be effected</BetterLetters_Settings_ReplaceLetterIcons_RequiresRestart>
+  <BetterLetters_Settings_ReplaceLetterIcons_Enabled>Enable replaced Letter icons</BetterLetters_Settings_ReplaceLetterIcons_Enabled>
+  <BetterLetters_Settings_ReplaceLetterIcons_Disabled>Vanilla Letter icons</BetterLetters_Settings_ReplaceLetterIcons_Disabled>
+  <BetterLetters_Settings_ReplaceLetterIcons_Desc>Whether or not to use custom replacer icons for various vanilla Letter types (such as new quests, deaths, etc.)
 
-(Only applies to letters whose icons are changed dynamically, not ones changed by xml patches).</BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Desc>
-  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Enabled>Enable modified Letter status icons</BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Enabled>
-  <BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Disabled>Vanilla (no status icons)</BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Disabled>
-  <BetterLetters_Settings_ReplaceLetterIconsInXML>Replaced Letter icons</BetterLetters_Settings_ReplaceLetterIconsInXML>
-  <BetterLetters_Settings_ReplaceLetterIconsInXML_Enabled>Enable replaced Letter icons</BetterLetters_Settings_ReplaceLetterIconsInXML_Enabled>
-  <BetterLetters_Settings_ReplaceLetterIconsInXML_Disabled>Vanilla Letter icons</BetterLetters_Settings_ReplaceLetterIconsInXML_Disabled>
-  <BetterLetters_Settings_ReplaceLetterIconsInXML_Desc>Whether or not to use custom replacer icons for various vanilla Letter types (such as new quests, deaths, etc.)
-
-Changes to this setting will take effect the next time the game is restarted.</BetterLetters_Settings_ReplaceLetterIconsInXML_Desc>
+Changes to this setting will take effect the next time the game is restarted.</BetterLetters_Settings_ReplaceLetterIcons_Desc>
   <BetterLetters_Settings_DismissedQuestsDismissLetters>Dismissing quests also dismisses the associated letter</BetterLetters_Settings_DismissedQuestsDismissLetters>
   <BetterLetters_Settings_DismissedQuestsDismissLetters_Desc>If enabled, clicking the trash can icon on a quest to dismiss it will also automatically hide the "Quest available" letter for it. Note that the letter will stay pinned if you pinned it, but only in the archive.</BetterLetters_Settings_DismissedQuestsDismissLetters_Desc>
   <BetterLetters_Settings_KeepQuestLettersOnStack>Keep "Quest available" letters when clicked</BetterLetters_Settings_KeepQuestLettersOnStack>
@@ -246,7 +241,12 @@ Icons adds an icon for pinning and an icon for snoozing to the corner of letter 
 You can enable both or neither if you do not want this feature.</BetterLetters_Settings_LetterButtonTypes_Desc>
   <BetterLetters_Settings_LetterButtonTypes_DiaOptions>Dialog Options</BetterLetters_Settings_LetterButtonTypes_DiaOptions>
   <BetterLetters_Settings_LetterButtonTypes_Icons>Icons</BetterLetters_Settings_LetterButtonTypes_Icons>
-  <BetterLetters_Settings_OffsetLetterLabels>Move Letter labels to prevent overlap</BetterLetters_Settings_OffsetLetterLabels>
+
+  <BetterLetters_Settings_LabelsAndDecoratorsHeading>Pin/Snooze buttons and label adjustment</BetterLetters_Settings_LabelsAndDecoratorsHeading>
+  <BetterLetters_Settings_VanillaLabelsAndDecorators>Vanilla</BetterLetters_Settings_VanillaLabelsAndDecorators>
+  <BetterLetters_Settings_DoLetterDecorators>Add buttons and move label</BetterLetters_Settings_DoLetterDecorators>
+  <BetterLetters_Settings_DoLetterDecorators_Desc>Adds small clickable icons for letters to pin/snooze them and to show their status.</BetterLetters_Settings_DoLetterDecorators_Desc>
+  <BetterLetters_Settings_OffsetLetterLabels>No buttons, only move label</BetterLetters_Settings_OffsetLetterLabels>
   <BetterLetters_Settings_OffsetLetterLabels_Desc>If enabled, the labels that are usually drawn on top of letters will be offset to the left so that they are instead drawn next to the letter icon, without overlapping it.</BetterLetters_Settings_OffsetLetterLabels_Desc>
   <BetterLetters_Settings_LetterLabelsOffsetAmount>Letter labels offset amount</BetterLetters_Settings_LetterLabelsOffsetAmount>
   <BetterLetters_Settings_LetterLabelsOffsetAmount_Desc>If the above setting is enabled, use this slider to fine-tune the exact x offset of the label to your liking.</BetterLetters_Settings_LetterLabelsOffsetAmount_Desc>

@@ -2,7 +2,7 @@
 
 <Patch>
     <Operation Class="BetterLetters.PatchOperationConfigToggleable">
-        <settingName>ReplaceLetterIconsInXML</settingName>
+        <settingName>ReplaceLetterIcons</settingName>
         <match Class="PatchOperationSequence">
             <operations>
                 <li Class="PatchOperationConditional">

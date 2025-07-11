@@ -26,6 +26,7 @@ internal static class ModCompatibility
         /// <param name="warningMessage">If the other mod is detected, include this string in the message logged to the player.</param>
         /// <param name="warn">If true, the message will be sent as a warning. Meant for incompatibilities that do not have patches and require user action.</param>
         /// <param name="compatAction">An optional callback to perform if the other mod is detected, will be supplied with the mod's <see cref="ModMetaData"/></param>
+        // ReSharper disable once UnusedMember.Local
         internal ModCompatibilityBehavior(string modPackageId, string warningMessage, bool warn = false,
             Action<ModMetaData>? compatAction = null)
         {
@@ -54,9 +55,10 @@ internal static class ModCompatibility
     /// List of mods that are known to have compatibility issues with this mod.<para/>
     /// Some may have compatibility patches, either external to or part of this mod. Others may be hard incompatible.
     /// </summary>
+    // ReSharper disable once CollectionNeverUpdated.Local
     private static readonly List<ModCompatibilityBehavior> ModCompatibilityBehaviors = new()
+    // ReSharper disable once RedundantEmptyObjectOrCollectionInitializer
     {
-
     };
 
     static ModCompatibility()

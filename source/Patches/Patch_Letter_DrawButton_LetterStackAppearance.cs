@@ -21,9 +21,14 @@ namespace BetterLetters.Patches;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class Patch_Letter_DrawButton_LetterStackAppearance
 {
-    private const float LetterLabelXOffset = 52f;
+    const float LetterLabelXOffset = 52f;
+    const float DecoratorSize = 16f;
+    const float HoverRectLeftExpansion = 40f;
+    const float VanillaLetterWidth = 38f;
 
-    static Texture2D LetterIconTexture = null!;
+    static Texture2D LetterIcon = null!;
+    static bool IsPinned;
+    static bool WasEverSnoozed;
 
     /// <summary>
     /// Before a letter is drawn checks if the letter should have its icon/rect overridden or not.
@@ -31,29 +36,40 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
     [HarmonyPatch(typeof(Letter), nameof(Letter.DrawButtonAt))]
     [HarmonyPrefix]
     [UsedImplicitly]
-    static void SetupLetterOverrides(Letter __instance)
+    static void Prefix(Letter __instance)
     {
-        if (!Settings.ReplaceLetterIconsInLetterStack)
+        if (__instance.IsPinned())
         {
-            LetterIconTexture = __instance.def!.Icon!;
+            IsPinned = true;
+        }
+
+        if (__instance.WasEverSnoozed())
+        {
+            WasEverSnoozed = true;
+        }
+
+        if (!Settings.EnableLetterAppearancePatches || !Settings.ReplaceLetterIcons)
+        {
+            LetterIcon = __instance.def!.Icon!;
             return;
         }
 
         if (__instance.TryGetLetterIcon(out var texture) && texture != null)
         {
-            LetterIconTexture = texture;
+            LetterIcon = texture;
             return;
         }
+
 
         //TODO: Switch this to using the override cache system
         if (__instance is ChoiceLetter { quest: { } quest })
         {
             if (quest.Historical || quest.dismissed)
             {
-                LetterIconTexture = Icons.LetterQuestExpired;
+                LetterIcon = Icons.LetterQuestExpired;
             }
             else
-                LetterIconTexture = quest.State switch
+                LetterIcon = quest.State switch
                 {
                     QuestState.EndedSuccess => Icons.LetterQuestSuccess,
                     QuestState.Ongoing => Icons.LetterQuestAccepted,
@@ -63,19 +79,26 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
         }
         else
         {
-            LetterIconTexture = __instance.def!.Icon!;
+            LetterIcon = __instance.def!.Icon!;
         }
     }
 
     /// <summary>
-    /// Clears the overrides saved by <see cref="SetupLetterOverrides"/>
+    /// Clears the overrides saved by <see cref="Prefix"/>
     /// </summary>
     [HarmonyPatch(typeof(Letter), nameof(Letter.DrawButtonAt))]
     [HarmonyPostfix]
     [UsedImplicitly]
+    static void Postfix(Letter __instance)
+    {
+        ClearOverrides();
+    }
+
     static void ClearOverrides()
     {
-        LetterIconTexture = LetterDefOf.NeutralEvent!.Icon!;
+        LetterIcon = LetterDefOf.NeutralEvent!.Icon!;
+        IsPinned = false;
+        WasEverSnoozed = false;
     }
 
     static bool OverrideBounce(LetterDef def, Letter letter)
@@ -96,21 +119,31 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
     }
 
     // ReSharper disable once RedundantAssignment
-    static void ModifyLetterIconRect(ref Rect rect2, Rect rect)
+    static void OverrideInnerRect(ref Rect rect2, Rect rect)
     {
-        rect2 = new Rect(rect);
-
         // "rect" is the original hard-coded size of vanilla letters
         // calculate the correct rect for the letter's icon based on how much larger it is than the hard-coded letter size in vanilla
-        rect2 = rect.ExpandedBy((LetterIconTexture.width / 2f - rect.width) / 2f,
-            (LetterIconTexture.height / 2f - rect.height) / 2f);
+        rect2 = rect.ExpandedBy((LetterIcon.width / 2f - rect.width) / 2f,
+            (LetterIcon.height / 2f - rect.height) / 2f);
     }
 
-    static Rect ModifyLabelRect(Rect rect)
+    static Rect ModifyLabelRect(Rect rect, Rect rect2)
     {
+        if (!Settings.EnableLetterAppearancePatches || (!Settings.OffsetLetterLabels && !Settings.DoLetterDecorators)) return rect;
+
         //MAYBE: Only offset if there's a custom icon
-        if (Settings.OffsetLetterLabels)
-            rect.x -= LetterLabelXOffset + Settings.LetterLabelsOffsetAmount;
+
+        rect.x -= LetterLabelXOffset - Settings.LetterLabelsOffsetAmount;
+
+        if (!Settings.DoLetterDecorators) return rect;
+
+        var hoverRect = new Rect(rect2);
+        hoverRect.xMin -= HoverRectLeftExpansion;
+        var hovered = Mouse.IsOver(hoverRect);
+        if (WasEverSnoozed || IsPinned || hovered)
+        {
+            rect.x -= DecoratorSize + 2f;
+        }
 
         return rect;
     }
@@ -121,16 +154,21 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
         // Checks for right-click first and returns early if not
         if (Event.current?.type != EventType.MouseDown || Event.current.button != 1 || !Mouse.IsOver(rect)) return;
 
-        if (Settings.DisableRightClickPinnedLetters)
+        if (!Settings.EnableRightClickPinnedLetters)
         {
             letter.Unpin();
             return;
         }
 
-        if (letter.IsPinned())
+        if (IsPinned)
         {
             var floatMenuOptions = new List<FloatMenuOption>();
-            // Unpin option is first in the list so it's under the player's mouse after they right click, meaning you can still do the vanilla behavior of spamming right click to remove all letters
+            floatMenuOptions.Add(FloatMenuFactory.MakeFloatMenuOption(
+                "BetterLetters_DismissButStayPinned".Translate(),
+                () => { Find.LetterStack?.RemoveLetter(letter); },
+                iconTex: Icons.Dismiss,
+                iconColor: Color.gray
+            ));
             floatMenuOptions.Add(FloatMenuFactory.MakeFloatMenuOption(
                 "BetterLetters_Unpin".Translate(),
                 () => { letter.Unpin(); },
@@ -142,12 +180,6 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
                 () => { letter.Unpin(true); },
                 iconTex: Icons.PinFloatMenu,
                 iconColor: ColorLibrary.RedReadable
-            ));
-            floatMenuOptions.Add(FloatMenuFactory.MakeFloatMenuOption(
-                "BetterLetters_DismissButStayPinned".Translate(),
-                () => { Find.LetterStack?.RemoveLetter(letter); },
-                iconTex: Icons.Dismiss,
-                iconColor: Color.gray
             ));
             if (letter.lookTargets is not null && letter.lookTargets.Any && letter.lookTargets.IsValid)
             {
@@ -169,28 +201,30 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
         }
     }
 
-    static void DrawLetterDecorator(Letter letter, Rect rect)
+    static void DoLetterDecorators(Letter letter, Rect rect2)
     {
-        const float DecoratorSize = 32f;
-        const float VanillaLetterHeight = 30f;
-        Texture2D? decoratorTexture = null;
-        var decoratorRect = new Rect(
-            rect.xMin - DecoratorSize / 2f,
-            rect.center.y - VanillaLetterHeight / 2f - DecoratorSize / 2f,
-            DecoratorSize, DecoratorSize
+        if (!Settings.EnableLetterAppearancePatches || !Settings.DoLetterDecorators) return;
+
+        var decoratorColumnRect = new Rect(
+            rect2.center.x - VanillaLetterWidth / 2f - DecoratorSize - 2f,
+            rect2.center.y - DecoratorSize,
+            DecoratorSize, DecoratorSize * 2f
         );
-        if (letter.IsPinned())
+        var topButtonRect = decoratorColumnRect.TopHalf();
+        var bottomButtonRect = decoratorColumnRect.BottomHalf();
+
+        var hoverRect = new Rect(rect2);
+        hoverRect.xMin -= HoverRectLeftExpansion;
+        var hovered = Mouse.IsOver(hoverRect);
+
+        if (WasEverSnoozed || hovered)
         {
-            decoratorTexture = Icons.LetterDecoratorPinned;
-        }
-        else if (letter.WasEverSnoozed())
-        {
-            decoratorTexture = Icons.LetterDecoratorSnoozed;
+            CustomWidgets.SnoozeIconButton(letter, topButtonRect);
         }
 
-        if (decoratorTexture != null)
+        if (IsPinned || hovered)
         {
-            GUI.DrawTexture(decoratorRect, decoratorTexture);
+            CustomWidgets.PinIconButton(letter, bottomButtonRect);
         }
     }
 
@@ -250,7 +284,7 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
                 // address of first rect is on the stack
                 // Intercept constructor and return a different rect instead
                 yield return CodeInstruction.Call(typeof(Patch_Letter_DrawButton_LetterStackAppearance),
-                    nameof(ModifyLetterIconRect))!;
+                    nameof(OverrideInnerRect))!;
 
                 hasInjectedRectOverride = true;
                 // Skip over the original rect constructor
@@ -264,20 +298,11 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
                 // About to load Letter.def.Icon
                 // "this" Letter instance on stack
                 yield return CodeInstruction.LoadField(typeof(Patch_Letter_DrawButton_LetterStackAppearance),
-                    "LetterIconTexture")!;
+                    "LetterIcon")!;
 
                 hasInjectedTextureOverride = true;
                 // Skip over the original call to Letter.def.Icon
                 i += 3;
-                // Yield the call to GUI.DrawTexture
-                yield return codes[i++]!;
-                // Load the Letter "this" instance
-                yield return CodeInstruction.LoadArgument(0)!;
-                // Load the rect that was just used to draw the letter icon itself
-                yield return CodeInstruction.LoadLocal(2)!;
-                // Call the static function to add a decorator on top of the letter icon
-                yield return CodeInstruction.Call(typeof(Patch_Letter_DrawButton_LetterStackAppearance),
-                    nameof(DrawLetterDecorator))!;
             }
 
             // PATCH 3:
@@ -317,6 +342,7 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
             // Offsetting the label BG first
             if (codes[i]!.LoadsField(GrayTextBGFieldAnchor))
             {
+                yield return CodeInstruction.LoadLocal(2)!;
                 yield return CodeInstruction.Call(typeof(Patch_Letter_DrawButton_LetterStackAppearance),
                     nameof(ModifyLabelRect))!;
             }
@@ -324,11 +350,22 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
             // Offsetting the label itself next
             if (!hasInjectedLabelOverride && i + 2 < codes.Count && codes[i + 1]!.Calls(TextWordWrapSetAnchor))
             {
+                yield return CodeInstruction.LoadLocal(2)!;
                 yield return CodeInstruction.Call(typeof(Patch_Letter_DrawButton_LetterStackAppearance),
                     nameof(ModifyLabelRect))!;
 
                 // Text.WordWrap is set twice, so make sure to only inject before the first time
                 hasInjectedLabelOverride = true;
+            }
+
+            // Draw the extra buttons
+            if (codes[i]!.opcode == OpCodes.Ret)
+            {
+                // Right before the end of the method, inject
+                yield return CodeInstruction.LoadArgument(0)!.MoveLabelsFrom(codes[i]!)!;
+                yield return CodeInstruction.LoadLocal(2)!;
+                yield return CodeInstruction.Call(typeof(Patch_Letter_DrawButton_LetterStackAppearance),
+                    nameof(DoLetterDecorators))!;
             }
 
             // Emitting the original IL instruction

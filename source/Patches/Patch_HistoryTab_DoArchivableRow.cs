@@ -39,6 +39,10 @@ internal static class Patch_HistoryTab_DoArchivableRow
     static readonly MethodInfo? ButtonPatchMethodAnchor =
         typeof(Widgets).GetMethod(nameof(Widgets.ButtonInvisible)) ?? null;
 
+    private static readonly MethodInfo? DrawTextureFittedMethodAnchor =
+        AccessTools.Method(typeof(Widgets), nameof(Widgets.DrawTextureFitted),
+            new[] { typeof(Rect), typeof(Texture), typeof(float), typeof(float) });
+
     /// <summary>
     /// Transpiler that patches the display of letters in the History tab.
     /// <br />It:<br />
@@ -54,6 +58,9 @@ internal static class Patch_HistoryTab_DoArchivableRow
         if (ButtonPatchMethodAnchor is null)
             throw new InvalidOperationException(
                 $"Couldn't find {nameof(ButtonPatchMethodAnchor)} method for {nameof(Patch_HistoryTab_DoArchivableRow)}.{MethodBase.GetCurrentMethod()} patch");
+        if (DrawTextureFittedMethodAnchor is null)
+            throw new InvalidOperationException(
+                $"Couldn't find {nameof(DrawTextureFittedMethodAnchor)} method for {nameof(Patch_HistoryTab_DoArchivableRow)}.{MethodBase.GetCurrentMethod()} patch");
 
         var codes = new List<CodeInstruction>(instructions);
 
@@ -203,7 +210,18 @@ internal static class Patch_HistoryTab_DoArchivableRow
 
             #endregion OverrideClickBehavior
 
-            //TODO: Use the overridden letter icon
+            // PATCH 4:
+            // Resize the letter icon
+            if (i + 4 < codes.Count && codes[i + 4]!.Calls(DrawTextureFittedMethodAnchor))
+            {
+                // Load the original rect
+                yield return codes[i++]!;
+                // Load the icon
+                yield return new CodeInstruction(OpCodes.Ldloc_S, 6);
+                // Replace the local var rect with a closure that resizes it to fit the overridden texture
+                yield return CodeInstruction.CallClosure<Func<Rect, Texture, Rect>>((rect, icon) =>
+                    rect.ExpandedBy((icon.width / 2f - rect.width) / 2f, (icon.height / 2f - rect.height) / 2f))!;
+            }
 
             // Emitting the original IL instruction
             yield return codes[i]!;

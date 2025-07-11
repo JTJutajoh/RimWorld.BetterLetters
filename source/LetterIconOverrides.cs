@@ -1,10 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BetterLetters.Patches;
 using RimWorld;
 using UnityEngine;
 
 namespace BetterLetters;
+
+internal class SerializableLetterIconOverride : IExposable
+{
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+    // ReSharper disable InconsistentNaming
+    internal LetterIconOverrideDef def;
+    internal LetterIconOverrideResolver? resolver;
+    // ReSharper restore InconsistentNaming
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+
+    public void ExposeData()
+    {
+        Scribe_Defs.Look(ref def, "def");
+        Scribe_Deep.Look(ref resolver, "resolver");
+    }
+}
 
 /// <summary>
 ///
@@ -14,12 +29,9 @@ public static class LetterIconOverrides
 {
     private static readonly Dictionary<Def, LetterIconOverrideDef> DefLetterIconOverrides;
 
-    /// <summary>
-    /// Runtime cache of letters and their overriding icons.<para />
-    /// Key is the "ID" property on <see cref="Letter"/>, value is a texture loaded from <see cref="LetterIcons"/><br />
-    /// Serialized in the <see cref="Patch_LetterStack_OverrideIcons.LetterIconsCacheExposeData"/> patch.
-    /// </summary>
-    internal static Dictionary<int, Texture2D> LetterIconsCache = new();
+    internal static Dictionary<int, LetterIconOverrideDef> LetterIconsCache = new();
+
+    internal static Dictionary<int, LetterIconOverrideResolver> ResolverCache = new();
 
     static LetterIconOverrides()
     {
@@ -46,52 +58,14 @@ public static class LetterIconOverrides
         }
     }
 
-    /// <summary>
-    /// Statically-loaded mapping of all letter icon overrides.<br />
-    /// Keys are the "name" of the override.
-    /// </summary>
-    /// <remarks>Keys MUST match the filename of the texture exactly, as it is used during deserialization.</remarks>
-    [Obsolete] private static readonly Dictionary<string, Texture2D> LetterIcons = new()
-    {
-        { "LetterMentalBreak", ContentFinder<Texture2D>.Get("UI/Letters/LetterMentalBreak") },
-        { "LetterSolarFlare", ContentFinder<Texture2D>.Get("UI/Letters/LetterSolarFlare") },
-        { "LetterFlashstorm", ContentFinder<Texture2D>.Get("UI/Letters/LetterFlashstorm") },
-        { "LetterVolcanicWinter", ContentFinder<Texture2D>.Get("UI/Letters/LetterVolcanicWinter") },
-        { "LetterEclipse", ContentFinder<Texture2D>.Get("UI/Letters/LetterEclipse") },
-        { "LetterToxicFallout", ContentFinder<Texture2D>.Get("UI/Letters/LetterToxicFallout") },
-        { "LetterColdSnap", ContentFinder<Texture2D>.Get("UI/Letters/LetterColdSnap") },
-        { "LetterHeatWave", ContentFinder<Texture2D>.Get("UI/Letters/LetterHeatWave") },
-        { "LetterAurora", ContentFinder<Texture2D>.Get("UI/Letters/LetterAurora") },
-        { "LetterPsychicDrone", ContentFinder<Texture2D>.Get("UI/Letters/LetterPsychicDrone") },
-        { "LetterPsychicSoothe", ContentFinder<Texture2D>.Get("UI/Letters/LetterPsychicSoothe") },
-
-        { "LetterRaid", ContentFinder<Texture2D>.Get("UI/Letters/LetterRaid") },
-
-        { "LetterTraderCaravan", ContentFinder<Texture2D>.Get("UI/Letters/LetterTraderCaravan") },
-        { "LetterTraderOrbital", ContentFinder<Texture2D>.Get("UI/Letters/LetterTraderOrbital") },
-
-        { "LetterIdeology", ContentFinder<Texture2D>.Get("UI/Letters/LetterIdeology") },
-
-        { "LetterAnomaly", ContentFinder<Texture2D>.Get("UI/Letters/LetterAnomaly") },
-    };
-
 
     /// <summary>
-    /// Reference to the most recent letter added to the stack. Set by the <see cref="ReceiveLetter"/> patch.
+    /// Reference to the most recent letter added to the stack. Set by the ReceiveLetter patch.
     /// Accessed try <see cref="TryOverrideMostRecentLetterIcon"/>, which automatically clears the reference as soon as
     /// it is used.
     /// </summary>
-    internal static Letter? MostRecentLetter = null;
-    //BUG: MostRecentLetter isn't always null when it should be.
-    // maybe implement something that clears it the next frame, since it's only used to reference a letter on the same frame that it was added
+    internal static Letter? MostRecentLetter;
 
-    /// <summary>
-    /// Attempts to set the override icon for <see cref="MostRecentLetter"/> to a texture in <see cref="LetterIcons"/>
-    /// using <paramref name="iconName"/> as the key.<para />
-    /// If <see cref="MostRecentLetter"/> is null (no letter has been received by the stack since the last one was overridden),
-    /// nothing happens.<br />
-    /// Clears the <see cref="MostRecentLetter"/> reference so that it is only used once.
-    /// </summary>
     internal static void TryOverrideMostRecentLetterIcon(LetterIconOverrideDef iconOverrideDef, params object[] context)
     {
         MostRecentLetter?.OverrideIcon(iconOverrideDef, context);
@@ -103,31 +77,16 @@ public static class LetterIconOverrides
         if (iconOverrideDef != null)
         {
             iconOverrideDef.ResolveIcon(context);
-            LetterIconsCache[letter.ID] = iconOverrideDef.Icon;
+            LetterIconsCache[letter.ID] = iconOverrideDef;
+            if (iconOverrideDef.IconResolver is { } resolver)
+            {
+                ResolverCache[letter.ID] = resolver;
+            }
         }
         else
         {
             LetterIconsCache.Remove(letter.ID);
-        }
-    }
-
-    /// <summary>
-    /// Extension method that saves the provided texture to <see cref="LetterIconsCache"/> to be used in
-    /// <see cref="Patch_Letter_DrawButton_LetterStackAppearance"/>
-    /// </summary>
-    [Obsolete]
-    public static void OverrideIcon(this Letter letter, string? iconName)
-    {
-        if (iconName != null)
-        {
-            if (LetterIcons.TryGetValue(iconName, out var tex))
-                LetterIconsCache[letter.ID] = tex;
-            else
-                Log.Warning($"Couldn't find icon '{iconName}' for letter: '{letter.Label}'");
-        }
-        else
-        {
-            LetterIconsCache.Remove(letter.ID);
+            ResolverCache.Remove(letter.ID);
         }
     }
 
@@ -138,7 +97,9 @@ public static class LetterIconOverrides
 
     public static bool TryGetLetterIcon(int letterID, out Texture2D? icon)
     {
-        return LetterIconsCache.TryGetValue(letterID, out icon);
+        var success = LetterIconsCache.TryGetValue(letterID, out var def);
+        icon = def?.Icon;
+        return success;
     }
 
     internal static bool TryGetIconOverrideDefForDef(Def? def, out LetterIconOverrideDef? iconOverrideDef)
@@ -164,10 +125,6 @@ public static class LetterIconOverrides
         {
             TryOverrideMostRecentLetterIcon(iconOverrideDef);
         }
-        else
-        {
-            Log.Trace($"Tried to override the icon for def {def.defName} but no icon override was found.");
-        }
     }
 
     /// <summary>
@@ -177,31 +134,48 @@ public static class LetterIconOverrides
     /// </summary>
     public static void ExposeData()
     {
-        Dictionary<int, string> letterIconsCacheAsNames = new();
+        Scribe.EnterNode("BetterLetters");
+
+        Dictionary<int, SerializableLetterIconOverride> serializableCache = new();
+
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             foreach (var kvp in LetterIconsCache)
             {
-                if (kvp.Value == null) continue;
-                // Use the "name" field on the texture, which matches its filename
-                letterIconsCacheAsNames[kvp.Key] = kvp.Value.name;
+                if (kvp.Value is null) continue;
+
+                serializableCache[kvp.Key] = new SerializableLetterIconOverride
+                {
+                    def = kvp.Value,
+                    resolver = ResolverCache.TryGetValue(kvp.Key, out var resolver) ? resolver : null
+                };
             }
         }
 
-        // Include a prefix to prevent data collisions
-        Scribe_Collections.Look(ref letterIconsCacheAsNames, "BetterLetters_LetterIconsCache", LookMode.Value,
-            LookMode.Value);
+        Scribe_Collections.Look(ref serializableCache, "LetterIconsCache", LookMode.Value, LookMode.Deep);
 
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            LetterIconsCache = new Dictionary<int, Texture2D>();
-            if (letterIconsCacheAsNames == null) return;
+            LetterIconsCache = new();
+            ResolverCache = new();
 
-            foreach (var kvp in letterIconsCacheAsNames)
+            if (serializableCache != null)
             {
-                if (LetterIcons.TryGetValue(kvp.Value, out var tex))
-                    LetterIconsCache[kvp.Key] = tex;
+                foreach (var kvp in serializableCache)
+                {
+                    if (kvp.Value == null) continue;
+
+                    LetterIconsCache[kvp.Key] = kvp.Value.def;
+
+                    if (kvp.Value.resolver == null) continue;
+
+                    ResolverCache[kvp.Key] = kvp.Value.resolver;
+                    kvp.Value.def.IconResolver = kvp.Value.resolver;
+                    kvp.Value.resolver.def = kvp.Value.def;
+                }
             }
         }
+
+        Scribe.ExitNode();
     }
 }

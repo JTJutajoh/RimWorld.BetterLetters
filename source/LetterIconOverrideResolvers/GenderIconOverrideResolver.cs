@@ -7,18 +7,35 @@ namespace BetterLetters.LetterIconOverrideResolvers;
 [UsedImplicitly]
 internal class GenderIconOverrideResolver : LetterIconOverrideResolver
 {
+    private Gender? _gender;
+
     public override Texture2D Resolve(params object[] context)
     {
         if (def != null)
         {
-            var baseIconPath = def.iconPath;
-            var gender = context.OfType<Gender>().FirstOrDefault();
-            if (gender == Gender.Female)
-                return ContentFinder<Texture2D>.Get(baseIconPath + "_Female")!;
-            if (gender == Gender.Male)
-                return ContentFinder<Texture2D>.Get(baseIconPath + "_Male")!;
+            _gender ??= context.OfType<Gender>().FirstOrDefault();
+            return ContentFinder<Texture2D>.Get(ResolvedPath)!;
         }
 
         return base.Resolve();
+    }
+
+    public override string ResolvedPath
+    {
+        get
+        {
+            return _gender switch
+            {
+                Gender.Female => def!.iconPath + "_Female",
+                Gender.Male => def!.iconPath + "_Male",
+                _ => def!.iconPath
+            };
+        }
+    }
+
+    /// <inheritdoc />
+    public override void ExposeData()
+    {
+        Scribe_Values.Look(ref _gender, "gender");
     }
 }

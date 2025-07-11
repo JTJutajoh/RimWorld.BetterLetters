@@ -58,9 +58,8 @@ internal class Settings : ModSettings
     [Setting] internal static int MaxNumSnoozes = 30;
     [Setting] internal static int SnoozeTickPeriod = GenTicks.TicksPerRealSecond;
 
-    [Setting] internal static bool DisableRightClickPinnedLetters = false;
-    [Setting] internal static bool ReplaceLetterIconsInLetterStack = true;
-    [Setting] internal static bool ReplaceLetterIconsInXML = true;
+    [Setting] internal static bool EnableRightClickPinnedLetters = true;
+    [Setting] internal static bool ReplaceLetterIcons = true;
     [Setting] internal static bool ModifyLetterText = true;
     [Setting] internal static bool RaidAddDropPod = true;
     [Setting] internal static bool RaidAddRaidStrategy = true;
@@ -79,6 +78,8 @@ internal class Settings : ModSettings
     [Setting] internal static bool RemindersOpen = false;
     [Setting] internal static bool DoCreateReminderPlaySetting = true;
     [Setting] internal static bool AutoSelectThingForReminders = true;
+    [Setting] internal static bool EnableLetterAppearancePatches = true;
+    [Setting] internal static bool DoLetterDecorators = true;
     [Setting] internal static bool OffsetLetterLabels = true;
     [Setting] internal static float LetterLabelsOffsetAmount = 0f;
 
@@ -335,11 +336,13 @@ internal class Settings : ModSettings
         section.CheckboxLabeled(GetSettingLabel("KeepQuestLettersOnStack"), ref KeepQuestLettersOnStack,
             GetSettingTooltip("KeepQuestLettersOnStack"), 36f);
 
-        section.CheckboxLabeled(GetSettingLabel("ChangeExpiredQuestLetters"), ref ChangeExpiredQuestLetters,
-            GetSettingTooltip("ChangeExpiredQuestLetters"), 36f);
-
         section.CheckboxLabeled(GetSettingLabel("AddQuestExpirationSnoozeOptions"), ref AddQuestExpirationSnoozeOptions,
             GetSettingTooltip("AddQuestExpirationSnoozeOptions"), 36f);
+
+        section.Gap();
+
+        section.CheckboxLabeled(GetSettingLabel("ChangeExpiredQuestLetters"), ref ChangeExpiredQuestLetters,
+            GetSettingTooltip("ChangeExpiredQuestLetters"), 36f);
 
         var expirationSoundLabelRect = section.Label(GetSettingLabel("QuestExpirationSound"));
         var extraHeight = 0f;
@@ -444,33 +447,64 @@ internal class Settings : ModSettings
 
         section.SectionHeader("BetterLetters_Settings_Section_LetterStack");
 
-        section.CheckboxLabeled(GetSettingLabel("DisableRightClickPinnedLetters"),
-            ref DisableRightClickPinnedLetters,
-            GetSettingTooltip("DisableRightClickPinnedLetters"), 36f);
+        section.CheckboxLabeled(GetSettingLabel("EnableRightClickPinnedLetters"),
+            ref EnableRightClickPinnedLetters,
+            GetSettingTooltip("EnableRightClickPinnedLetters"), 36f);
 
         section.CheckboxLabeled(GetSettingLabel("AddBulkDismissButton"), ref AddBulkDismissButton,
             GetSettingTooltip("AddBulkDismissButton"), 36f);
 
-        section.CheckboxLabeled(GetSettingLabel("OffsetLetterLabels"), ref OffsetLetterLabels,
-            GetSettingTooltip("OffsetLetterLabels"), 36f);
+        section.GapLine();
 
-        if (!OffsetLetterLabels)
+        section.CheckboxLabeled(GetSettingLabel("EnableLetterAppearancePatches"), ref EnableLetterAppearancePatches);
+
+        section.Gap();
+
+        section.Label("BetterLetters_Settings_LabelsAndDecoratorsHeading".Translate());
+
+        if (section.RadioButton("BetterLetters_Settings_VanillaLabelsAndDecorators".Translate(),
+                (!DoLetterDecorators && !OffsetLetterLabels),
+                0.3f, 0.3f, null!, null, !EnableLetterAppearancePatches))
+        {
+            DoLetterDecorators = false;
+            OffsetLetterLabels = false;
+        }
+
+        if (section.RadioButton(GetSettingLabel("DoLetterDecorators"), DoLetterDecorators, 0.3f, 0.3f,
+                GetSettingTooltip("DoLetterDecorators"), null, !EnableLetterAppearancePatches))
+        {
+            DoLetterDecorators = true;
+        }
+
+        if (section.RadioButton(GetSettingLabel("OffsetLetterLabels"), (OffsetLetterLabels && !DoLetterDecorators),
+                0.3f, 0.3f, GetSettingTooltip("OffsetLetterLabels"), null, !EnableLetterAppearancePatches))
+        {
+            OffsetLetterLabels = true;
+            DoLetterDecorators = false;
+        }
+
+        if (!OffsetLetterLabels || !EnableLetterAppearancePatches)
             GUI.color = new Color(1f, 1f, 1f, 0.5f);
+
         var tempOffsetAmount = section.SliderLabeled(GetSettingLabel("LetterLabelsOffsetAmount", true, "px"),
-            LetterLabelsOffsetAmount, -52f, 52f, 0.7f, GetSettingTooltip("LetterLabelsOffsetAmount"));
-        if (OffsetLetterLabels)
+            LetterLabelsOffsetAmount, -52f, 64f, 0.7f, GetSettingTooltip("LetterLabelsOffsetAmount"));
+
+        if (OffsetLetterLabels && EnableLetterAppearancePatches)
             LetterLabelsOffsetAmount = Mathf.RoundToInt(tempOffsetAmount);
         GUI.color = Color.white;
 
         section.GapLine();
 
-        section.Label("BetterLetters_Settings_ReplaceLetterIconsInLetterStack".Translate());
-        if (section.RadioButton("BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Enabled".Translate(),
-                ReplaceLetterIconsInLetterStack, 0f, GetSettingTooltip("ReplaceLetterIconsInLetterStack")))
-            ReplaceLetterIconsInLetterStack = true;
-        if (section.RadioButton("BetterLetters_Settings_ReplaceLetterIconsInLetterStack_Disabled".Translate(),
-                !ReplaceLetterIconsInLetterStack, 0f, GetSettingTooltip("ReplaceLetterIconsInLetterStack")))
-            ReplaceLetterIconsInLetterStack = false;
+        section.Label("BetterLetters_Settings_ReplaceLetterIcons".Translate());
+        if (section.RadioButton("BetterLetters_Settings_ReplaceLetterIcons_Disabled".Translate(),
+                !ReplaceLetterIcons, 0f, 0f, GetSettingTooltip("ReplaceLetterIcons"), null,
+                !EnableLetterAppearancePatches))
+            ReplaceLetterIcons = false;
+        if (section.RadioButton("BetterLetters_Settings_ReplaceLetterIcons_Enabled".Translate(),
+                ReplaceLetterIcons, 0f, 0f, GetSettingTooltip("ReplaceLetterIcons"), null,
+                !EnableLetterAppearancePatches))
+            ReplaceLetterIcons = true;
+        section.SubLabel("BetterLetters_Settings_ReplaceLetterIcons_RequiresRestart".Translate(), 1f);
 
         section.GapLine();
 
@@ -540,17 +574,6 @@ internal class Settings : ModSettings
     {
         var section = listing.BeginSection(_lastBaseLettersSectionHeight ?? 9999f)!;
         section.SectionHeader("BetterLetters_Settings_Section_BaseLetters");
-
-        section.Label("BetterLetters_Settings_ReplaceLetterIconsInXML".Translate());
-        if (section.RadioButton("BetterLetters_Settings_ReplaceLetterIconsInXML_Enabled".Translate(),
-                ReplaceLetterIconsInXML, 0f, GetSettingTooltip("ReplaceLetterIconsInXML")))
-            ReplaceLetterIconsInXML = true;
-        if (section.RadioButton("BetterLetters_Settings_ReplaceLetterIconsInXML_Disabled".Translate(),
-                !ReplaceLetterIconsInXML, 0f, GetSettingTooltip("ReplaceLetterIconsInXML")))
-            ReplaceLetterIconsInXML = false;
-        section.SubLabel("BetterLetters_Settings_RequiresRestart".Translate(), 1f);
-
-        section.GapLine();
 
         section.Label("BetterLetters_Settings_ModifyLetterText".Translate());
         if (section.RadioButton("BetterLetters_Settings_ModifyLetterText_Enabled".Translate(),
@@ -869,11 +892,8 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref MaxSnoozeDuration, "MaxSnoozeDuration",
             (int)DefaultSettings[nameof(MaxSnoozeDuration)]);
 
-        Scribe_Values.Look(ref ReplaceLetterIconsInLetterStack, "ReplaceLetterIconsInLetterStack",
-            (bool)DefaultSettings[nameof(ReplaceLetterIconsInLetterStack)]);
-
-        Scribe_Values.Look(ref ReplaceLetterIconsInXML, "ReplaceLetterIconsInXML",
-            (bool)DefaultSettings[nameof(ReplaceLetterIconsInXML)]);
+        Scribe_Values.Look(ref ReplaceLetterIcons, "ReplaceLetterIcons",
+            (bool)DefaultSettings[nameof(ReplaceLetterIcons)]);
 
         Scribe_Values.Look(ref ModifyLetterText, "ModifyLetterText",
             (bool)DefaultSettings[nameof(ModifyLetterText)]);
@@ -902,8 +922,8 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref SnoozeTickPeriod, "SnoozeTickPeriod",
             (int)DefaultSettings[nameof(SnoozeTickPeriod)]);
 
-        Scribe_Values.Look(ref DisableRightClickPinnedLetters, "DisableRightClickPinnedLetters",
-            (bool)DefaultSettings[nameof(DisableRightClickPinnedLetters)]);
+        Scribe_Values.Look(ref EnableRightClickPinnedLetters, "EnableRightClickPinnedLetters",
+            (bool)DefaultSettings[nameof(EnableRightClickPinnedLetters)]);
 
         Scribe_Values.Look(ref DisableBounceIfPinned, "DisableBounceIfPinned",
             (bool)DefaultSettings[nameof(DisableBounceIfPinned)]);
@@ -953,6 +973,12 @@ internal class Settings : ModSettings
 
         Scribe_Values.Look(ref OffsetLetterLabels, "OffsetLetterLabels",
             (bool)DefaultSettings[nameof(OffsetLetterLabels)]);
+
+        Scribe_Values.Look(ref DoLetterDecorators, "DoLetterDecorators",
+            (bool)DefaultSettings[nameof(DoLetterDecorators)]);
+
+        Scribe_Values.Look(ref EnableLetterAppearancePatches, "EnableLetterAppearancePatches",
+            (bool)DefaultSettings[nameof(EnableLetterAppearancePatches)]);
 
         Scribe_Values.Look(ref LetterLabelsOffsetAmount, "LetterLabelsOffsetAmount",
             (float)DefaultSettings[nameof(LetterLabelsOffsetAmount)]);

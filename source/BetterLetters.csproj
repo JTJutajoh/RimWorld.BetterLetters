@@ -106,6 +106,7 @@
     <Compile Include="LetterIconOverrides.cs" />
     <Compile Include="MissingVanillaDefOf.cs" />
     <Compile Include="ModCompatibility.cs" />
+    <Compile Include="Patches\Patch_Archivable_GetIcon_OverrideIcon.cs" />
     <Compile Include="Patches\Patch_BundleLetter_SetLetters_AddOptions.cs" />
     <Compile Include="Patches\Patch_HistoryTab_DoArchivableRow.cs" />
     <Compile Include="Patches\Patch_HistoryTab_FilteringButtons.cs" />
@@ -139,12 +140,15 @@
     <Content Include="About\About.xml" />
     <Content Include="About\Preview.png" />
     <Content Include="BetterLetters.csproj.user" />
+    <Content Include="BuildAssetBundle.ps1" />
     <Content Include="C:\Users\darkf\Desktop\harmony.log.txt">
       <Link>harmony.log.txt</Link>
     </Content>
     <Content Include="Defs\Misc\LetterDefs\BetterLettersLetters.xml" />
     <Content Include="Defs\Misc\LetterIconOverrideDefs\BetterLettersLetterIconOverrides.xml" />
     <Content Include="Languages\English\Keyed\BetterLetters_Keys.xml" />
+    <Content Include="LoadFolders.debug.xml" />
+    <Content Include="LoadFolders.release.xml" />
     <Content Include="News\BetterLettersUpdateNews.xml" />
     <Content Include="Patches\LetterIconPatches.xml" />
   </ItemGroup>
@@ -180,6 +184,16 @@
     <Copy
             SourceFiles="@(About)"
             DestinationFolder="$(RimWorldDir)\Mods\$(ProjectName)\About"
+            SkipUnchangedFiles="true" />
+
+    <ItemGroup>
+      <LoadFolders Include="$(ProjectDir)\LoadFolders.release.xml" Condition="'$(DebugSymbols)' == 'false'" />
+      <LoadFolders Include="$(ProjectDir)\LoadFolders.debug.xml" Condition="'$(DebugSymbols)' == 'true'" />
+    </ItemGroup>
+
+    <Copy
+            SourceFiles="@(LoadFolders)"
+            DestinationFiles="$(RimWorldDir)\Mods\$(ProjectName)\LoadFolders.xml"
             SkipUnchangedFiles="true" />
 
     <ItemGroup>

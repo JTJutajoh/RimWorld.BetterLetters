@@ -16,9 +16,19 @@ namespace BetterLetters;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class LetterIconOverrideDef : Def
 {
-    public Texture2D Icon => _resolvedIcon ?? ContentFinder<Texture2D>.Get(iconPath)!;
+    public Texture2D Icon => ResolvedIcon ?? ContentFinder<Texture2D>.Get(iconPath)!;
 
-    private Texture2D? _resolvedIcon = null;
+    private Texture2D? _resolvedIcon;
+
+    private Texture2D? ResolvedIcon
+    {
+        get
+        {
+            if (_resolvedIcon != null)
+                return _resolvedIcon;
+            return IconResolver?.Resolve();
+        }
+    }
 
     private LetterIconOverrideResolver? _iconResolverInt;
 
@@ -36,6 +46,7 @@ public class LetterIconOverrideDef : Def
 
             return _iconResolverInt;
         }
+        set => _iconResolverInt = value;
     }
 
     public List<Def> TriggeringDefs
@@ -57,7 +68,6 @@ public class LetterIconOverrideDef : Def
     }
 
 
-    /// <inheritdoc />
     // public override IEnumerable<string> ConfigErrors()
     // {
     //     if (base.ConfigErrors() is { } errors)
