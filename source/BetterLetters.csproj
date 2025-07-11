@@ -102,6 +102,7 @@
     <Compile Include="LetterIconOverrideDef.cs" />
     <Compile Include="LetterIconOverrideDefOf.cs" />
     <Compile Include="LetterIconOverrideResolver.cs" />
+    <Compile Include="LetterIconOverrideResolvers\DiscoverableDiseaseIconOverrideResolver.cs" />
     <Compile Include="LetterIconOverrideResolvers\GenderIconOverrideResolver.cs" />
     <Compile Include="LetterIconOverrides.cs" />
     <Compile Include="MissingVanillaDefOf.cs" />

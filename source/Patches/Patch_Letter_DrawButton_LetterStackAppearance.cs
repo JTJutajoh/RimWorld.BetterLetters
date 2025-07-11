@@ -61,7 +61,7 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
         }
 
 
-        //TODO: Switch this to using the override cache system
+        //MAYBE: Switch this to using the override cache system
         if (__instance is ChoiceLetter { quest: { } quest })
         {
             if (quest.Historical || quest.dismissed)

@@ -15,6 +15,16 @@ internal static class LetterIconOverrideDefOf
 
     public static LetterIconOverrideDef MentalBreak;
 
+    public static LetterIconOverrideDef Inspiration;
+
+
+    public static LetterIconOverrideDef ShortCircuit;
+
+    public static LetterIconOverrideDef Manhunter;
+
+    public static LetterIconOverrideDef Infestation;
+
+    public static LetterIconOverrideDef MechCluster;
 
     public static LetterIconOverrideDef SolarFlare;
 
@@ -38,6 +48,15 @@ internal static class LetterIconOverrideDefOf
 
 
     public static LetterIconOverrideDef Raid;
+
+
+    public static LetterIconOverrideDef DiseaseDiscoverable;
+
+    public static LetterIconOverrideDef DiseaseOrganic;
+
+    public static LetterIconOverrideDef DiseaseMechanite;
+
+    public static LetterIconOverrideDef DiseaseAnimal;
 
 
     public static LetterIconOverrideDef TraderCaravan;

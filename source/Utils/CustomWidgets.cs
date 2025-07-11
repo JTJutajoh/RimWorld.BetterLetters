@@ -229,11 +229,13 @@ internal static class CustomWidgets
 
     internal static void SnoozeIconButton(Letter letter, Rect rect)
     {
-        SnoozeIconButton(letter, rect, null);
+        SnoozeIconButton(letter, rect, null, false);
     }
 
-    internal static void SnoozeIconButton(Letter letter, Rect rect, List<FloatMenuOption>? extraFloatMenuOptions)
+    internal static void SnoozeIconButton(Letter letter, Rect rect, List<FloatMenuOption>? extraFloatMenuOptions, bool shadow = false)
     {
+        if (shadow)
+            Widgets.DrawShadowAround(rect);
         var snoozed = letter.IsSnoozed();
         var tex = snoozed ? Icons.SnoozeIcon : Icons.SnoozeOutline;
         if (Widgets.ButtonImage(rect, tex))
@@ -269,6 +271,13 @@ internal static class CustomWidgets
 
     internal static void PinIconButton(Letter letter, Rect rect)
     {
+        PinIconButton(letter, rect, false);
+    }
+
+    internal static void PinIconButton(Letter letter, Rect rect, bool shadow)
+    {
+        if (shadow)
+            Widgets.DrawShadowAround(rect);
         var pinned = letter.IsPinned();
         var tex = pinned ? Icons.PinIcon : Icons.PinOutline;
         if (Widgets.ButtonImage(rect, tex))

@@ -7,25 +7,41 @@
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
+        <defName>Inspiration</defName>
+        <iconPath>UI/Letters/LetterInspiration</iconPath>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>ShortCircuit</defName>
+        <iconPath>UI/Letters/LetterShortCircuit</iconPath>
+        <incidents>
+            <li>ShortCircuit</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
         <defName>Manhunter</defName>
-        <iconPath>UI/Letters/Manhunter</iconPath>
+        <iconPath>UI/Letters/LetterManhunter</iconPath>
         <incidents>
             <li>ManhunterPack</li>
+            <li>ManhunterAmbush</li>
         </incidents>
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
         <defName>Infestation</defName>
-        <iconPath>UI/Letters/Infestation</iconPath>
+        <iconPath>UI/Letters/LetterInfestation</iconPath>
         <incidents>
             <li>Infestation</li>
+            <li>DeepDrillInfestation</li>
             <li>Infestation_Jelly</li>
+            <li>WastepackInfestation</li>
         </incidents>
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
         <defName>MechCluster</defName>
-        <iconPath>UI/Letters/MechCluster</iconPath>
+        <iconPath>UI/Letters/LetterMechCluster</iconPath>
         <incidents>
             <li>MechCluster</li>
         </incidents>
@@ -115,6 +131,48 @@
         <iconPath>UI/Letters/LetterRaid</iconPath>
         <incidents>
             <li>RaidEnemy</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>DiseaseDiscoverable</defName>
+        <iconPath>UI/Letters/LetterDisease</iconPath>
+        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.DiscoverableDiseaseIconOverrideResolver</iconResolverClass>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>DiseaseOrganic</defName>
+        <iconPath>UI/Letters/LetterDisease_Organic</iconPath>
+        <incidents>
+            <li>Disease_Flu</li>
+            <li>Disease_Plague</li>
+            <li>Disease_Malaria</li>
+            <li>Disease_SleepingSickness</li>
+            <li>Disease_FibrousMechanites</li>
+            <li>Disease_SensoryMechanites</li>
+            <li>Disease_GutWorms</li>
+            <li>Disease_MuscleParasites</li>
+            <li>Disease_OrganDecay</li>
+            <li>Disease_Abasia</li>
+            <li>Disease_BloodRot</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>DiseaseMechanite</defName>
+        <iconPath>UI/Letters/LetterDisease_Mechanite</iconPath>
+        <incidents>
+            <li>Disease_FibrousMechanites</li>
+            <li>Disease_SensoryMechanites</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>DiseaseAnimal</defName>
+        <iconPath>UI/Letters/LetterDisease_Animal</iconPath>
+        <incidents>
+            <li>Disease_AnimalFlu</li>
+            <li>Disease_AnimalPlague</li>
         </incidents>
     </BetterLetters.LetterIconOverrideDef>
 

@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
@@ -57,10 +59,10 @@ internal static class Patch_LetterStack_OverrideIcons
 
     [HarmonyPatch(typeof(IncidentWorker), nameof(IncidentWorker.SendIncidentLetter))]
     [HarmonyPatchCategory("LetterIconCaching")]
-    static class IncidentGeneric
+    static class IncidentGenericLetterPatch
     {
         [UsedImplicitly]
-        static void Prefix(IncidentParms parms)
+        static void Prefix()
         {
             LetterIconOverrides.MostRecentLetter = null;
         }
@@ -68,7 +70,7 @@ internal static class Patch_LetterStack_OverrideIcons
         [UsedImplicitly]
         static void Postfix(IncidentDef def, IncidentParms parms)
         {
-            if (def?.letterDef is null) return;
+            if (def is null) return;
 
             LetterIconOverrides.TryOverrideIconForDef(def);
         }
@@ -76,11 +78,11 @@ internal static class Patch_LetterStack_OverrideIcons
 
     [HarmonyPatch(typeof(IncidentWorker_MakeGameCondition), "TryExecuteWorker")]
     [HarmonyPatchCategory("LetterIconCaching")]
-    static class GameConditionGeneric
+    static class GameConditionGenericLetterPatch
     {
         [HarmonyPrefix]
         [UsedImplicitly]
-        static void Prefix(IncidentParms parms)
+        static void Prefix()
         {
             LetterIconOverrides.MostRecentLetter = null;
         }
@@ -102,10 +104,10 @@ internal static class Patch_LetterStack_OverrideIcons
 
     [HarmonyPatch(typeof(MentalStateHandler), nameof(MentalStateHandler.TryStartMentalState))]
     [HarmonyPatchCategory("LetterIconCaching")]
-    static class MentalState
+    static class MentalStateLetterPatch
     {
         [UsedImplicitly]
-        static void Prefix(Pawn ___pawn)
+        static void Prefix()
         {
             LetterIconOverrides.MostRecentLetter = null;
         }
@@ -122,9 +124,49 @@ internal static class Patch_LetterStack_OverrideIcons
         }
     }
 
+    [HarmonyPatch(typeof(Inspiration), "SendBeginLetter")]
+    [HarmonyPatchCategory("LetterIconCaching")]
+    static class InspirationLetterPatch
+    {
+        [UsedImplicitly]
+        static void Prefix()
+        {
+            LetterIconOverrides.MostRecentLetter = null;
+        }
+
+        [UsedImplicitly]
+        static void Postfix(InspirationDef ___def)
+        {
+            LetterIconOverrides.TryOverrideMostRecentLetterIcon(LetterIconOverrideDefOf.Inspiration, ___def);
+        }
+    }
+
+    [HarmonyPatch(typeof(HediffComp_Discoverable), "CheckDiscovered")]
+    [HarmonyPatchCategory("LetterIconCaching")]
+    static class DiscoverableDiseaseLetterPatch
+    {
+        [UsedImplicitly]
+        static void Prefix()
+        {
+            LetterIconOverrides.MostRecentLetter = null;
+        }
+
+        [UsedImplicitly]
+        static void Postfix(HediffComp_Discoverable __instance, bool ___discovered)
+        {
+            if (!___discovered ||
+                !__instance.Props!.sendLetterWhenDiscovered ||
+                !PawnUtility.ShouldSendNotificationAbout(__instance.Pawn!))
+                return;
+
+            LetterIconOverrides.TryOverrideMostRecentLetterIcon(LetterIconOverrideDefOf.DiseaseDiscoverable,
+                __instance.Props, __instance.parent!, __instance.Pawn!);
+        }
+    }
+
     [HarmonyPatch(typeof(IncidentWorker_RaidEnemy), "TryExecuteWorker")]
     [HarmonyPatchCategory("LetterIconCaching")]
-    static class RaidEnemy
+    static class RaidEnemyLetterPatch
     {
         [UsedImplicitly]
         static void Prefix()
@@ -143,7 +185,7 @@ internal static class Patch_LetterStack_OverrideIcons
 
     [HarmonyPatch(typeof(IncidentWorker_OrbitalTraderArrival), "TryExecuteWorker")]
     [HarmonyPatchCategory("LetterIconCaching")]
-    static class OrbitalTrader
+    static class OrbitalTraderLetterPatch
     {
         [UsedImplicitly]
         static void Prefix()
@@ -162,7 +204,7 @@ internal static class Patch_LetterStack_OverrideIcons
 
     [HarmonyPatch(typeof(IncidentWorker_TraderCaravanArrival), "SendLetter")]
     [HarmonyPatchCategory("LetterIconCaching")]
-    static class TraderCaravan
+    static class TraderCaravanLetterPatch
     {
         [UsedImplicitly]
         static void Prefix()
@@ -182,7 +224,7 @@ internal static class Patch_LetterStack_OverrideIcons
 
     [HarmonyPatch(typeof(IncidentWorker_PsychicSoothe), "DoConditionAndLetter")]
     [HarmonyPatchCategory("LetterIconCaching")]
-    static class PsychicSoothe
+    static class PsychicSootheLetterPatch
     {
         [UsedImplicitly]
         static void Prefix()
@@ -201,7 +243,7 @@ internal static class Patch_LetterStack_OverrideIcons
 
     [HarmonyPatch(typeof(IncidentWorker_PsychicDrone), "DoConditionAndLetter")]
     [HarmonyPatchCategory("LetterIconCaching")]
-    static class PsychicDrone
+    static class PsychicDroneLetterPatch
     {
         [UsedImplicitly]
         static void Prefix()
@@ -215,6 +257,30 @@ internal static class Patch_LetterStack_OverrideIcons
             if (parms.silent) return;
 
             LetterIconOverrides.TryOverrideMostRecentLetterIcon(LetterIconOverrideDefOf.PsychicDrone, parms, gender);
+        }
+    }
+
+    [HarmonyPatch(typeof(ShortCircuitUtility))]
+    [HarmonyPatchCategory("LetterIconCaching")]
+    static class ShortCircuitLetterPatch
+    {
+        [UsedImplicitly]
+        static IEnumerable<MethodBase> TargetMethods()
+        {
+            yield return typeof(ShortCircuitUtility).GetMethod(nameof(ShortCircuitUtility.DoShortCircuit))!;
+            yield return typeof(ShortCircuitUtility).GetMethod(nameof(ShortCircuitUtility.TryShortCircuitInRain))!;
+        }
+
+        [UsedImplicitly]
+        static void Prefix()
+        {
+            LetterIconOverrides.MostRecentLetter = null;
+        }
+
+        [UsedImplicitly]
+        static void Postfix()
+        {
+            LetterIconOverrides.TryOverrideMostRecentLetterIcon(LetterIconOverrideDefOf.ShortCircuit);
         }
     }
 
