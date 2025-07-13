@@ -184,7 +184,7 @@ public static class LetterIconOverrides
     }
 
     /// <summary>
-    /// Called by <see cref="Patch_OverrideIcons.LetterIconsCacheExposeData"/> <br />
+    /// Called by <see cref="Patch_LetterStack_CacheReceivedLetter.LetterIconsCacheExposeData"/> <br />
     /// Hijack <see cref="LetterStack" />'s own <see cref="LetterStack.ExposeData" /> call to inject <see cref="LetterIconsCache"/> into it.<br />
     /// Since references to <see cref="Texture2D"/> cannot be serialized, they need to be converted to/from strings.
     /// </summary>

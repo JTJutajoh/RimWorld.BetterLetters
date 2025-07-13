@@ -20,12 +20,12 @@ namespace BetterLetters.Patches;
 [HarmonyPatchCategory("LetterIconCaching")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-internal static class Patch_OverrideIcons
+internal static class Patch_LetterStack_CacheReceivedLetter
 {
+    // LetterStack.ReceiveLetter signature changed in RW 1.5+ so target method needs to be calculated dynamically
     [UsedImplicitly]
     static MethodBase? TargetMethod()
     {
-        // LetterStack.ReceiveLetter signature changed in RW 1.5+
         if ((LegacySupport.CurrentRWVersion & (RWVersion.v1_5 | RWVersion.v1_6)) != 0)
             return AccessTools.Method(
                 typeof(LetterStack),
@@ -63,20 +63,5 @@ internal static class Patch_OverrideIcons
     static void CacheMostRecentLetter(Letter let)
     {
         LetterIconOverrides.MostRecentLetter = let;
-    }
-}
-
-[HarmonyPatch]
-[HarmonyPatchCategory("LetterIconCaching")]
-[SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
-[SuppressMessage("ReSharper", "InconsistentNaming")]
-internal static class Patch_LetterStack_ExposeData
-{
-    [HarmonyPatch(typeof(LetterStack), nameof(LetterStack.ExposeData))]
-    [HarmonyPostfix]
-    [UsedImplicitly]
-    static void LetterIconsCacheExposeData()
-    {
-        LetterIconOverrides.ExposeData();
     }
 }
