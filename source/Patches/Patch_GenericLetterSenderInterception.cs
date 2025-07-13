@@ -17,9 +17,15 @@ namespace BetterLetters.Patches;
 internal static class IncidentGenericLetterPatch
 {
     [UsedImplicitly]
-    static void Prefix(MethodBase __originalMethod)
+    static void Prefix(MethodBase __originalMethod, IncidentDef def)
     {
-        LetterIconOverrides.MostRecentLetter = null;
+        if (!LetterIconOverrides.TryGetIconOverrideDefForDef(def, out _))
+        {
+            Log.Trace(
+                $"No generic override found for incident def \"{def.defName}\"in LetterIconOverrides.DefLetterIconOverrides");
+        }
+        else
+            LetterIconOverrides.MostRecentLetter = null;
     }
 
     [UsedImplicitly]
@@ -38,9 +44,15 @@ internal static class IncidentGenericLetterPatch
 internal static class GameConditionGenericLetterPatch
 {
     [UsedImplicitly]
-    static void Prefix()
+    static void Prefix(IncidentDef? ___def)
     {
-        LetterIconOverrides.MostRecentLetter = null;
+        if (!LetterIconOverrides.TryGetIconOverrideDefForDef(___def, out _))
+        {
+            Log.Trace(
+                $"No generic override found for incident def \"{___def?.defName}\"in LetterIconOverrides.DefLetterIconOverrides");
+        }
+        else
+            LetterIconOverrides.MostRecentLetter = null;
     }
 
     [UsedImplicitly]
@@ -111,11 +123,21 @@ internal static class Patch_GenericLetterSenderInterception
 
         var codeMatcher = new CodeMatcher(instructions);
         var parameters = originalMethod.GetParameters();
-        var paramsLength = parameters.Length;
-        if (!originalMethod.IsStatic) paramsLength++;
+        var parameterTypes = parameters.Select(p => p.ParameterType).ToArray();
+        var instanceType = originalMethod.DeclaringType;
+        // Make room for the "this" parameter
+        if (!originalMethod.IsStatic)
+        {
+            // Expand the parameterTypes array to make room for the "this" reference at the start if it's an instance method
+            Array.Resize(ref parameterTypes!, parameterTypes.Length + 1);
+            Array.Copy(parameterTypes, 0, parameterTypes, 1, parameterTypes.Length - 1);
+            parameterTypes[0] = instanceType;
+        }
+
+        var paramsLength = parameterTypes.Length;
 
         Log.Trace(
-            $"Searching in {originalMethod.DeclaringType!.Name}.{originalMethod.Name} for letter sending method...");
+            $"\tSearching in {originalMethod.DeclaringType!.Name}.{originalMethod.Name} for letter sending method...");
         codeMatcher.Start()!.SearchForward(CallsLetterSendingMethod);
 
         if (!codeMatcher.IsValid)
@@ -124,6 +146,8 @@ internal static class Patch_GenericLetterSenderInterception
                 $"Failed to find any letter sending methods in {originalMethod.DeclaringType!.Name}.{originalMethod.Name}.");
             return codeMatcher.Instructions()!;
         }
+
+        Log.Trace("\tFound letter sending method, inserting patch");
 
         codeMatcher.InsertAndAdvance(
                 CodeInstruction.Call(typeof(LetterIconOverrides),
@@ -134,6 +158,7 @@ internal static class Patch_GenericLetterSenderInterception
         codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Call, MethodBaseGetCurrentMethodMethodInfo));
 
         // Create an array with a length that matches the length of parameters
+        Log.Trace($"\tInserting parameters array with {paramsLength} params");
         codeMatcher.InsertAndAdvance(
             new CodeInstruction(OpCodes.Ldc_I4, paramsLength),
             new CodeInstruction(OpCodes.Newarr, typeof(object))
@@ -147,6 +172,22 @@ internal static class Patch_GenericLetterSenderInterception
             codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4, paramIndex));
             // Load the parameter value
             codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg, paramIndex));
+
+            var paramType = parameterTypes[paramIndex];
+            Log.Trace($"\t\tParameter {paramIndex}: {paramType.Name}");
+
+
+            if (paramType.ContainsGenericParameters)
+            {
+                Log.Warning($"\t\tGeneric parameter type, won't work");
+            }
+
+            if (paramType.IsValueType)
+            {
+                Log.Trace($"\t\t\tParam is value type, boxing type {paramType}");
+                codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Box, paramType));
+            }
+
             // Store value in array
             codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Stelem_Ref));
         }
@@ -182,9 +223,17 @@ internal static class Patch_GenericLetterSenderInterception
 
         if (exception is not null)
         {
+            if (originalMethod is not null)
+                Log.Error(
+                    $"Failed patching {originalMethod.DeclaringType!.Name}.{originalMethod.Name}({originalMethod.GetParameters().Join(p => p.ParameterType.Name, ", ")})");
+            else
+                Log.Error("Failed patching unknown method.");
+
             PatchManager.Notify_Patched(originalMethod, 1, numFailed: 1);
-            Log.Exception(exception, $"Patching {originalMethod.DeclaringType!.Name}.{originalMethod.Name} failed.");
+            // Log.Exception(exception, $"Patching {originalMethod.DeclaringType!.Name}.{originalMethod.Name} failed.");
         }
+
+        Log.Trace($"Patching {originalMethod?.DeclaringType!.Name}.{originalMethod?.Name} complete");
 
         PatchManager.Notify_Patched(originalMethod, 1);
 
