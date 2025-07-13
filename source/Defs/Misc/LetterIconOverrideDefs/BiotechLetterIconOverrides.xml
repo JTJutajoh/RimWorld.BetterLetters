@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <!-- All Biotech-related letters -->
+    <BetterLetters.LetterIconOverrideDef MayRequire="Ludeon.RimWorld.Biotech">
+        <defName>Biotech</defName>
+        <iconPath>UI/Letters/LetterBiotech</iconPath>
+    </BetterLetters.LetterIconOverrideDef>
+
+</Defs>

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
+using BetterLetters.Patches;
 using JetBrains.Annotations;
 using RimWorld;
 using UnityEngine;
@@ -9,6 +12,9 @@ using UnityEngine;
 
 namespace BetterLetters;
 
+/// <summary>
+/// Def used to define an override for a letter's icon from XML.<br />
+/// </summary>
 [UsedImplicitly]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global")]
@@ -16,71 +22,70 @@ namespace BetterLetters;
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class LetterIconOverrideDef : Def
 {
-    public Texture2D Icon => ResolvedIcon ?? ContentFinder<Texture2D>.Get(iconPath)!;
+    /// <summary>
+    /// The default icon that should be used as the override.
+    /// </summary>
+    /// <remarks>
+    /// For defs that have <see cref="iconResolverClass"/> defined, this property will not return the resolved icon,
+    /// only the base icon.
+    /// </remarks>
+    public Texture2D Icon => ContentFinder<Texture2D>.Get(iconPath)!;
 
-    private Texture2D? _resolvedIcon;
-
-    private Texture2D? ResolvedIcon
-    {
-        get
-        {
-            if (_resolvedIcon != null)
-                return _resolvedIcon;
-            return IconResolver?.Resolve();
-        }
-    }
-
-    private LetterIconOverrideResolver? _iconResolverInt;
-
-    public LetterIconOverrideResolver? IconResolver
-    {
-        get
-        {
-            if (iconResolverClass == null)
-                return null;
-            if (_iconResolverInt == null)
-            {
-                _iconResolverInt = (LetterIconOverrideResolver)Activator.CreateInstance(iconResolverClass)!;
-                _iconResolverInt.def = this;
-            }
-
-            return _iconResolverInt;
-        }
-        set => _iconResolverInt = value;
-    }
-
+    /// <summary>
+    /// A combined list of all defs that are considered as causes of the letter(s) that this override def
+    /// is overriding.
+    /// </summary>
+    /// <remarks>
+    /// Currently, all defs will be either <see cref="GameConditionDef"/> or <see cref="IncidentDef"/>.<br />
+    /// More specific triggers should be defined through <see cref="patchTargets"/>
+    /// </remarks>
     public List<Def> TriggeringDefs
     {
         get
         {
             List<Def> defs = new();
-            if (this.gameConditions != null)
-                defs.AddRange(this.gameConditions);
-            if (this.incidents != null)
-                defs.AddRange(this.incidents);
+            if (gameConditions != null)
+                defs.AddRange(gameConditions);
+            if (incidents != null)
+                defs.AddRange(incidents);
             return defs;
         }
     }
 
-    public void ResolveIcon(params object[] context)
+    /// <summary>
+    /// A list of methodinfos representing the methods that should be patched by
+    /// <see cref="Patch_GenericLetterSenderInterception"/> to intercept the letter sent within the given method(s)
+    /// and override its icon.
+    /// </summary>
+    public List<PatchTarget> PatchTargets => patchTargets ?? new List<PatchTarget>();
+
+    public override IEnumerable<string> ConfigErrors()
     {
-        _resolvedIcon = IconResolver?.Resolve(context);
+        if (iconPath == null || iconPath.Trim() == "")
+            yield return "IconPath is null or empty";
+
+        if (patchTargets is not null)
+        {
+            if (patchTargets.Count == 0)
+                yield return "PatchTargets is empty";
+            foreach (var configError in patchTargets.SelectMany(patchTarget => patchTarget.ConfigErrors()))
+                yield return configError;
+        }
+
+        if (base.ConfigErrors() is { } errors)
+            foreach (var configError in errors)
+                if (configError is not null) yield return configError;
     }
 
-
-    // public override IEnumerable<string> ConfigErrors()
-    // {
-    //     if (base.ConfigErrors() is { } errors)
-    //         foreach (var configError in errors)
-    //             yield return configError;
-    // }
-
+    // XML defined fields
     // ReSharper disable UnassignedField.Global
     [NoTranslate] public string iconPath = "UI/Letters/LetterUnopened";
 
     public List<GameConditionDef> gameConditions;
 
     public List<IncidentDef> incidents;
+
+    public List<PatchTarget> patchTargets;
 
     public Type iconResolverClass;
 }

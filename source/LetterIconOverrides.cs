@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using BetterLetters.Patches;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 
@@ -33,29 +37,74 @@ public static class LetterIconOverrides
 
     internal static Dictionary<int, LetterIconOverrideResolver> ResolverCache = new();
 
+    internal static readonly Dictionary<MethodInfo, LetterIconOverrideDef> GenericPatchedOverrideMethods = new();
+
     static LetterIconOverrides()
     {
         DefLetterIconOverrides = new Dictionary<Def, LetterIconOverrideDef>();
 
         var letterIconOverrideDefs = DefDatabase<LetterIconOverrideDef>.AllDefs;
+
         if (letterIconOverrideDefs == null)
         {
             Log.Error("Couldn't load LetterIconOverrideDefs");
             return;
         }
 
-        Log.Trace("Caching letter icon overrides");
+        Log.Trace("Caching letter icon override defs");
         foreach (var def in letterIconOverrideDefs)
         {
-            Log.Trace($" - {def.defName}:");
-            foreach (var triggeringDef in def.TriggeringDefs)
-            {
-                if (triggeringDef == null)
-                    continue; // might be null if the def doesn't exist, such as in legacy RW versions or if a DLC isn't installed
-                DefLetterIconOverrides[triggeringDef] = def;
-                Log.Trace($"Cached icon override for {triggeringDef.defName}: {def.defName}");
-            }
+            CacheLetterIconOverrideDef(def);
         }
+
+        PatchManager.Notify_PatchingComplete();
+    }
+
+    private static void CacheLetterIconOverrideDef(LetterIconOverrideDef? def)
+    {
+        if (def == null) return;
+        Log.Trace($"\t- {def.defName}:");
+        foreach (var triggeringDef in def.TriggeringDefs.OfType<Def>())
+        {
+            DefLetterIconOverrides[triggeringDef] = def;
+
+            Log.Trace($"\t\tCached icon override for {triggeringDef.defName}: {def.defName}");
+        }
+
+        foreach (var patchTarget in def.PatchTargets)
+        {
+            PatchGenericLetterIconOverride(patchTarget, def);
+
+            Log.Trace($"\t\tCached patch target for {patchTarget.TypeColonName}: {def.defName}");
+        }
+    }
+
+    private static void PatchGenericLetterIconOverride(PatchTarget patchTarget, LetterIconOverrideDef def)
+    {
+        Log.Trace($"Attempting to patch {patchTarget.TypeColonName} for {def.defName}");
+        var targetMethod = patchTarget.TargetMethod;
+        if (targetMethod is null)
+            throw new InvalidOperationException(
+                $"Target method {patchTarget.TypeColonName} not found in any loaded assemblies");
+
+        try
+        {
+            Patch_GenericLetterSenderInterception.LetterSendingMethodName = patchTarget.LetterSendingMethod;
+            var transpiler = new HarmonyMethod(typeof(Patch_GenericLetterSenderInterception), "Transpiler");
+            PatchManager.Harmony.Patch(targetMethod, transpiler: transpiler);
+            GenericPatchedOverrideMethods[targetMethod] = def;
+        }
+        catch (Exception e)
+        {
+            Log.Exception(e,
+                $"Error patching {patchTarget.TypeColonName} for {def.defName}");
+            Patch_GenericLetterSenderInterception.Cleanup(targetMethod, e);
+            return;
+        }
+
+        Patch_GenericLetterSenderInterception.Cleanup(targetMethod, null);
+
+        Log.Trace($"Patched {patchTarget.TypeColonName} for {def.defName}");
     }
 
 
@@ -65,6 +114,11 @@ public static class LetterIconOverrides
     /// it is used.
     /// </summary>
     internal static Letter? MostRecentLetter;
+
+    internal static void ClearMostRecentLetter()
+    {
+        MostRecentLetter = null;
+    }
 
     internal static void TryOverrideMostRecentLetterIcon(LetterIconOverrideDef iconOverrideDef, params object[] context)
     {
@@ -76,10 +130,11 @@ public static class LetterIconOverrides
     {
         if (iconOverrideDef != null)
         {
-            iconOverrideDef.ResolveIcon(context);
             LetterIconsCache[letter.ID] = iconOverrideDef;
-            if (iconOverrideDef.IconResolver is { } resolver)
+            if (iconOverrideDef.iconResolverClass is { } resolverClass)
             {
+                var resolver = (LetterIconOverrideResolver)Activator.CreateInstance(resolverClass)!;
+                resolver.TryResolve(iconOverrideDef, context);
                 ResolverCache[letter.ID] = resolver;
             }
         }
@@ -98,8 +153,9 @@ public static class LetterIconOverrides
     public static bool TryGetLetterIcon(int letterID, out Texture2D? icon)
     {
         var success = LetterIconsCache.TryGetValue(letterID, out var def);
-        icon = def?.Icon;
-        return success;
+        var hasResolver = ResolverCache.TryGetValue(letterID, out var resolver);
+        icon = resolver?.Icon ?? def?.Icon;
+        return success || hasResolver;
     }
 
     internal static bool TryGetIconOverrideDefForDef(Def? def, out LetterIconOverrideDef? iconOverrideDef)
@@ -128,7 +184,7 @@ public static class LetterIconOverrides
     }
 
     /// <summary>
-    /// Called by <see cref="Patch_LetterStack_OverrideIcons.LetterIconsCacheExposeData"/> <br />
+    /// Called by <see cref="Patch_OverrideIcons.LetterIconsCacheExposeData"/> <br />
     /// Hijack <see cref="LetterStack" />'s own <see cref="LetterStack.ExposeData" /> call to inject <see cref="LetterIconsCache"/> into it.<br />
     /// Since references to <see cref="Texture2D"/> cannot be serialized, they need to be converted to/from strings.
     /// </summary>
@@ -156,22 +212,21 @@ public static class LetterIconOverrides
 
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            LetterIconsCache = new();
-            ResolverCache = new();
+            LetterIconsCache = new Dictionary<int, LetterIconOverrideDef>();
+            ResolverCache = new Dictionary<int, LetterIconOverrideResolver>();
 
             if (serializableCache != null)
             {
-                foreach (var kvp in serializableCache)
+                foreach (var (letterId, serializeableOverride) in serializableCache)
                 {
-                    if (kvp.Value == null) continue;
+                    if (serializeableOverride == null) continue;
+                    //TODO: Cull old letters in the cache
 
-                    LetterIconsCache[kvp.Key] = kvp.Value.def;
+                    LetterIconsCache[letterId] = serializeableOverride.def;
 
-                    if (kvp.Value.resolver == null) continue;
+                    if (serializeableOverride.resolver == null) continue;
 
-                    ResolverCache[kvp.Key] = kvp.Value.resolver;
-                    kvp.Value.def.IconResolver = kvp.Value.resolver;
-                    kvp.Value.resolver.def = kvp.Value.def;
+                    ResolverCache[letterId] = serializeableOverride.resolver;
                 }
             }
         }

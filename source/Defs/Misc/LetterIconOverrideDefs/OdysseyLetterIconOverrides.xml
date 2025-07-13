@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <!-- All Odyssey-related letters -->
+    <BetterLetters.LetterIconOverrideDef MayRequire="Ludeon.RimWorld.Odyssey">
+        <defName>Odyssey</defName>
+        <iconPath>UI/Letters/LetterOdyssey</iconPath>
+        <gameConditions>
+            <li>GillRot</li>
+        </gameConditions>
+        <incidents>
+            <li>Drought</li>
+            <li>LavaFlow</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+</Defs>

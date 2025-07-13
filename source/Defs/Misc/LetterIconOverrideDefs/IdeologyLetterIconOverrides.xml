@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <!-- All Ideology-related letters -->
+    <BetterLetters.LetterIconOverrideDef MayRequire="Ludeon.RimWorld.Ideology">
+        <defName>Ideology</defName>
+        <iconPath>UI/Letters/LetterIdeology</iconPath>
+        <patchTargets>
+<!--            <li>-->
+<!--                <typeName>RimWorld.Ideo</typeName>-->
+<!--                <methodName>RecacheColonistBelieverCount</methodName>-->
+<!--            </li>-->
+<!--            <li>-->
+<!--                <typeName>RimWorld.IdeoDevelopmentTracker</typeName>-->
+<!--                <methodName>TryAddDevelopmentPoints</methodName>-->
+<!--                <argumentTypes>-->
+<!--                    <li>System.Int32</li>-->
+<!--                </argumentTypes>-->
+<!--            </li>-->
+<!--            <li>-->
+<!--                <typeName>RimWorld.Precept_Ritual</typeName>-->
+<!--                <methodName>AddObligation</methodName>-->
+<!--            </li>-->
+            <li>
+                <typeName>RimWorld.Precept_RoleSingle</typeName>
+                <methodName>Assign</methodName>
+            </li>
+<!--            <li>-->
+<!--                <typeName>RimWorld.Precept_RoleSingle</typeName>-->
+<!--                <methodName>RecacheActivity</methodName>-->
+<!--            </li>-->
+            <li>
+                <typeName>RimWorld.RitualOutcomeEffectWorker_RoleChange</typeName>
+                <methodName>Apply</methodName>
+            </li>
+        </patchTargets>
+        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.IdeologyIconOverrideResolver</iconResolverClass>
+    </BetterLetters.LetterIconOverrideDef>
+
+</Defs>

@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <!-- All Anomaly-related letters -->
+    <BetterLetters.LetterIconOverrideDef MayRequire="Ludeon.RimWorld.Anomaly">
+        <defName>Anomaly</defName>
+        <iconPath>UI/Letters/LetterAnomaly</iconPath>
+        <gameConditions>
+            <li>DeathPall</li>
+            <li>GrayPall</li>
+            <li>BloodRain</li>
+            <li>HateChantDrone</li>
+            <li>UnnaturalDarkness</li>
+            <li>UnnaturalHeat</li>
+        </gameConditions>
+        <incidents>
+            <li>HarbingerTreeSpawn</li>
+            <li>FrenziedAnimals</li>
+            <li>PitGate</li>
+            <li>ShamblerSwarm</li>
+            <li>PsychicRitualSiege</li>
+            <li>VoidCuriosity</li>
+        </incidents>
+        <patchTargets>
+            <li>
+                <typeName>CompDreadmeld</typeName>
+                <methodName>Notify_Killed</methodName>
+            </li>
+            <li>
+                <typeName>CompHoldingPlatformTarget</typeName>
+                <methodName>Escape</methodName>
+            </li>
+            <!-- More anomaly letters go here -->
+        </patchTargets>
+    </BetterLetters.LetterIconOverrideDef>
+
+</Defs>

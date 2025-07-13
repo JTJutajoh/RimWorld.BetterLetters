@@ -64,8 +64,18 @@ internal static class LetterIconOverrideDefOf
     public static LetterIconOverrideDef TraderOrbital;
 
 
+    [MayRequireRoyalty]
+    public static LetterIconOverrideDef Royalty;
+
+    [MayRequireIdeology]
     public static LetterIconOverrideDef Ideology;
 
+    [MayRequireBiotech]
+    public static LetterIconOverrideDef Biotech;
 
+    [MayRequireAnomaly]
     public static LetterIconOverrideDef Anomaly;
+
+    [MayRequireOdyssey]
+    public static LetterIconOverrideDef Odyssey;
 }

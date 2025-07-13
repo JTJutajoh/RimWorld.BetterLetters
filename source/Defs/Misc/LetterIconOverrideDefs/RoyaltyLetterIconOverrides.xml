@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <!-- All Royalty-related letters -->
+    <BetterLetters.LetterIconOverrideDef MayRequire="Ludeon.RimWorld.Royalty">
+        <defName>Royalty</defName>
+        <iconPath>UI/Letters/LetterRoyalty</iconPath>
+    </BetterLetters.LetterIconOverrideDef>
+
+</Defs>

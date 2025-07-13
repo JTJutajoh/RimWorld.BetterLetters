@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>PsychicDrone</defName>
+        <iconPath>UI/Letters/LetterPsychicDrone</iconPath>
+        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.GenderIconOverrideResolver</iconResolverClass>
+        <patchTargets>
+            <li>
+                <typeName>IncidentWorker_PsychicSoothe</typeName>
+                <methodName>DoConditionAndLetter</methodName>
+                <letterSendingMethodName>SendStandardLetter</letterSendingMethodName>
+            </li>
+        </patchTargets>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>PsychicSoothe</defName>
+        <iconPath>UI/Letters/LetterPsychicSoothe</iconPath>
+        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.GenderIconOverrideResolver</iconResolverClass>
+        <patchTargets>
+            <li>
+                <typeName>IncidentWorker_PsychicDrone</typeName>
+                <methodName>DoConditionAndLetter</methodName>
+                <letterSendingMethodName>SendStandardLetter</letterSendingMethodName>
+            </li>
+        </patchTargets>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>DiseaseDiscoverable</defName>
+        <iconPath>UI/Letters/LetterDisease</iconPath>
+        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.DiscoverableDiseaseIconOverrideResolver</iconResolverClass>
+        <patchTargets>
+            <li>
+                <typeName>HediffComp_Discoverable</typeName>
+                <methodName>CheckDiscovered</methodName>
+            </li>
+        </patchTargets>
+    </BetterLetters.LetterIconOverrideDef>
+
+</Defs>
