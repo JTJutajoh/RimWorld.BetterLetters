@@ -229,6 +229,7 @@ internal static class CustomWidgets
 
     internal static void SnoozeIconButton(Letter letter, Rect rect)
     {
+        // ReSharper disable once RedundantArgumentDefaultValue
         SnoozeIconButton(letter, rect, null, false);
     }
 

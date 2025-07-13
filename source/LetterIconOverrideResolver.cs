@@ -7,21 +7,21 @@ public abstract class LetterIconOverrideResolver : IExposable
     // ReSharper disable once InconsistentNaming
     public LetterIconOverrideDef? def;
 
-    private Texture2D? iconInt = null;
-    private string? resolvedPathInt = null;
+    private Texture2D? _iconInt;
+    private string? _resolvedPathInt;
 
     public Texture2D Icon
     {
         get
         {
-            if (iconInt != null) return iconInt;
+            if (_iconInt != null) return _iconInt;
 
-            if (resolvedPathInt is not null)
+            if (_resolvedPathInt is not null)
             {
-                iconInt = ContentFinder<Texture2D>.Get(resolvedPathInt);
+                _iconInt = ContentFinder<Texture2D>.Get(_resolvedPathInt);
             }
 
-            return iconInt ?? def!.Icon;
+            return _iconInt ?? def!.Icon;
         }
     }
 
@@ -30,12 +30,12 @@ public abstract class LetterIconOverrideResolver : IExposable
     public void TryResolve(LetterIconOverrideDef overrideDef, params object[] context)
     {
         def = overrideDef;
-        ResolvePath(out resolvedPathInt, context);
+        ResolvePath(out _resolvedPathInt, context);
     }
 
     public void ExposeData()
     {
         Scribe_Defs.Look(ref def, "def");
-        Scribe_Values.Look(ref resolvedPathInt, "iconPath");
+        Scribe_Values.Look(ref _resolvedPathInt, "iconPath");
     }
 }

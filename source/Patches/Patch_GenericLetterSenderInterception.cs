@@ -59,9 +59,16 @@ internal static class GameConditionGenericLetterPatch
 /// Manually patched by <see cref="LetterIconOverrides"/> at static construction time based on
 /// <see cref="LetterIconOverrideDef"/> optional <see cref="LetterIconOverrideDef.patchTargets"/> field.
 /// </summary>
+[SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class Patch_GenericLetterSenderInterception
 {
-    private static readonly List<MethodInfo> _letterSendingMethods = new()
+    /// <summary>
+    /// Used if <see cref="LetterSendingMethodName"/> is not specified (or not found).<br />
+    /// A list of default methods to look for when injecting ILs to intercept newly-received letters.
+    /// Mostly just contains all the overloads of <see cref="LetterStack.ReceiveLetter(Letter, string, int, bool)"/>
+    /// </summary>
+    private static readonly List<MethodInfo> DefaultLetterSendingMethods = new()
     {
         AccessTools.Method(typeof(LetterStack), nameof(LetterStack.ReceiveLetter),
             new[]
@@ -86,7 +93,7 @@ internal static class Patch_GenericLetterSenderInterception
         if (instruction.opcode != OpCodes.Call && instruction.opcode != OpCodes.Callvirt) return false;
 
         return instruction.operand?.ToString().Contains(LetterSendingMethodName ?? "ReceiveLetter") ??
-               _letterSendingMethods.Select(instruction.Calls).FirstOrDefault();
+               DefaultLetterSendingMethods.Select(instruction.Calls).FirstOrDefault();
     }
 
     private static readonly MethodInfo? MethodBaseGetCurrentMethodMethodInfo =

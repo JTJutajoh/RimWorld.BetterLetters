@@ -4,8 +4,6 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using JetBrains.Annotations;
-using RimWorld;
-using UnityEngine;
 
 namespace BetterLetters;
 
@@ -37,7 +35,7 @@ public class PatchTarget
         }
     }
 
-    private MethodInfo? _targetMethodInt = null;
+    private MethodInfo? _targetMethodInt;
 
     internal MethodInfo? TargetMethod
     {

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using HarmonyLib;
 using JetBrains.Annotations;
-using Verse.AI;
 
 namespace BetterLetters.Patches;
 
@@ -20,7 +18,7 @@ namespace BetterLetters.Patches;
 [HarmonyPatchCategory("LetterIconCaching")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-internal static class Patch_LetterStack_CacheReceivedLetter
+internal static class Patch_LetterStack_ReceiveLetter_CacheLetter
 {
     // LetterStack.ReceiveLetter signature changed in RW 1.5+ so target method needs to be calculated dynamically
     [UsedImplicitly]

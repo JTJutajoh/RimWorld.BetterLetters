@@ -14,7 +14,7 @@ internal class IdeologyIconOverrideResolver : LetterIconOverrideResolver
 
         PreceptDef? role = null;
         if (ritual is not null)
-            role = ritual?.assignments?.RoleChangeSelection?.def;
+            role = ritual.assignments?.RoleChangeSelection?.def;
         else if (pawn is not null)
             role = pawn.Ideo?.GetRole(pawn)?.def;
 
