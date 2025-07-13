@@ -79,6 +79,8 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
         }
         else
         {
+            //TODO: Remove this before final release
+            Log.WarningOnce($"No letter icon override found for letter '{__instance.Label}'", $"Letter_{__instance.def!.defName}_{__instance.ID.GetHashCode()}");
             LetterIcon = __instance.def!.Icon!;
         }
     }

@@ -108,12 +108,26 @@ public static class LetterIconOverrides
     }
 
 
+    private static Letter? _mostRecentLetter;
+
     /// <summary>
     /// Reference to the most recent letter added to the stack. Set by the ReceiveLetter patch.
     /// Accessed try <see cref="TryOverrideMostRecentLetterIcon"/>, which automatically clears the reference as soon as
     /// it is used.
     /// </summary>
-    internal static Letter? MostRecentLetter;
+    internal static Letter? MostRecentLetter
+    {
+        get => _mostRecentLetter;
+        set
+        {
+            Log.Trace($"Caching most recent letter {value?.Label}");
+            if (value != null && _mostRecentLetter != null)
+            {
+                Log.Message($"Previous letter was not overridden: {_mostRecentLetter.Label}");
+            }
+            _mostRecentLetter = value;
+        }
+    }
 
     internal static void ClearMostRecentLetter()
     {
