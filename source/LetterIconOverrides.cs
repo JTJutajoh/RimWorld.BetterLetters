@@ -187,13 +187,13 @@ public static class LetterIconOverrides
     /// </summary>
     /// <param name="def">The def (usually <see cref="GameConditionDef"/> or <see cref="IncidentDef"/>) that just fired
     /// the letter to override the icon of.</param>
-    public static void TryOverrideIconForDef(Def? def)
+    public static void TryOverrideIconForDef(Def? def, params object[] context)
     {
         if (def == null) return;
 
         if (TryGetIconOverrideDefForDef(def, out var iconOverrideDef) && iconOverrideDef != null)
         {
-            TryOverrideMostRecentLetterIcon(iconOverrideDef);
+            TryOverrideMostRecentLetterIcon(iconOverrideDef, context);
         }
     }
 

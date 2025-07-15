@@ -47,6 +47,8 @@ public class LetterIconOverrideDef : Def
                 defs.AddRange(gameConditions);
             if (incidents != null)
                 defs.AddRange(incidents);
+            if (interactions != null)
+                defs.AddRange(interactions);
             return defs;
         }
     }
@@ -83,6 +85,8 @@ public class LetterIconOverrideDef : Def
     public List<GameConditionDef> gameConditions;
 
     public List<IncidentDef> incidents;
+
+    public List<InteractionDef> interactions;
 
     public List<PatchTarget> patchTargets;
 

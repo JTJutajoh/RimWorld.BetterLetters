@@ -66,6 +66,33 @@ internal static class GameConditionGenericLetterPatch
     }
 }
 
+[HarmonyPatch(typeof(Pawn_InteractionsTracker), nameof(Pawn_InteractionsTracker.TryInteractWith))]
+[HarmonyPatchCategory("LetterIconCaching")]
+[SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+internal static class InteractionGenericLetterPatch
+{
+    [UsedImplicitly]
+    static void Prefix(InteractionDef? intDef)
+    {
+        if (!LetterIconOverrides.TryGetIconOverrideDefForDef(intDef, out _))
+        {
+            Log.Trace(
+                $"No generic override found for interaction def \"{intDef?.defName}\"in LetterIconOverrides.DefLetterIconOverrides");
+        }
+        else
+            LetterIconOverrides.MostRecentLetter = null;
+    }
+
+    [UsedImplicitly]
+    static void Postfix(bool __result, Pawn_InteractionsTracker __instance, Pawn recipient, InteractionDef? intDef)
+    {
+        if (!__result || intDef is null) return;
+
+        LetterIconOverrides.TryOverrideIconForDef(intDef, __instance, recipient, intDef);
+    }
+}
+
 /// <summary>
 /// Generic patch applied to any method that sends a letter.<br />
 /// Manually patched by <see cref="LetterIconOverrides"/> at static construction time based on

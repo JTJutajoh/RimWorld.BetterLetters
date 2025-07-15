@@ -151,6 +151,7 @@
         </patchTargets>
     </BetterLetters.LetterIconOverrideDef>
 
+    <!-- Diseases -->
     <BetterLetters.LetterIconOverrideDef>
         <defName>DiseaseOrganic</defName>
         <iconPath>UI/Letters/LetterDisease_Organic</iconPath>
@@ -187,6 +188,29 @@
         </incidents>
     </BetterLetters.LetterIconOverrideDef>
 
+
+    <!-- Interactions -->
+    <!-- Romance interactions -->
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Breakup</defName>
+        <iconPath>UI/Letters/LetterBreakup</iconPath>
+        <interactions>
+            <li>Breakup</li>
+        </interactions>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>RomanceAttempts</defName>
+        <iconPath>UI/Letters/LetterNewLovers</iconPath>
+        <interactions>
+            <li>MarriageProposal</li>
+            <li>RomanceAttempt</li>
+        </interactions>
+        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.RomanceInteractionsIconOverrideResolver</iconResolverClass>
+    </BetterLetters.LetterIconOverrideDef>
+
+
+    <!-- Traders -->
     <BetterLetters.LetterIconOverrideDef>
         <defName>TraderCaravan</defName>
         <iconPath>UI/Letters/LetterTraderCaravan</iconPath>

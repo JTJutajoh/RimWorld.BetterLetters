@@ -105,6 +105,7 @@
     <Compile Include="LetterIconOverrideResolvers\DiscoverableDiseaseIconOverrideResolver.cs" />
     <Compile Include="LetterIconOverrideResolvers\GenderIconOverrideResolver.cs" />
     <Compile Include="LetterIconOverrideResolvers\IdeologyIconOverrideResolver.cs" />
+    <Compile Include="LetterIconOverrideResolvers\RomanceInteractionsIconOverrideResolver.cs" />
     <Compile Include="LetterIconOverrides.cs" />
     <Compile Include="MissingVanillaDefOf.cs" />
     <Compile Include="ModCompatibility.cs" />
