@@ -27,16 +27,6 @@ internal static class Patch_Letter_ExposeData
     [UsedImplicitly]
     static void ExposeModLetterData(Letter __instance)
     {
-        // First check if there's any data to be saved at all before injecting extra data
-        if (Scribe.mode == LoadSaveMode.Saving &&
-            !__instance.WasEverSnoozed() &&
-            !__instance.IsReminder() &&
-            !__instance.HasLetterIconOverride()
-           )
-        {
-            return;
-        }
-
         Scribe.EnterNode("BetterLetters");
 
 
@@ -70,12 +60,12 @@ internal static class Patch_Letter_ExposeData
 
             if (wasEverSnoozed)
             {
-                WorldComponent_SnoozeManager.AllSnoozesSeen.Add(__instance.ID);
+                WorldComponent_SnoozeManager.AllSnoozesSeen.Add(__instance);
             }
 
             if (wasReminder)
             {
-                WorldComponent_SnoozeManager.AllRemindersSeen.Add(__instance.ID);
+                WorldComponent_SnoozeManager.AllRemindersSeen.Add(__instance);
             }
 
             if (iconOverrideDef is not null)
