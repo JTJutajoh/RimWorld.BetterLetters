@@ -5,6 +5,21 @@
     <BetterLetters.LetterIconOverrideDef MayRequire="Ludeon.RimWorld.Royalty">
         <defName>Royalty</defName>
         <iconPath>UI/Letters/LetterRoyalty</iconPath>
+        <incidents>
+            <li>CaravanArrivalTributeCollector</li>
+            <li>AnimaTreeSpawn</li>
+        </incidents>
+        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.RoyaltyIconOverrideResolver</iconResolverClass>
+        <patchTargets>
+            <li>
+                <typeName>Pawn_RoyaltyTracker</typeName>
+                <methodName>OnPreTitleChanged</methodName>
+            </li>
+            <li>
+                <typeName>RitualOutcomeEffectWorker_Bestowing</typeName>
+                <methodName>Apply</methodName>
+            </li>
+        </patchTargets>
     </BetterLetters.LetterIconOverrideDef>
 
 </Defs>

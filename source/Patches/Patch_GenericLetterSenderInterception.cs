@@ -75,13 +75,7 @@ internal static class InteractionGenericLetterPatch
     [UsedImplicitly]
     static void Prefix(InteractionDef? intDef)
     {
-        if (!LetterIconOverrides.TryGetIconOverrideDefForDef(intDef, out _))
-        {
-            Log.Trace(
-                $"No generic override found for interaction def \"{intDef?.defName}\"in LetterIconOverrides.DefLetterIconOverrides");
-        }
-        else
-            LetterIconOverrides.MostRecentLetter = null;
+        LetterIconOverrides.MostRecentLetter = null;
     }
 
     [UsedImplicitly]
@@ -90,6 +84,62 @@ internal static class InteractionGenericLetterPatch
         if (!__result || intDef is null) return;
 
         LetterIconOverrides.TryOverrideIconForDef(intDef, __instance, recipient, intDef);
+    }
+}
+
+[HarmonyPatch]
+[HarmonyPatchCategory("LetterIconCaching")]
+[SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+internal static class ThingCompGenericLetterPatch
+{
+    [UsedImplicitly]
+    static IEnumerable<MethodBase> TargetMethods()
+    {
+        yield return AccessTools.Method(typeof(CompProximityLetter), nameof(CompProximityLetter.SendLetter))!;
+    }
+
+    [UsedImplicitly]
+    static void Prefix(ThingComp __instance, ThingWithComps ___parent)
+    {
+        var thingDef = ___parent.def;
+        if (!LetterIconOverrides.TryGetIconOverrideDefForDef(thingDef, out _))
+        {
+            Log.Trace(
+                $"No generic override found for thing def \"{thingDef?.defName}\"in LetterIconOverrides.DefLetterIconOverrides");
+        }
+        else
+            LetterIconOverrides.MostRecentLetter = null;
+    }
+
+    [UsedImplicitly]
+    static void Postfix(ThingComp __instance, ThingWithComps ___parent)
+    {
+        var thingDef = ___parent.def;
+        if (thingDef is null) return;
+
+        LetterIconOverrides.TryOverrideIconForDef(thingDef, __instance, thingDef);
+    }
+}
+
+[HarmonyPatch(typeof(IncidentWorker_GiveQuest), "GiveQuest")]
+[HarmonyPatchCategory("LetterIconCaching")]
+[SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+internal static class GiveQuestGenericLetterPatch
+{
+    [UsedImplicitly]
+    static void Prefix(QuestScriptDef? questDef)
+    {
+        LetterIconOverrides.MostRecentLetter = null;
+    }
+
+    [UsedImplicitly]
+    static void Postfix(IncidentParms parms, QuestScriptDef? questDef)
+    {
+        if (questDef is null) return;
+
+        LetterIconOverrides.TryOverrideIconForDef(questDef, parms, questDef);
     }
 }
 
@@ -165,65 +215,75 @@ internal static class Patch_GenericLetterSenderInterception
 
         Log.Trace(
             $"\tSearching in {originalMethod.DeclaringType!.Name}.{originalMethod.Name} for letter sending method...");
-        codeMatcher.Start()!.SearchForward(CallsLetterSendingMethod);
+        // Search for ReceiveLetter (or similar)
+        // codeMatcher.Start()!.SearchForward(CallsLetterSendingMethod);
+        codeMatcher.MatchStartForward(new CodeMatch(CallsLetterSendingMethod));
 
-        if (!codeMatcher.IsValid)
-        {
-            Log.Warning(
-                $"Failed to find any letter sending methods in {originalMethod.DeclaringType!.Name}.{originalMethod.Name}.");
-            return codeMatcher.Instructions()!;
-        }
+        // if (!codeMatcher.IsValid)
+        // {
+        //     Log.Warning(
+        //         $"Failed to find any letter sending methods in {originalMethod.DeclaringType!.Name}.{originalMethod.Name}.");
+        //     return codeMatcher.Instructions()!;
+        // }
 
-        Log.Trace("\tFound letter sending method, inserting patch");
-
-        codeMatcher.InsertAndAdvance(
-                CodeInstruction.Call(typeof(LetterIconOverrides),
-                    nameof(LetterIconOverrides.ClearMostRecentLetter))!)!
-            .Advance(1);
-
-        // Get the current running method (will be the patched version)
-        codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Call, MethodBaseGetCurrentMethodMethodInfo));
-
-        // Create an array with a length that matches the length of parameters
-        Log.Trace($"\tInserting parameters array with {paramsLength} params");
-        codeMatcher.InsertAndAdvance(
-            new CodeInstruction(OpCodes.Ldc_I4, paramsLength),
-            new CodeInstruction(OpCodes.Newarr, typeof(object))
-        );
-        // Iterate over all the parameters that were passed to the running method and insert them into the object[] array
-        for (int paramIndex = 0; paramIndex < paramsLength; paramIndex++)
-        {
-            // Duplicate reference to the array
-            codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Dup));
-            // Push the current index
-            codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4, paramIndex));
-            // Load the parameter value
-            codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg, paramIndex));
-
-            var paramType = parameterTypes[paramIndex];
-            Log.Trace($"\t\tParameter {paramIndex}: {paramType.Name}");
-
-
-            if (paramType.ContainsGenericParameters)
+        codeMatcher.Repeat(
+            notFoundAction: s =>
             {
-                Log.Warning($"\t\tGeneric parameter type, won't work");
-            }
-
-            if (paramType.IsValueType)
+                Log.Warning(
+                    $"Failed to find letter sending method(s) in {originalMethod.DeclaringType!.Name}.{originalMethod.Name}.");
+            },
+            matchAction: cm =>
             {
-                Log.Trace($"\t\t\tParam is value type, boxing type {paramType}");
-                codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Box, paramType));
-            }
+                Log.Trace("\tFound letter sending method, inserting patch");
 
-            // Store value in array
-            codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Stelem_Ref));
-        }
+                codeMatcher.InsertAndAdvance(
+                        CodeInstruction.Call(typeof(LetterIconOverrides),
+                            nameof(LetterIconOverrides.ClearMostRecentLetter))!)!
+                    .Advance(1);
 
-        // Call the postfix method, sending the currently running method and all arguments passed to it
-        codeMatcher.InsertAndAdvance(CodeInstruction.Call(typeof(Patch_GenericLetterSenderInterception),
-            nameof(InterceptLetter))!);
+                // Get the current running method (will be the patched version)
+                codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Call, MethodBaseGetCurrentMethodMethodInfo));
 
-        //TODO: Figure out how to use CodeMatcher.Repeat()
+                // Create an array with a length that matches the length of parameters
+                Log.Trace($"\tInserting parameters array with {paramsLength} params");
+                codeMatcher.InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldc_I4, paramsLength),
+                    new CodeInstruction(OpCodes.Newarr, typeof(object))
+                );
+                // Iterate over all the parameters that were passed to the running method and insert them into the object[] array
+                for (int paramIndex = 0; paramIndex < paramsLength; paramIndex++)
+                {
+                    // Duplicate reference to the array
+                    codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Dup));
+                    // Push the current index
+                    codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldc_I4, paramIndex));
+                    // Load the parameter value
+                    codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg, paramIndex));
+
+                    var paramType = parameterTypes[paramIndex];
+                    Log.Trace($"\t\tParameter {paramIndex}: {paramType.Name}");
+
+
+                    if (paramType.ContainsGenericParameters)
+                    {
+                        Log.Warning($"\t\tGeneric parameter type, won't work");
+                    }
+
+                    if (paramType.IsValueType)
+                    {
+                        Log.Trace($"\t\t\tParam is value type, boxing type {paramType}");
+                        codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Box, paramType));
+                    }
+
+                    // Store value in array
+                    codeMatcher.InsertAndAdvance(new CodeInstruction(OpCodes.Stelem_Ref));
+                }
+
+                // Call the postfix method, sending the currently running method and all arguments passed to it
+                codeMatcher.InsertAndAdvance(CodeInstruction.Call(typeof(Patch_GenericLetterSenderInterception),
+                    nameof(InterceptLetter))!);
+            });
+
 
         return codeMatcher.Instructions()!;
     }

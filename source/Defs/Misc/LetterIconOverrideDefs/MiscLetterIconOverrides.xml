@@ -151,6 +151,30 @@
         </patchTargets>
     </BetterLetters.LetterIconOverrideDef>
 
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>CropBlight</defName>
+        <iconPath>UI/Letters/LetterCropBlight</iconPath>
+        <incidents>
+            <li>CropBlight</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>RefugeePodCrash</defName>
+        <iconPath>UI/Letters/LetterRefugeePodCrash</iconPath>
+        <questScripts>
+            <li>RefugeePodCrash</li>
+        </questScripts>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>ResourcePodCrash</defName>
+        <iconPath>UI/Letters/LetterResourcePodCrash</iconPath>
+        <incidents>
+            <li>ResourcePodCrash</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
     <!-- Diseases -->
     <BetterLetters.LetterIconOverrideDef>
         <defName>DiseaseOrganic</defName>

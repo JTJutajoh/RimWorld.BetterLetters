@@ -49,6 +49,10 @@ public class LetterIconOverrideDef : Def
                 defs.AddRange(incidents);
             if (interactions != null)
                 defs.AddRange(interactions);
+            if (things != null)
+                defs.AddRange(things);
+            if (questScripts != null)
+                defs.AddRange(questScripts);
             return defs;
         }
     }
@@ -87,6 +91,10 @@ public class LetterIconOverrideDef : Def
     public List<IncidentDef> incidents;
 
     public List<InteractionDef> interactions;
+
+    public List<ThingDef> things;
+
+    public List<QuestScriptDef> questScripts;
 
     public List<PatchTarget> patchTargets;
 

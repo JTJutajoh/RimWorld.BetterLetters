@@ -5,6 +5,11 @@
     <BetterLetters.LetterIconOverrideDef MayRequire="Ludeon.RimWorld.Ideology">
         <defName>Ideology</defName>
         <iconPath>UI/Letters/LetterIdeology</iconPath>
+        <interactions>
+            <li>ConvertIdeoAttempt</li>
+            <li>EnslaveAttempt</li>
+            <li>SparkSlaveRebellion</li>
+        </interactions>
         <patchTargets>
 <!--            <li>-->
 <!--                <typeName>RimWorld.Ideo</typeName>-->
