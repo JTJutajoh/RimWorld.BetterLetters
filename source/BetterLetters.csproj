@@ -115,7 +115,6 @@
     <Compile Include="Patches\Patch_HistoryTab_DoArchivableRow.cs" />
     <Compile Include="Patches\Patch_HistoryTab_FilteringButtons.cs" />
     <Compile Include="Patches\Patch_IncidentWorkerRaid_GetLetterLabel_AddDetails.cs" />
-    <Compile Include="Patches\Patch_LetterStack_ExposeData.cs" />
     <Compile Include="Patches\Patch_LetterStack_ReceiveLetter_CacheLetter.cs" />
     <Compile Include="Patches\Patch_LetterStack_LettersOnGUI_AddButtons.cs" />
     <Compile Include="Patches\Patch_Letter_CanCull_KeepSnoozes.cs" />
@@ -124,6 +123,7 @@
     <Compile Include="Patches\Patch_Dialog_NodeTree_DoWindowContents_AddPinSnoozeButtons.cs" />
     <Compile Include="Patches\Patch_Letter_CanDismissWithRightClick_BlockIfPinned.cs" />
     <Compile Include="Patches\Patch_Letter_DrawButton_LetterStackAppearance.cs" />
+    <Compile Include="Patches\Patch_Letter_ExposeData.cs" />
     <Compile Include="Patches\Patch_Letter_OpenLetter_AddDiaOptions.cs" />
     <Compile Include="Patches\Patch_NewQuestLetter_OpenLetter_KeepOnStack.cs" />
     <Compile Include="Patches\Patch_PlaySettings_GlobalControl_CreateReminderButton.cs" />

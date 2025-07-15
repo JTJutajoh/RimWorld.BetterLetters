@@ -125,6 +125,7 @@ public static class LetterIconOverrides
             {
                 Log.Message($"Previous letter was not overridden: {_mostRecentLetter.Label}");
             }
+
             _mostRecentLetter = value;
         }
     }
@@ -159,6 +160,40 @@ public static class LetterIconOverrides
         }
     }
 
+
+    public static bool HasLetterIconOverride(this Letter letter)
+    {
+        return HasLetterIconOverride(letter.ID);
+    }
+
+    public static bool HasLetterIconOverride(int letterID)
+    {
+        return LetterIconsCache.ContainsKey(letterID) || ResolverCache.ContainsKey(letterID);
+    }
+
+
+    public static bool TryGetIconOverrideDef(this Letter letter, out LetterIconOverrideDef? iconOverrideDef)
+    {
+        return TryGetIconOverrideDef(letter.ID, out iconOverrideDef);
+    }
+
+    public static bool TryGetIconOverrideDef(int letterID, out LetterIconOverrideDef? iconOverrideDef)
+    {
+        return LetterIconsCache.TryGetValue(letterID, out iconOverrideDef);
+    }
+
+
+    public static bool TryGetIconResolver(this Letter letter, out LetterIconOverrideResolver? resolver)
+    {
+        return TryGetIconResolver(letter.ID, out resolver);
+    }
+
+    public static bool TryGetIconResolver(int letterID, out LetterIconOverrideResolver? resolver)
+    {
+        return ResolverCache.TryGetValue(letterID, out resolver);
+    }
+
+
     public static bool TryGetLetterIcon(this Letter letter, out Texture2D? icon)
     {
         return TryGetLetterIcon(letter.ID, out icon);
@@ -171,6 +206,7 @@ public static class LetterIconOverrides
         icon = resolver?.Icon ?? def?.Icon;
         return success || hasResolver;
     }
+
 
     internal static bool TryGetIconOverrideDefForDef(Def? def, out LetterIconOverrideDef? iconOverrideDef)
     {
@@ -197,54 +233,9 @@ public static class LetterIconOverrides
         }
     }
 
-    /// <summary>
-    /// Called by <see cref="BetterLetters.Patches.Patch_LetterStack_ExposeData"/> <br />
-    /// Hijack <see cref="LetterStack" />'s own <see cref="LetterStack.ExposeData" /> call to inject <see cref="LetterIconsCache"/> into it.<br />
-    /// Since references to <see cref="Texture2D"/> cannot be serialized, they need to be converted to/from strings.
-    /// </summary>
-    public static void ExposeData()
+    public static void ClearCaches()
     {
-        Scribe.EnterNode("BetterLetters");
-
-        Dictionary<int, SerializableLetterIconOverride> serializableCache = new();
-
-        if (Scribe.mode == LoadSaveMode.Saving)
-        {
-            foreach (var kvp in LetterIconsCache)
-            {
-                if (kvp.Value is null) continue;
-
-                serializableCache[kvp.Key] = new SerializableLetterIconOverride
-                {
-                    def = kvp.Value,
-                    resolver = ResolverCache.TryGetValue(kvp.Key, out var resolver) ? resolver : null
-                };
-            }
-        }
-
-        Scribe_Collections.Look(ref serializableCache, "LetterIconsCache", LookMode.Value, LookMode.Deep);
-
-        if (Scribe.mode == LoadSaveMode.LoadingVars)
-        {
-            LetterIconsCache = new Dictionary<int, LetterIconOverrideDef>();
-            ResolverCache = new Dictionary<int, LetterIconOverrideResolver>();
-
-            if (serializableCache != null)
-            {
-                foreach (var (letterId, serializeableOverride) in serializableCache)
-                {
-                    if (serializeableOverride == null) continue;
-                    //TODO: Cull old letters in the cache
-
-                    LetterIconsCache[letterId] = serializeableOverride.def;
-
-                    if (serializeableOverride.resolver == null) continue;
-
-                    ResolverCache[letterId] = serializeableOverride.resolver;
-                }
-            }
-        }
-
-        Scribe.ExitNode();
+        LetterIconsCache.Clear();
+        ResolverCache.Clear();
     }
 }

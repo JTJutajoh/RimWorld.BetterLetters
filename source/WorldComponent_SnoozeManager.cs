@@ -195,62 +195,13 @@ internal class WorldComponent_SnoozeManager : WorldComponent
         Find.WindowStack?.Add(snoozeDialog);
     }
 
-    // Used just for reassembling the dictionary when a save is loaded
-    private static List<Letter>? _letterList;
-    private static List<Snooze>? _snoozeList;
-
-    public override void ExposeData()
+    /// <summary>
+    /// Called when a save is loaded, by <see cref="BetterLetters.Patches.Patch_Letter_ExposeData"/>
+    /// </summary>
+    public static void ClearCaches()
     {
-        base.ExposeData();
-
-        Scribe_Collections.Look(
-            ref _snoozes!,
-            "Snoozes",
-            LookMode.Reference,
-            LookMode.Deep,
-            ref _letterList,
-            ref _snoozeList
-        );
-
-        Scribe_Collections.Look(ref AllSnoozesSeen, "AllSnoozesSeen", LookMode.Value);
-        Scribe_Collections.Look(ref AllRemindersSeen, "AllRemindersSeen", LookMode.Value);
-
-        if (Scribe.mode == LoadSaveMode.PostLoadInit)
-        {
-            // Safety checks to sanitize null refs or mismatched data
-            foreach (var letter in Snoozes.Keys)
-            {
-                if (letter == null)
-                {
-                    Log.Warning("Found a null letter reference in the snooze dictionary. Removing.");
-                    Snoozes.Remove(null!);
-                    continue;
-                }
-
-                if (Snoozes[letter] == null)
-                {
-                    Log.Warning("Found a null snooze reference for letter " + letter + ". Removing.");
-                    Snoozes.Remove(letter);
-                    continue;
-                }
-
-                if (Snoozes[letter]?.Letter != letter)
-                {
-                    Log.Warning("Found a mismatched snooze reference for letter " + letter + ". Removing.");
-                    Snoozes.Remove(letter);
-                }
-            }
-
-            _letterList = null;
-            _snoozeList = null;
-
-            if (AllSnoozesSeen?.Count > MaxSnoozeCount)
-                Log.Warning("Loaded many snoozes from save file.");
-            if (AllRemindersSeen?.Count > MaxSnoozeCount)
-                Log.Warning("Loaded many reminders from save file.");
-
-            AllSnoozesSeen ??= new HashSet<int>();
-            AllRemindersSeen ??= new HashSet<int>();
-        }
+        Snoozes.Clear();
+        AllSnoozesSeen.Clear();
+        AllRemindersSeen.Clear();
     }
 }

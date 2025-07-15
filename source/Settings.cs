@@ -110,6 +110,7 @@ internal class Settings : ModSettings
         "RaidLetter_AddDetails",
         "LetterStack_AddButtons",
         "LetterIconCaching",
+        "ExposeDataPatches"
     };
 
     [Setting] internal static List<string> DisabledPatchCategories = new();
