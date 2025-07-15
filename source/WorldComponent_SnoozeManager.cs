@@ -24,8 +24,8 @@ internal class WorldComponent_SnoozeManager : WorldComponent
     private static Dictionary<Letter?, Snooze> _snoozes = new();
     internal static Dictionary<Letter?, Snooze> Snoozes => _snoozes;
 
-    internal static HashSet<int> AllSnoozesSeen = new();
-    internal static HashSet<int> AllRemindersSeen = new();
+    internal static HashSet<Letter> AllSnoozesSeen = new();
+    internal static HashSet<Letter> AllRemindersSeen = new();
 
     /// <summary>
     /// Base method for adding snoozes to the dictionary.
@@ -94,14 +94,13 @@ internal class WorldComponent_SnoozeManager : WorldComponent
             Find.LetterStack.RemoveLetter(snooze.Letter);
         }
 
-        var hash = snooze.Letter.ID;
         if (snooze.SnoozeType == SnoozeTypes.Reminder)
         {
-            AllRemindersSeen.Add(hash);
+            AllRemindersSeen.Add(snooze.Letter);
         }
         else
         {
-            AllSnoozesSeen.Add(hash);
+            AllSnoozesSeen.Add(snooze.Letter);
         }
 
         Settings.TryCacheSnoozeDuration(snooze);

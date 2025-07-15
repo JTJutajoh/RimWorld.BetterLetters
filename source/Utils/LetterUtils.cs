@@ -30,7 +30,7 @@ namespace BetterLetters.Utils
 
         internal static bool WasEverSnoozed(this Letter letter)
         {
-            return WorldComponent_SnoozeManager.AllSnoozesSeen.Contains(letter.ID);
+            return WorldComponent_SnoozeManager.AllSnoozesSeen.Contains(letter);
         }
 
         public static void Pin(this Letter letter, bool suppressSnoozeCanceledMessage = false)
@@ -118,7 +118,7 @@ namespace BetterLetters.Utils
         public static bool IsReminder(this Letter letter)
         {
             if (letter.def!.defName == "Reminder" ||
-                WorldComponent_SnoozeManager.AllRemindersSeen.Contains(letter.ID))
+                WorldComponent_SnoozeManager.AllRemindersSeen.Contains(letter))
             {
                 return true;
             }

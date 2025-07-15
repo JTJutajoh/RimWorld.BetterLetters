@@ -120,6 +120,7 @@ internal static class PatchManager
 
     static PatchManager()
     {
+        // Harmony.DEBUG = true;
         Harmony = new Harmony(BetterLettersMod.Instance!.Content!.PackageId!);
 
         Log.Message("Running Harmony patches...");
