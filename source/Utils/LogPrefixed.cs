@@ -81,7 +81,7 @@ internal static class LogPrefixed
     internal static void Exception(Exception e, string? extraMessage = null, bool once = false)
     {
         var message =
-            $"{e.GetType()}: \"{e.Message}\"\nPlease test with no other mods installed before reporting to the modder. More details:\n{extraMessage ?? "" + "\n"}\n\nStacktrace: {e.StackTrace}";
+            $"{e.GetType()}: \"{e.Message}\"\n\nPlease test with no other mods installed before reporting to the modder. More details:\n{extraMessage ?? "" + "\n"}\n\nFull Exception:\n{e}";
         if (once)
         {
             var hash = e.StackTrace?.GetHashCode() ?? -1;
