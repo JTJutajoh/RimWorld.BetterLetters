@@ -48,7 +48,8 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
             WasEverSnoozed = true;
         }
 
-        if (!Settings.EnableLetterAppearancePatches || !Settings.ReplaceLetterIcons)
+        if (!Settings.EnableLetterIconsGlobal ||
+            !Settings.ReplaceLetterIcons)
         {
             LetterIcon = __instance.def!.Icon!;
             return;
@@ -79,8 +80,9 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
         }
         else
         {
-            //TODO: Remove this before final release
-            Log.WarningOnce($"No letter icon override found for letter '{__instance.Label}'", $"Letter_{__instance.def!.defName}_{__instance.ID.GetHashCode()}");
+            // //TODO: Remove this before final release
+            // Log.WarningOnce($"No letter icon override found for letter '{__instance.Label}'",
+            //     $"Letter_{__instance.def!.defName}_{__instance.ID.GetHashCode()}");
             LetterIcon = __instance.def!.Icon!;
         }
     }
@@ -123,6 +125,12 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
     // ReSharper disable once RedundantAssignment
     static void OverrideInnerRect(ref Rect rect2, Rect rect)
     {
+        if (!Settings.EnableLetterIconsGlobal)
+        {
+            rect2 = rect;
+            return;
+        }
+
         // "rect" is the original hard-coded size of vanilla letters
         // calculate the correct rect for the letter's icon based on how much larger it is than the hard-coded letter size in vanilla
         rect2 = rect.ExpandedBy((LetterIcon.width / 2f - rect.width) / 2f,
@@ -131,7 +139,8 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
 
     static Rect ModifyLabelRect(Rect rect, Rect rect2)
     {
-        if (!Settings.EnableLetterAppearancePatches || (!Settings.OffsetLetterLabels && !Settings.DoLetterDecorators)) return rect;
+        if (!Settings.EnableLetterIconsGlobal ||
+            (!Settings.OffsetLetterLabels && !Settings.DoLetterDecorators)) return rect;
 
         //MAYBE: Only offset if there's a custom icon
 
@@ -205,7 +214,7 @@ internal static class Patch_Letter_DrawButton_LetterStackAppearance
 
     static void DoLetterDecorators(Letter letter, Rect rect2)
     {
-        if (!Settings.EnableLetterAppearancePatches || !Settings.DoLetterDecorators) return;
+        if (!Settings.EnableLetterIconsGlobal || !Settings.DoLetterDecorators) return;
 
         var decoratorColumnRect = new Rect(
             rect2.center.x - VanillaLetterWidth / 2f - DecoratorSize - 2f,

@@ -2,25 +2,35 @@
 <Defs>
 
     <BetterLetters.LetterIconOverrideDef>
+        <defName>PrisonBreak</defName>
+        <iconPath>UI/Letters/LetterPrisonBreak</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
         <defName>MentalBreak</defName>
         <iconPath>UI/Letters/LetterMentalBreak</iconPath>
-        <patchTargets>
-            <li>
-                <typeName>MentalStateHandler</typeName>
-                <methodName>TryStartMentalState</methodName>
-            </li>
-        </patchTargets>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
         <defName>Inspiration</defName>
         <iconPath>UI/Letters/LetterInspiration</iconPath>
-        <patchTargets>
-            <li>
-                <typeName>Inspiration</typeName>
-                <methodName>SendBeginLetter</methodName>
-            </li>
-        </patchTargets>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>DeepScanner</defName>
+        <iconPath>UI/Letters/LetterDeepScanner</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Party</defName>
+        <iconPath>UI/Letters/LetterParty</iconPath>
+        <gatherings>
+            <li>Party</li>
+        </gatherings>
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
@@ -32,12 +42,52 @@
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
+        <defName>VisitorGroup</defName>
+        <iconPath>UI/Letters/LetterVisitors</iconPath>
+        <incidents>
+            <li>VisitorGroup</li>
+        </incidents>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
         <defName>Manhunter</defName>
         <iconPath>UI/Letters/LetterManhunter</iconPath>
         <incidents>
             <li>ManhunterPack</li>
             <li>ManhunterAmbush</li>
         </incidents>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>FriendlyTrapSprung</defName>
+        <iconPath>UI/Letters/LetterFriendlyTrapSprung</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Gift</defName>
+        <iconPath>UI/Letters/LetterGift</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Joiner</defName>
+        <iconPath>UI/Letters/LetterJoiner</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Kidnapped</defName>
+        <iconPath>UI/Letters/LetterKidnapped</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>CraftedQuality</defName>
+        <iconPath>UI/Letters/LetterCrafted</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+        <resolverClass>BetterLetters.LetterIconOverrideResolvers.CraftedQualityIconOverrideResolver</resolverClass>
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
@@ -68,16 +118,7 @@
         <incidents>
             <li>SolarFlare</li>
         </incidents>
-        <patchTargets>
-            <li>
-                <typeName>ShortCircuitUtility</typeName>
-                <methodName>DoShortCircuit</methodName>
-            </li>
-            <li>
-                <typeName>ShortCircuitUtility</typeName>
-                <methodName>TryShortCircuitInRain</methodName>
-            </li>
-        </patchTargets>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
@@ -142,13 +183,7 @@
         <incidents>
             <li>RaidEnemy</li>
         </incidents>
-        <patchTargets>
-            <li>
-                <typeName>IncidentWorker_Raid</typeName>
-                <methodName>TryExecuteWorker</methodName>
-                <letterSendingMethodName>SendStandardLetter</letterSendingMethodName>
-            </li>
-        </patchTargets>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
@@ -173,6 +208,69 @@
         <incidents>
             <li>ResourcePodCrash</li>
         </incidents>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>AreaRevealed</defName>
+        <iconPath>UI/Letters/LetterAreaRevealed</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Birthday</defName>
+        <iconPath>UI/Letters/LetterBirthday</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>MainQuest</defName>
+        <iconPath>UI/Letters/LetterMainQuest</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Faction</defName>
+        <iconPath>UI/Letters/LetterFaction</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Caravan</defName>
+        <iconPath>UI/Letters/LetterCaravan</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>MapClosed</defName>
+        <iconPath>UI/Letters/LetterDeath</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>BaseDestroyed</defName>
+        <iconPath>UI/Letters/LetterBaseDestroyed</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <!-- Multi-purpose for all uses of SignalAction_Letter, which is used in the vanilla code to abstract the triggering
+     of multiple different letters. By the time the letter is sent, its source is unavailable so these need special handling -->
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>SignalAction</defName>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+        <resolverClass>BetterLetters.LetterIconOverrideResolvers.SignalActionIconOverrideResolver</resolverClass>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>HealthComplications</defName>
+        <iconPath>UI/Letters/LetterDisease</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>Addiction</defName>
+        <iconPath>UI/Letters/LetterDisease_Overdose</iconPath>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
     </BetterLetters.LetterIconOverrideDef>
 
     <!-- Diseases -->
@@ -192,6 +290,7 @@
             <li>Disease_Abasia</li>
             <li>Disease_BloodRot</li>
         </incidents>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
@@ -230,7 +329,15 @@
             <li>MarriageProposal</li>
             <li>RomanceAttempt</li>
         </interactions>
-        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.RomanceInteractionsIconOverrideResolver</iconResolverClass>
+        <resolverClass>BetterLetters.LetterIconOverrideResolvers.RomanceInteractionsIconOverrideResolver</resolverClass>
+    </BetterLetters.LetterIconOverrideDef>
+
+    <BetterLetters.LetterIconOverrideDef>
+        <defName>MarriageCeremony</defName>
+        <iconPath>UI/Letters/LetterMarriageOn</iconPath>
+        <gatherings>
+            <li>MarriageCeremony</li>
+        </gatherings>
     </BetterLetters.LetterIconOverrideDef>
 
 
@@ -238,25 +345,13 @@
     <BetterLetters.LetterIconOverrideDef>
         <defName>TraderCaravan</defName>
         <iconPath>UI/Letters/LetterTraderCaravan</iconPath>
-        <patchTargets>
-            <li>
-                <typeName>IncidentWorker_TraderCaravanArrival</typeName>
-                <methodName>SendLetter</methodName>
-                <letterSendingMethodName>SendStandardLetter</letterSendingMethodName>
-            </li>
-        </patchTargets>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
     </BetterLetters.LetterIconOverrideDef>
 
     <BetterLetters.LetterIconOverrideDef>
         <defName>TraderOrbital</defName>
         <iconPath>UI/Letters/LetterTraderOrbital</iconPath>
-        <patchTargets>
-            <li>
-                <typeName>IncidentWorker_OrbitalTraderArrival</typeName>
-                <methodName>TryExecuteWorker</methodName>
-                <letterSendingMethodName>SendStandardLetter</letterSendingMethodName>
-            </li>
-        </patchTargets>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
     </BetterLetters.LetterIconOverrideDef>
 
 </Defs>

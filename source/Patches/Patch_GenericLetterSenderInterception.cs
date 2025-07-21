@@ -17,6 +17,12 @@ namespace BetterLetters.Patches;
 internal static class IncidentGenericLetterPatch
 {
     [UsedImplicitly]
+    static bool Prepare()
+    {
+        return Settings.EnableLetterIconsGlobal;
+    }
+
+    [UsedImplicitly]
     static void Prefix(MethodBase __originalMethod, IncidentDef def)
     {
         if (!LetterIconOverrides.TryGetIconOverrideDefForDef(def, out _))
@@ -43,6 +49,12 @@ internal static class IncidentGenericLetterPatch
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class GameConditionGenericLetterPatch
 {
+    [UsedImplicitly]
+    static bool Prepare()
+    {
+        return Settings.EnableLetterIconsGlobal;
+    }
+
     [UsedImplicitly]
     static void Prefix(IncidentDef? ___def)
     {
@@ -73,6 +85,12 @@ internal static class GameConditionGenericLetterPatch
 internal static class InteractionGenericLetterPatch
 {
     [UsedImplicitly]
+    static bool Prepare()
+    {
+        return Settings.EnableLetterIconsGlobal;
+    }
+
+    [UsedImplicitly]
     static void Prefix(InteractionDef? intDef)
     {
         LetterIconOverrides.MostRecentLetter = null;
@@ -87,12 +105,45 @@ internal static class InteractionGenericLetterPatch
     }
 }
 
+[HarmonyPatch(typeof(GatheringWorker), nameof(GatheringWorker.TryExecute))]
+[HarmonyPatchCategory("LetterIconCaching")]
+[SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+internal static class GatheringGenericLetterPatch
+{
+    [UsedImplicitly]
+    static bool Prepare()
+    {
+        return Settings.EnableLetterIconsGlobal;
+    }
+
+    [UsedImplicitly]
+    static void Prefix()
+    {
+        LetterIconOverrides.MostRecentLetter = null;
+    }
+
+    [UsedImplicitly]
+    static void Postfix(bool __result, GatheringWorker __instance, Pawn organizer, Map map)
+    {
+        if (!__result) return;
+
+        LetterIconOverrides.TryOverrideIconForDef(__instance.def, organizer, map);
+    }
+}
+
 [HarmonyPatch]
 [HarmonyPatchCategory("LetterIconCaching")]
 [SuppressMessage("ReSharper", "ArrangeTypeMemberModifiers")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class ThingCompGenericLetterPatch
 {
+    [UsedImplicitly]
+    static bool Prepare()
+    {
+        return Settings.EnableLetterIconsGlobal;
+    }
+
     [UsedImplicitly]
     static IEnumerable<MethodBase> TargetMethods()
     {
@@ -102,14 +153,13 @@ internal static class ThingCompGenericLetterPatch
     [UsedImplicitly]
     static void Prefix(ThingComp __instance, ThingWithComps ___parent)
     {
+        LetterIconOverrides.MostRecentLetter = null;
         var thingDef = ___parent.def;
         if (!LetterIconOverrides.TryGetIconOverrideDefForDef(thingDef, out _))
         {
             Log.Trace(
                 $"No generic override found for thing def \"{thingDef?.defName}\"in LetterIconOverrides.DefLetterIconOverrides");
         }
-        else
-            LetterIconOverrides.MostRecentLetter = null;
     }
 
     [UsedImplicitly]
@@ -128,6 +178,12 @@ internal static class ThingCompGenericLetterPatch
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class GiveQuestGenericLetterPatch
 {
+    [UsedImplicitly]
+    static bool Prepare()
+    {
+        return Settings.EnableLetterIconsGlobal;
+    }
+
     [UsedImplicitly]
     static void Prefix(QuestScriptDef? questDef)
     {
@@ -188,6 +244,13 @@ internal static class Patch_GenericLetterSenderInterception
     private static readonly MethodInfo? MethodBaseGetCurrentMethodMethodInfo =
         AccessTools.Method(typeof(MethodBase), nameof(MethodBase.GetCurrentMethod));
 
+
+    [UsedImplicitly]
+    static bool Prepare()
+    {
+        return Settings.EnableLetterIconsGlobal;
+    }
+
     [UsedImplicitly]
     static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions,
         MethodBase originalMethod)
@@ -230,7 +293,7 @@ internal static class Patch_GenericLetterSenderInterception
             notFoundAction: s =>
             {
                 Log.Warning(
-                    $"Failed to find letter sending method(s) in {originalMethod.DeclaringType!.Name}.{originalMethod.Name}.");
+                    $"Failed to find letter sending method(s) in {originalMethod.DeclaringType!.Name}.{originalMethod.Name}.\n{s}");
             },
             matchAction: cm =>
             {

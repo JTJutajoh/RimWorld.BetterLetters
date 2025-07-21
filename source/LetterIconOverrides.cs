@@ -55,6 +55,8 @@ public static class LetterIconOverrides
         foreach (var def in letterIconOverrideDefs)
         {
             CacheLetterIconOverrideDef(def);
+
+            PatchLetterIconOverrideDefTargets(def);
         }
 
         PatchManager.Notify_PatchingComplete();
@@ -70,12 +72,21 @@ public static class LetterIconOverrides
 
             Log.Trace($"\t\tCached icon override for {triggeringDef.defName}: {def.defName}");
         }
+    }
 
-        foreach (var patchTarget in def.PatchTargets)
+    private static void PatchLetterIconOverrideDefTargets(LetterIconOverrideDef? def)
+    {
+        if (def == null) return;
+
+        var patchTargets = def.PatchTargets;
+
+        if (def.patchWorker is null || patchTargets is null || patchTargets.Count == 0) return;
+
+        Log.Trace(
+            $"\t\t\tFound patch worker {def.patchWorker?.GetType()} on def {def.defName}\n\t\t\t\tTargets: {patchTargets.Join(p => p.TypeColonName)}");
+        foreach (var patchTarget in patchTargets)
         {
             PatchGenericLetterIconOverride(patchTarget, def);
-
-            Log.Trace($"\t\tCached patch target for {patchTarget.TypeColonName}: {def.defName}");
         }
     }
 
@@ -146,7 +157,7 @@ public static class LetterIconOverrides
         if (iconOverrideDef != null)
         {
             LetterIconsCache[letter.ID] = iconOverrideDef;
-            if (iconOverrideDef.iconResolverClass is { } resolverClass)
+            if (iconOverrideDef.resolverClass is { } resolverClass)
             {
                 var resolver = (LetterIconOverrideResolver)Activator.CreateInstance(resolverClass)!;
                 resolver.TryResolve(iconOverrideDef, context);
@@ -223,6 +234,7 @@ public static class LetterIconOverrides
     /// </summary>
     /// <param name="def">The def (usually <see cref="GameConditionDef"/> or <see cref="IncidentDef"/>) that just fired
     /// the letter to override the icon of.</param>
+    /// <param name="context"></param>
     public static void TryOverrideIconForDef(Def? def, params object[] context)
     {
         if (def == null) return;

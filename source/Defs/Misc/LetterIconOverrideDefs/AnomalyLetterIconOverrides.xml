@@ -24,29 +24,7 @@
         <things>
             <li>VoidMonolith</li>
         </things>
-        <patchTargets>
-            <li>
-                <typeName>CompDreadmeld</typeName>
-                <methodName>Notify_Killed</methodName>
-            </li>
-            <li>
-                <typeName>CompHoldingPlatformTarget</typeName>
-                <methodName>Escape</methodName>
-            </li>
-            <li>
-                <typeName>Building_VoidMonolith</typeName>
-                <methodName>Tick</methodName>
-            </li>
-            <li>
-                <typeName>GameComponent_Anomaly</typeName>
-                <methodName>GameComponentTick</methodName>
-            </li>
-            <li>
-                <typeName>CompStudyUnlocks</typeName>
-                <methodName>RegisterStudyLevel</methodName>
-            </li>
-            <!-- More anomaly letters go here -->
-        </patchTargets>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
     </BetterLetters.LetterIconOverrideDef>
 
 </Defs>

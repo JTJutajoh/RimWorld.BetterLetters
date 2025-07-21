@@ -27,7 +27,6 @@ internal static class Patch_HistoryTab_FilteringButtons
     [UsedImplicitly]
     static void AddButtonsToMessagesPage(ref Rect rect)
     {
-        //BUG: Tooltips are broken for letters
         const float rowOffsetX = 400f;
         var rowRect = new Rect(rect.x + rowOffsetX, rect.y + 10f, rect.width - rowOffsetX - 14f, 30f);
 

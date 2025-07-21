@@ -25,7 +25,7 @@ public class LetterIconOverrideDef : Def
     /// The default icon that should be used as the override.
     /// </summary>
     /// <remarks>
-    /// For defs that have <see cref="iconResolverClass"/> defined, this property will not return the resolved icon,
+    /// For defs that have <see cref="resolverClass"/> defined, this property will not return the resolved icon,
     /// only the base icon.
     /// </remarks>
     public Texture2D Icon => ContentFinder<Texture2D>.Get(iconPath)!;
@@ -53,6 +53,8 @@ public class LetterIconOverrideDef : Def
                 defs.AddRange(things);
             if (questScripts != null)
                 defs.AddRange(questScripts);
+            if (gatherings != null)
+                defs.AddRange(gatherings);
             return defs;
         }
     }
@@ -62,24 +64,32 @@ public class LetterIconOverrideDef : Def
     /// <see cref="Patch_GenericLetterSenderInterception"/> to intercept the letter sent within the given method(s)
     /// and override its icon.
     /// </summary>
-    public List<PatchTarget> PatchTargets => patchTargets ?? new List<PatchTarget>();
+    public List<PatchTarget> PatchTargets
+    {
+        get
+        {
+            if (patchWorker is null)
+                return new List<PatchTarget>();
+            return patchWorker.GetPatchTargetsForDef(this) ?? new List<PatchTarget>();
+        }
+    }
 
     public override IEnumerable<string> ConfigErrors()
     {
         if (iconPath == null || iconPath.Trim() == "")
             yield return "IconPath is null or empty";
 
-        if (patchTargets is not null)
+        if (patchWorker?.ConfigErrors() is { } patchErrors)
         {
-            if (patchTargets.Count == 0)
-                yield return "PatchTargets is empty";
-            foreach (var configError in patchTargets.SelectMany(patchTarget => patchTarget.ConfigErrors()))
-                yield return configError;
+            foreach (var configError in patchErrors)
+                if (configError is not null)
+                    yield return configError;
         }
 
-        if (base.ConfigErrors() is { } errors)
-            foreach (var configError in errors)
-                if (configError is not null) yield return configError;
+        if (base.ConfigErrors() is { } baseErrors)
+            foreach (var configError in baseErrors)
+                if (configError is not null)
+                    yield return configError;
     }
 
     // XML defined fields
@@ -96,7 +106,9 @@ public class LetterIconOverrideDef : Def
 
     public List<QuestScriptDef> questScripts;
 
-    public List<PatchTarget> patchTargets;
+    public List<GatheringDef> gatherings;
 
-    public Type iconResolverClass;
+    public PatchWorker patchWorker;
+
+    public Type resolverClass;
 }

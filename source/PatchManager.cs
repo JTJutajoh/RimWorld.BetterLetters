@@ -8,103 +8,6 @@ using JetBrains.Annotations;
 namespace BetterLetters;
 
 /// <summary>
-/// Class used to represent a target method to be patched through XML.
-/// </summary>
-[UsedImplicitly]
-public class PatchTarget
-{
-    internal string TypeColonName => $"{typeName}:{methodName}";
-
-    internal Type[]? Parameters
-    {
-        get
-        {
-            if (argumentTypes == null || argumentTypes.Count == 0)
-                return null;
-
-            var argTypes = new Type[argumentTypes.Count];
-            for (var i = 0; i < argumentTypes.Count; i++)
-            {
-                var type = Type.GetType(argumentTypes[i]!);
-
-                argTypes[i] = type ?? throw new InvalidOperationException(
-                    $"{argumentTypes[i]} is not a valid type in any loaded assemblies.");
-            }
-
-            return argTypes;
-        }
-    }
-
-    private MethodInfo? _targetMethodInt;
-
-    internal MethodInfo? TargetMethod
-    {
-        get
-        {
-            if (_targetMethodInt != null) return _targetMethodInt;
-
-            var method = AccessTools.Method(
-                typeColonName: TypeColonName,
-                parameters: Parameters!
-            );
-
-            _targetMethodInt = method;
-            return method;
-        }
-    }
-
-    internal string LetterSendingMethod =>
-        letterSendingMethodName.NullOrEmpty() ? "ReceiveLetter" : letterSendingMethodName;
-
-    internal IEnumerable<string> ConfigErrors()
-    {
-        if (TargetMethod == null)
-            yield return $"Target method {TypeColonName} not found in any loaded assemblies";
-
-        foreach (var arg in argumentTypes ?? new List<string>())
-        {
-            if (arg == null)
-            {
-                yield return "Argument type is null";
-                continue;
-            }
-
-            if (arg.Trim() == "")
-            {
-                yield return "Argument type is empty";
-                continue;
-            }
-
-            var type = Type.GetType(arg);
-            if (type == null)
-            {
-                yield return $"Argument type {arg} not found in any loaded assemblies";
-                continue;
-            }
-        }
-    }
-
-
-    // ReSharper disable InconsistentNaming
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
-
-    // XML-defined fields
-    private string typeName;
-
-    private string methodName;
-
-    private string letterSendingMethodName;
-
-    private List<string>? argumentTypes;
-
-
-#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    // ReSharper restore InconsistentNaming
-}
-
-/// <summary>
 ///     Helper class for all Harmony patching functionality.
 /// </summary>
 [StaticConstructorOnStartup]
@@ -113,6 +16,8 @@ internal static class PatchManager
 {
     internal static readonly Harmony Harmony;
 
+    internal static List<string> AllPatchCategories = new();
+
     private static int _loadedPatches;
     private static int _failedPatches;
     private static int _skippedPatches;
@@ -120,7 +25,6 @@ internal static class PatchManager
 
     static PatchManager()
     {
-        // Harmony.DEBUG = true;
         Harmony = new Harmony(BetterLettersMod.Instance!.Content!.PackageId!);
 
         Log.Message("Running Harmony patches...");
@@ -149,9 +53,19 @@ internal static class PatchManager
 
     private static void PatchAll()
     {
-        //MAYBE: Harvest all existent patch categories and iterate over them here instead
-        foreach (var patchCategory in Settings.EnabledPatchCategories)
-            PatchCategory(patchCategory);
+        AllPatchCategories = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .SelectMany(t => t.GetCustomAttributes(typeof(HarmonyPatchCategory), true)
+                .Cast<HarmonyPatchCategory>()
+                .Select(attr => attr.info?.category))
+            .Where(category => !string.IsNullOrEmpty(category!))
+            .Distinct()
+            .ToList()!;
+
+        foreach (var category in AllPatchCategories)
+        {
+            PatchCategory(category!);
+        }
     }
 
     internal static void RepatchAll()
@@ -162,7 +76,7 @@ internal static class PatchManager
             UnpatchCategory(patch);
         }
 
-        foreach (var patch in Settings.EnabledPatchCategories)
+        foreach (var patch in AllPatchCategories)
         {
             PatchCategory(patch);
         }
@@ -196,7 +110,7 @@ internal static class PatchManager
                 t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
             .Count(m => m.GetCustomAttributes(typeof(HarmonyPatch), true).Length > 0);
 
-        if (Settings.EnabledPatchCategories.Contains(category) == false)
+        if (Settings.DisabledPatchCategories.Contains(category))
         {
             Log.Message($"Patch category \"{category}\" disabled in mod settings. Skipping.");
             _skippedPatches += numMethods;
@@ -248,14 +162,12 @@ internal static class PatchManager
         var alreadyPatched = _allEnabledSuccessfulPatches.Contains(category);
         if (patch && !alreadyPatched)
         {
-            Settings.EnabledPatchCategories.Add(category);
             Settings.DisabledPatchCategories.Remove(category);
             PatchCategory(category);
         }
         else if (!patch && alreadyPatched)
         {
             Settings.DisabledPatchCategories.Add(category);
-            Settings.EnabledPatchCategories.Remove(category);
             UnpatchCategory(category);
         }
         else

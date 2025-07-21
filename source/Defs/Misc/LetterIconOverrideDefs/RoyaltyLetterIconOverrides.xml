@@ -9,17 +9,18 @@
             <li>CaravanArrivalTributeCollector</li>
             <li>AnimaTreeSpawn</li>
         </incidents>
-        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.RoyaltyIconOverrideResolver</iconResolverClass>
-        <patchTargets>
-            <li>
-                <typeName>Pawn_RoyaltyTracker</typeName>
-                <methodName>OnPreTitleChanged</methodName>
-            </li>
-            <li>
-                <typeName>RitualOutcomeEffectWorker_Bestowing</typeName>
-                <methodName>Apply</methodName>
-            </li>
-        </patchTargets>
+        <resolverClass>BetterLetters.LetterIconOverrideResolvers.RoyaltyIconOverrideResolver</resolverClass>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
+    </BetterLetters.LetterIconOverrideDef>
+
+
+
+    <BetterLetters.LetterIconOverrideDef MayRequire="Ludeon.RimWorld.Royalty">
+        <defName>Concert</defName>
+        <iconPath>UI/Letters/LetterConcert</iconPath>
+        <gatherings>
+            <li>Concert</li>
+        </gatherings>
     </BetterLetters.LetterIconOverrideDef>
 
 </Defs>

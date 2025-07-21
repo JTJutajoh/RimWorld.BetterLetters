@@ -44,6 +44,7 @@ internal static class Patch_Letter_ExposeData
             __instance.TryGetIconResolver(out iconOverrideResolver);
         }
 
+        // ReSharper disable RedundantArgumentDefaultValue
         if (Scribe.mode != LoadSaveMode.Saving || snooze is not null)
             Scribe_Deep.Look(ref snooze, false, "Snooze");
         Scribe_Values.Look(ref wasEverSnoozed, "WasEverSnoozed", false);
@@ -51,6 +52,7 @@ internal static class Patch_Letter_ExposeData
         Scribe_Defs.Look(ref iconOverrideDef, "IconOverrideDef");
         if (Scribe.mode != LoadSaveMode.Saving || iconOverrideResolver is not null)
             Scribe_Deep.Look(ref iconOverrideResolver, false, "IconOverrideResolver");
+        // ReSharper restore RedundantArgumentDefaultValue
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             if (snooze is not null)

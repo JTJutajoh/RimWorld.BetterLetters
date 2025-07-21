@@ -10,36 +10,8 @@
             <li>EnslaveAttempt</li>
             <li>SparkSlaveRebellion</li>
         </interactions>
-        <patchTargets>
-<!--            <li>-->
-<!--                <typeName>RimWorld.Ideo</typeName>-->
-<!--                <methodName>RecacheColonistBelieverCount</methodName>-->
-<!--            </li>-->
-<!--            <li>-->
-<!--                <typeName>RimWorld.IdeoDevelopmentTracker</typeName>-->
-<!--                <methodName>TryAddDevelopmentPoints</methodName>-->
-<!--                <argumentTypes>-->
-<!--                    <li>System.Int32</li>-->
-<!--                </argumentTypes>-->
-<!--            </li>-->
-<!--            <li>-->
-<!--                <typeName>RimWorld.Precept_Ritual</typeName>-->
-<!--                <methodName>AddObligation</methodName>-->
-<!--            </li>-->
-            <li>
-                <typeName>RimWorld.Precept_RoleSingle</typeName>
-                <methodName>Assign</methodName>
-            </li>
-<!--            <li>-->
-<!--                <typeName>RimWorld.Precept_RoleSingle</typeName>-->
-<!--                <methodName>RecacheActivity</methodName>-->
-<!--            </li>-->
-            <li>
-                <typeName>RimWorld.RitualOutcomeEffectWorker_RoleChange</typeName>
-                <methodName>Apply</methodName>
-            </li>
-        </patchTargets>
-        <iconResolverClass>BetterLetters.LetterIconOverrideResolvers.IdeologyIconOverrideResolver</iconResolverClass>
+        <resolverClass>BetterLetters.LetterIconOverrideResolvers.IdeologyIconOverrideResolver</resolverClass>
+        <patchWorker Class="BetterLetters.GenericTranspilerPatchWorker" />
     </BetterLetters.LetterIconOverrideDef>
 
 </Defs>

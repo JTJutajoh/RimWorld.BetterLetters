@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using JetBrains.Annotations;
-using RimWorld;
+﻿using JetBrains.Annotations;
 
 namespace BetterLetters.LetterIconOverrideResolvers;
 

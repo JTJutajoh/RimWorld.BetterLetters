@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BetterLetters.Patches;
 using HarmonyLib;
+using LudeonTK;
 using RimWorld;
 using UnityEngine;
 
@@ -59,6 +61,8 @@ internal class Settings : ModSettings
     [Setting] internal static int SnoozeTickPeriod = GenTicks.TicksPerRealSecond;
 
     [Setting] internal static bool EnableRightClickPinnedLetters = true;
+    [Setting] internal static bool EnableLetterIconsGlobal = true;
+    [Obsolete] [Setting] internal static bool EnableLetterAppearancePatches = true;
     [Setting] internal static bool ReplaceLetterIcons = true;
     [Setting] internal static bool ModifyLetterText = true;
     [Setting] internal static bool RaidAddDropPod = true;
@@ -78,7 +82,6 @@ internal class Settings : ModSettings
     [Setting] internal static bool RemindersOpen = false;
     [Setting] internal static bool DoCreateReminderPlaySetting = true;
     [Setting] internal static bool AutoSelectThingForReminders = true;
-    [Setting] internal static bool EnableLetterAppearancePatches = true;
     [Setting] internal static bool DoLetterDecorators = true;
     [Setting] internal static bool OffsetLetterLabels = true;
     [Setting] internal static float LetterLabelsOffsetAmount = 0f;
@@ -89,29 +92,6 @@ internal class Settings : ModSettings
     [Setting] internal static bool KeepQuestLettersOnStack = true;
     [Setting] internal static bool ChangeExpiredQuestLetters = true;
     [Setting] internal static QuestExpirationSounds QuestExpirationSound = QuestExpirationSounds.LetterArrive;
-
-    [Setting] internal static List<string> EnabledPatchCategories = new()
-    {
-        "Letter_RemoveLetter_KeepOnStack",
-        "Letter_RemoveLetter_KeepOnStack_QuestLetter",
-        "Letter_OpenLetter_AddDiaOptions",
-        "Dialog_AddIcons",
-        "ArchivePin_AddBackToStack",
-        "Letter_CanDismissWithRightClick_BlockIfPinned",
-        "Letter_DrawInLetterStack",
-        "Letter_CanCull_KeepSnoozes",
-        "LetterStack_SortPinned",
-        "PlaySettings_CreateReminderButton",
-        "HistoryFiltersAndButtons",
-        "ExpireQuestLetters",
-        "BundleLetters",
-        "HistoryArchivableRow",
-        "QuestsTab_Buttons",
-        "RaidLetter_AddDetails",
-        "LetterStack_AddButtons",
-        "LetterIconCaching",
-        "ExposeDataPatches"
-    };
 
     [Setting] internal static List<string> DisabledPatchCategories = new();
 
@@ -126,6 +106,7 @@ internal class Settings : ModSettings
     internal enum SettingsTab
     {
         Main,
+        LetterIcons,
         Patches,
         Cache
     }
@@ -133,9 +114,12 @@ internal class Settings : ModSettings
     internal static SettingsTab CurrentTab = SettingsTab.Main;
     private const float TabHeight = 32f;
 
+    internal static List<LetterIconOverrideDef> AllLetterIconOverrides;
+
     public Settings()
     {
         HarvestSettingsDefaults(out DefaultSettings);
+        AllLetterIconOverrides = DefDatabase<LetterIconOverrideDef>.AllDefsListForReading ?? new();
     }
 
 
@@ -218,8 +202,13 @@ internal class Settings : ModSettings
         {
             new TabRecord("BetterLetters_Settings_Tab_Main".Translate(), () => CurrentTab = SettingsTab.Main,
                 () => CurrentTab == SettingsTab.Main),
+            new TabRecord("BetterLetters_Settings_Tab_LetterIcons".Translate(),
+                () => CurrentTab = SettingsTab.LetterIcons,
+                () => CurrentTab == SettingsTab.LetterIcons),
+#if DEBUG
             new TabRecord("BetterLetters_Settings_Tab_Patches".Translate(), () => CurrentTab = SettingsTab.Patches,
                 () => CurrentTab == SettingsTab.Patches),
+#endif
         };
         if (Prefs.DevMode && WorldComponent_SnoozeManager.Instance is not null)
         {
@@ -249,7 +238,19 @@ internal class Settings : ModSettings
                 }
 
                 break;
+            case SettingsTab.LetterIcons:
+                try
+                {
+                    DoTabLetterIcons(tabRect);
+                }
+                catch (Exception e)
+                {
+                    Log.Exception(e, "Error drawing letter icons settings tab.", true);
+                    CurrentTab = SettingsTab.Main;
+                }
 
+                break;
+#if DEBUG
             case SettingsTab.Patches:
                 try
                 {
@@ -261,7 +262,7 @@ internal class Settings : ModSettings
                 }
 
                 break;
-
+#endif
             case SettingsTab.Cache:
                 try
                 {
@@ -456,58 +457,58 @@ internal class Settings : ModSettings
             GetSettingTooltip("AddBulkDismissButton"), 36f);
 
         section.GapLine();
+        //
+        // section.CheckboxLabeled(GetSettingLabel("EnableLetterAppearancePatches"), ref EnableLetterAppearancePatches);
+        //
+        // section.Gap();
+        //
+        // section.Label("BetterLetters_Settings_LabelsAndDecoratorsHeading".Translate());
+        //
+        // if (section.RadioButton("BetterLetters_Settings_VanillaLabelsAndDecorators".Translate(),
+        //         (!DoLetterDecorators && !OffsetLetterLabels),
+        //         0.3f, 0.3f, null!, null, !EnableLetterAppearancePatches))
+        // {
+        //     DoLetterDecorators = false;
+        //     OffsetLetterLabels = false;
+        // }
+        //
+        // if (section.RadioButton(GetSettingLabel("DoLetterDecorators"), DoLetterDecorators, 0.3f, 0.3f,
+        //         GetSettingTooltip("DoLetterDecorators"), null, !EnableLetterAppearancePatches))
+        // {
+        //     DoLetterDecorators = true;
+        // }
+        //
+        // if (section.RadioButton(GetSettingLabel("OffsetLetterLabels"), (OffsetLetterLabels && !DoLetterDecorators),
+        //         0.3f, 0.3f, GetSettingTooltip("OffsetLetterLabels"), null, !EnableLetterAppearancePatches))
+        // {
+        //     OffsetLetterLabels = true;
+        //     DoLetterDecorators = false;
+        // }
+        //
+        // if (!OffsetLetterLabels || !EnableLetterAppearancePatches)
+        //     GUI.color = new Color(1f, 1f, 1f, 0.5f);
+        //
+        // var tempOffsetAmount = section.SliderLabeled(GetSettingLabel("LetterLabelsOffsetAmount", true, "px"),
+        //     LetterLabelsOffsetAmount, -52f, 64f, 0.7f, GetSettingTooltip("LetterLabelsOffsetAmount"));
+        //
+        // if (OffsetLetterLabels && EnableLetterAppearancePatches)
+        //     LetterLabelsOffsetAmount = Mathf.RoundToInt(tempOffsetAmount);
+        // GUI.color = Color.white;
+        //
+        // section.GapLine();
 
-        section.CheckboxLabeled(GetSettingLabel("EnableLetterAppearancePatches"), ref EnableLetterAppearancePatches);
-
-        section.Gap();
-
-        section.Label("BetterLetters_Settings_LabelsAndDecoratorsHeading".Translate());
-
-        if (section.RadioButton("BetterLetters_Settings_VanillaLabelsAndDecorators".Translate(),
-                (!DoLetterDecorators && !OffsetLetterLabels),
-                0.3f, 0.3f, null!, null, !EnableLetterAppearancePatches))
-        {
-            DoLetterDecorators = false;
-            OffsetLetterLabels = false;
-        }
-
-        if (section.RadioButton(GetSettingLabel("DoLetterDecorators"), DoLetterDecorators, 0.3f, 0.3f,
-                GetSettingTooltip("DoLetterDecorators"), null, !EnableLetterAppearancePatches))
-        {
-            DoLetterDecorators = true;
-        }
-
-        if (section.RadioButton(GetSettingLabel("OffsetLetterLabels"), (OffsetLetterLabels && !DoLetterDecorators),
-                0.3f, 0.3f, GetSettingTooltip("OffsetLetterLabels"), null, !EnableLetterAppearancePatches))
-        {
-            OffsetLetterLabels = true;
-            DoLetterDecorators = false;
-        }
-
-        if (!OffsetLetterLabels || !EnableLetterAppearancePatches)
-            GUI.color = new Color(1f, 1f, 1f, 0.5f);
-
-        var tempOffsetAmount = section.SliderLabeled(GetSettingLabel("LetterLabelsOffsetAmount", true, "px"),
-            LetterLabelsOffsetAmount, -52f, 64f, 0.7f, GetSettingTooltip("LetterLabelsOffsetAmount"));
-
-        if (OffsetLetterLabels && EnableLetterAppearancePatches)
-            LetterLabelsOffsetAmount = Mathf.RoundToInt(tempOffsetAmount);
-        GUI.color = Color.white;
-
-        section.GapLine();
-
-        section.Label("BetterLetters_Settings_ReplaceLetterIcons".Translate());
-        if (section.RadioButton("BetterLetters_Settings_ReplaceLetterIcons_Disabled".Translate(),
-                !ReplaceLetterIcons, 0f, 0f, GetSettingTooltip("ReplaceLetterIcons"), null,
-                !EnableLetterAppearancePatches))
-            ReplaceLetterIcons = false;
-        if (section.RadioButton("BetterLetters_Settings_ReplaceLetterIcons_Enabled".Translate(),
-                ReplaceLetterIcons, 0f, 0f, GetSettingTooltip("ReplaceLetterIcons"), null,
-                !EnableLetterAppearancePatches))
-            ReplaceLetterIcons = true;
-        section.SubLabel("BetterLetters_Settings_ReplaceLetterIcons_RequiresRestart".Translate(), 1f);
-
-        section.GapLine();
+        // section.Label("BetterLetters_Settings_ReplaceLetterIcons".Translate());
+        // if (section.RadioButton("BetterLetters_Settings_ReplaceLetterIcons_Disabled".Translate(),
+        //         !ReplaceLetterIcons, 0f, 0f, GetSettingTooltip("ReplaceLetterIcons"), null,
+        //         !EnableLetterAppearancePatches))
+        //     ReplaceLetterIcons = false;
+        // if (section.RadioButton("BetterLetters_Settings_ReplaceLetterIcons_Enabled".Translate(),
+        //         ReplaceLetterIcons, 0f, 0f, GetSettingTooltip("ReplaceLetterIcons"), null,
+        //         !EnableLetterAppearancePatches))
+        //     ReplaceLetterIcons = true;
+        // section.SubLabel("BetterLetters_Settings_ReplaceLetterIcons_RequiresRestart".Translate(), 1f);
+        //
+        // section.GapLine();
 
         if (section.RadioButton(GetSettingLabel("DisableBounceIfPinned"),
                 (!DisableBounceAlways && DisableBounceIfPinned), 0f,
@@ -797,6 +798,134 @@ internal class Settings : ModSettings
         listing.EndSection(section);
     }
 
+    private static float _letterIconDefsScrollHeight = 470f;
+
+    private static Vector2 _letterIconsScrollPosition = Vector2.zero;
+
+    private static Rect _letterIconsViewRect = Rect.zero;
+
+    [TweakValue("BetterLetters", 24f, 100f)]
+    private static float defsListingRowHeight = 32f;
+
+    private static void DoTabLetterIcons(Rect inRect)
+    {
+        var topListing = new Listing_Standard();
+        var topListingRect = inRect.TopPartPixels(64f);
+        topListingRect.y += 4f;
+        topListingRect = topListingRect.ContractedBy(8f, 0f);
+        topListing.Begin(topListingRect);
+
+        topListing.CheckboxLabeled(GetSettingLabel("EnableLetterIconsGlobal"), ref EnableLetterIconsGlobal);
+        topListing.SubLabel("BetterLetters_Settings_RequiresRestart".Translate(), 1f);
+        topListing.GapLine(2f);
+
+        topListing.End();
+
+        // if (!EnableLetterIconsGlobal) return;
+
+        var bottomListingRect = new Rect(inRect.ContractedBy(8f));
+        bottomListingRect.yMin += topListing.CurHeight + 4f;
+
+        var listing = new Listing_Standard();
+
+        listing.Begin(bottomListingRect);
+
+        listing.ColumnWidth /= 2.05f;
+
+        listing.Label("BetterLetters_Settings_ReplaceLetterIcons".Translate());
+        if (listing.RadioButton("BetterLetters_Settings_ReplaceLetterIcons_Disabled".Translate(),
+                !ReplaceLetterIcons, 0f, 0f, GetSettingTooltip("ReplaceLetterIcons"), null,
+                !EnableLetterIconsGlobal) && EnableLetterIconsGlobal)
+            ReplaceLetterIcons = false;
+        if (listing.RadioButton("BetterLetters_Settings_ReplaceLetterIcons_Enabled".Translate(),
+                ReplaceLetterIcons, 0f, 0f, GetSettingTooltip("ReplaceLetterIcons"), null,
+                !EnableLetterIconsGlobal) && EnableLetterIconsGlobal)
+            ReplaceLetterIcons = true;
+        listing.SubLabel("BetterLetters_Settings_ReplaceLetterIcons_RequiresRestart".Translate(), 1f);
+
+        listing.Gap();
+
+        listing.Label("BetterLetters_Settings_LabelsAndDecoratorsHeading".Translate());
+
+        if (listing.RadioButton("BetterLetters_Settings_VanillaLabelsAndDecorators".Translate(),
+                (!DoLetterDecorators && !OffsetLetterLabels),
+                0.3f, 0.3f, null!, null, !EnableLetterIconsGlobal) && EnableLetterIconsGlobal)
+        {
+            DoLetterDecorators = false;
+            OffsetLetterLabels = false;
+        }
+
+        if (listing.RadioButton(GetSettingLabel("DoLetterDecorators"), DoLetterDecorators, 0.3f, 0.3f,
+                GetSettingTooltip("DoLetterDecorators"), null, !EnableLetterIconsGlobal) && EnableLetterIconsGlobal)
+        {
+            DoLetterDecorators = true;
+        }
+
+        if (listing.RadioButton(GetSettingLabel("OffsetLetterLabels"), (OffsetLetterLabels && !DoLetterDecorators),
+                0.3f, 0.3f, GetSettingTooltip("OffsetLetterLabels"), null, !EnableLetterIconsGlobal) &&
+            EnableLetterIconsGlobal)
+        {
+            OffsetLetterLabels = true;
+            DoLetterDecorators = false;
+        }
+
+        if (!OffsetLetterLabels || !EnableLetterIconsGlobal)
+            GUI.color = new Color(1f, 1f, 1f, 0.5f);
+
+        var tempOffsetAmount = listing.SliderLabeled(GetSettingLabel("LetterLabelsOffsetAmount", true, "px"),
+            LetterLabelsOffsetAmount, -52f, 64f, 0.7f, GetSettingTooltip("LetterLabelsOffsetAmount"));
+
+        if (OffsetLetterLabels && EnableLetterIconsGlobal)
+            LetterLabelsOffsetAmount = Mathf.RoundToInt(tempOffsetAmount);
+        GUI.color = Color.white;
+
+
+        listing.NewColumn();
+        var section = listing.BeginSection(_letterIconDefsScrollHeight)!;
+
+        section.SectionHeader("BetterLetters_Settings_LetterIconOverrideDefsListing");
+
+        var parentRect = new Rect(0f, section.CurHeight, listing.ColumnWidth - 10f,
+            _letterIconDefsScrollHeight - section.CurHeight - 10f);
+        var outRect = new Rect(parentRect);
+
+        var viewRectHeight = AllLetterIconOverrides.Count * defsListingRowHeight;
+        var viewRect = parentRect with { height = viewRectHeight };
+
+        Widgets.AdjustRectsForScrollView(parentRect, ref outRect, ref viewRect);
+
+        Widgets.BeginScrollView(outRect, ref _letterIconsScrollPosition, viewRect, true);
+
+        var curY = section.CurHeight;
+
+        foreach (var def in AllLetterIconOverrides)
+        {
+            DoLetterIconOverrideDefRow(def, viewRect, ref curY);
+        }
+
+        Widgets.EndScrollView();
+
+        listing.EndSection(section);
+
+        listing.End();
+    }
+
+    private static void DoLetterIconOverrideDefRow(LetterIconOverrideDef def, Rect outerRect, ref float curY)
+    {
+        var rowRect = new Rect(outerRect.xMin, curY, outerRect.width, defsListingRowHeight);
+        var iconRect = rowRect.LeftPartPixels(defsListingRowHeight);
+        Widgets.DrawTextureFitted(iconRect, def.Icon ?? LetterDefOf.NeutralEvent!.Icon!, 1f, 1f);
+
+        Text.Anchor = TextAnchor.MiddleLeft;
+        Widgets.Label(rowRect with { x = rowRect.x + defsListingRowHeight + 4f }, def.defName ?? "null");
+        Text.Anchor = TextAnchor.UpperLeft;
+
+        TooltipHandler.TipRegionByKey(rowRect, "BetterLetters_Settings_LetterIconOverrideDef_Tooltip", def.defName,
+            def.TriggeringDefs.Select(d => d.defName).ToList().Join(delimiter: "\n"));
+
+        curY += defsListingRowHeight;
+    }
+
     private static Vector2 _scrollPositionPatchesTab = Vector2.zero;
     private static float? _lastPatchesTabHeight;
 
@@ -836,31 +965,16 @@ internal class Settings : ModSettings
 
         listing.GapLine();
         listing.Label("BetterLetters_Settings_Patches_Enabled".Translate());
-        foreach (var patch in EnabledPatchCategories)
+        foreach (var patch in PatchManager.AllPatchCategories)
         {
-            DisabledPatchCategories.Remove(patch);
-            var enabled = true;
-            listing.CheckboxLabeled($"BetterLetters_Settings_PatchCategory_{patch}".Translate(), ref enabled, 80f);
-            if (!enabled)
-            {
-                DisabledPatchCategories.Add(patch);
-            }
-        }
-
-        listing.GapLine();
-        listing.Label("BetterLetters_Settings_Patches_Disabled".Translate());
-        foreach (var patch in DisabledPatchCategories)
-        {
-            EnabledPatchCategories.Remove(patch);
-            var enabled = false;
+            var enabled = !DisabledPatchCategories.Contains(patch);
             listing.CheckboxLabeled($"BetterLetters_Settings_PatchCategory_{patch}".Translate(), ref enabled, 80f);
             if (enabled)
-            {
-                EnabledPatchCategories.Add(patch);
-            }
+                DisabledPatchCategories.Remove(patch);
+            else
+                DisabledPatchCategories.Add(patch);
         }
 
-        EnabledPatchCategories.Sort();
         DisabledPatchCategories.Sort();
 
         _lastPatchesTabHeight = listing.MaxColumnHeightSeen;
@@ -926,6 +1040,9 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref EnableRightClickPinnedLetters, "EnableRightClickPinnedLetters",
             (bool)DefaultSettings[nameof(EnableRightClickPinnedLetters)]);
 
+        Scribe_Values.Look(ref EnableLetterIconsGlobal, "EnableLetterIconsGlobal",
+            (bool)DefaultSettings[nameof(EnableLetterIconsGlobal)]);
+
         Scribe_Values.Look(ref DisableBounceIfPinned, "DisableBounceIfPinned",
             (bool)DefaultSettings[nameof(DisableBounceIfPinned)]);
 
@@ -978,9 +1095,6 @@ internal class Settings : ModSettings
         Scribe_Values.Look(ref DoLetterDecorators, "DoLetterDecorators",
             (bool)DefaultSettings[nameof(DoLetterDecorators)]);
 
-        Scribe_Values.Look(ref EnableLetterAppearancePatches, "EnableLetterAppearancePatches",
-            (bool)DefaultSettings[nameof(EnableLetterAppearancePatches)]);
-
         Scribe_Values.Look(ref LetterLabelsOffsetAmount, "LetterLabelsOffsetAmount",
             (float)DefaultSettings[nameof(LetterLabelsOffsetAmount)]);
 
@@ -991,10 +1105,12 @@ internal class Settings : ModSettings
             (int)DefaultSettings[nameof(DurationSimilarityThreshold)]);
 
         Scribe_Collections.Look(ref RecentSnoozeDurations, "RecentSnoozeDurations", LookMode.Value);
+        Scribe_Collections.Look(ref DisabledPatchCategories, "DisabledPatchCategories", LookMode.Value);
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             RecentSnoozeDurations ??= new List<int>();
+            DisabledPatchCategories ??= new List<string>();
         }
 
         base.ExposeData();
