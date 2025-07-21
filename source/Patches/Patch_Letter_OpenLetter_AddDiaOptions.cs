@@ -58,11 +58,30 @@ namespace BetterLetters.Patches
                     // Modify the list of options
                     yield return CodeInstruction
                         .CallClosure<Func<IEnumerable<DiaOption>, Letter, IEnumerable<DiaOption>>>((options, letter) =>
-                            !Settings.DiaOptionButtonsEnabled ? options : options.Prepend(Option_Pin(letter)))!;
+                            !Settings.DiaOptionButtonsEnabled
+                                ? options
+                                : options.Prepend(Option_MarkUnread(letter)).Prepend(Option_Pin(letter)))!;
                 }
 
                 yield return codes[i]!;
             }
+        }
+
+        static DiaOption Option_MarkUnread(Letter __instance)
+        {
+            var option = new DiaOption("BetterLetters_MarkUnread".Translate());
+
+            if (!__instance.CanCloseDialog())
+            {
+                option.disabled = true;
+                option.disabledReason = "BetterLetters_CannotCloseDialogReason".Translate();
+            }
+            else
+            {
+                option.resolveTree = true;
+            }
+
+            return option;
         }
 
         /// Creates the "Pin" button for the dialog and defines the result when you click it, as well as the

@@ -164,6 +164,11 @@ namespace BetterLetters.Utils
             return null;
         }
 
+        public static bool CanCloseDialog(this Letter letter)
+        {
+            return letter is StandardLetter || letter is DeathLetter || letter is NewQuestLetter || letter.ArchivedOnly;
+        }
+
         /// <summary>
         /// Given a letter, checks if the letter itself has an expiration or if it's associated with a quest that does.
         /// </summary>

@@ -117,9 +117,9 @@ namespace BetterLetters.Patches
 
 
 #if v1_1 || v1_2 || v1_3
-        private const int NumButtons = 2;
-#else
         private const int NumButtons = 3;
+#else
+        private const int NumButtons = 4;
 #endif
         private const float ButtonsPadding = 0f;
         private const float ButtonsSpacing = 6f;
@@ -430,32 +430,35 @@ namespace BetterLetters.Patches
             var innerButtonsRect = _buttonsRect.ContractedBy(ButtonsPadding);
 
             // Switch the order of buttons so the gear button is always on the "inside"
-            List<Action<Letter, Rect>> buttons;
+            List<Action<Letter, Rect, Action?>> buttons;
             switch (Settings.LetterButtonsPosition)
             {
                 case Settings.ButtonPlacement.TopRight:
                 case Settings.ButtonPlacement.BottomRight:
-                    buttons = new List<Action<Letter, Rect>>(NumButtons)
+                    buttons = new List<Action<Letter, Rect, Action?>>(NumButtons)
                     {
                         CustomWidgets.GearIconButton,
                         CustomWidgets.SnoozeIconButton,
                         CustomWidgets.PinIconButton,
+                        CustomWidgets.MarkUnreadIconButton,
                     };
                     break;
                 case Settings.ButtonPlacement.TopMiddle:
                 case Settings.ButtonPlacement.BottomMiddle:
-                    buttons = new List<Action<Letter, Rect>>(NumButtons)
+                    buttons = new List<Action<Letter, Rect, Action?>>(NumButtons)
                     {
                         CustomWidgets.GearIconButton,
                         CustomWidgets.PinIconButton,
+                        CustomWidgets.MarkUnreadIconButton,
                         CustomWidgets.SnoozeIconButton,
                     };
                     break;
                 case Settings.ButtonPlacement.TopLeft:
                 case Settings.ButtonPlacement.BottomLeft:
                 default:
-                    buttons = new List<Action<Letter, Rect>>(NumButtons)
+                    buttons = new List<Action<Letter, Rect, Action?>>(NumButtons)
                     {
+                        CustomWidgets.MarkUnreadIconButton,
                         CustomWidgets.PinIconButton,
                         CustomWidgets.SnoozeIconButton,
                         CustomWidgets.GearIconButton,
@@ -468,12 +471,18 @@ namespace BetterLetters.Patches
 #endif
 
             // Widgets.DrawWindowBackground(_buttonsRect);
+
             var curX = innerButtonsRect.xMin;
             var buttonRect = innerButtonsRect with { x = curX, width = ButtonSize };
             foreach (var button in buttons)
             {
+                Action? onClicked = null;
+                if (letter.CanCloseDialog() && button == CustomWidgets.MarkUnreadIconButton)
+                {
+                    onClicked = () => __instance.Close();
+                }
                 buttonRect.x = curX;
-                button(letter, buttonRect);
+                button(letter, buttonRect, onClicked);
                 curX += ButtonsSpacing + ButtonSize;
             }
         }

@@ -11,7 +11,8 @@
   <BetterLetters_Reminder>Reminder</BetterLetters_Reminder>
   <BetterLetters_Reminders>Reminders</BetterLetters_Reminders>
   <BetterLetters_PinSnooze>Should this reminder automatically get pinned when it fires?</BetterLetters_PinSnooze>
-
+  <BetterLetters_MarkUnread>Mark unread</BetterLetters_MarkUnread>
+  <BetterLetters_CannotCloseDialogReason>Can't mark unread because this dialog does not allow itself to be closed.</BetterLetters_CannotCloseDialogReason>
   <!-- Snooze float menu -->
   <BetterLetters_SnoozeForFloatMenuOption>Snooze for...</BetterLetters_SnoozeForFloatMenuOption>
   <BetterLetters_SnoozeFor1Hour>Snooze for 1 hour</BetterLetters_SnoozeFor1Hour>
@@ -147,6 +148,7 @@ Has several options for what types of letters to dismiss, such as expired quests
   <BetterLetters_Settings_Tab_Main>Main</BetterLetters_Settings_Tab_Main>
   <BetterLetters_Settings_Tab_Cache>Cache</BetterLetters_Settings_Tab_Cache>
   <BetterLetters_Settings_Tab_Patches>Patches</BetterLetters_Settings_Tab_Patches>
+  <BetterLetters_Settings_Tab_LetterIcons>Letter Icons</BetterLetters_Settings_Tab_LetterIcons>
   <BetterLetters_Settings_Section_Quests>Quests settings</BetterLetters_Settings_Section_Quests>
   <BetterLetters_Settings_Section_Snoozing>Snoozing settings</BetterLetters_Settings_Section_Snoozing>
   <BetterLetters_Settings_Section_Reminders>Reminders settings</BetterLetters_Settings_Section_Reminders>
@@ -161,7 +163,8 @@ Has several options for what types of letters to dismiss, such as expired quests
 
 Default: {0}</BetterLetters_Settings_DefaultSuffix>
   <BetterLetters_Settings_RequiresRestart>(Requires restart)</BetterLetters_Settings_RequiresRestart>
-  
+
+  <BetterLetters_Settings_EnableLetterIconsGlobal>Toggle ALL Letter appearance changes</BetterLetters_Settings_EnableLetterIconsGlobal>
   <BetterLetters_Settings_EnableRightClickPinnedLetters>Enable right click float menu for pinned letters</BetterLetters_Settings_EnableRightClickPinnedLetters>
   <BetterLetters_Settings_EnableRightClickPinnedLetters_Desc>By default, pinned letters replace the vanilla "Right click to delete" functionality with a context menu that has several options including dismissing. Enable this if you want right click to always unpin pinned letters instead.</BetterLetters_Settings_EnableRightClickPinnedLetters_Desc>
   <BetterLetters_Settings_ModifyLetterText>Add information to Letter labels (new Letters only)</BetterLetters_Settings_ModifyLetterText>
@@ -193,6 +196,12 @@ Changes to this setting will take effect the next time the game is restarted.</B
   <BetterLetters_Settings_DisableFlashAlways_Desc>Letters in vanilla flash at you to get your attention. Turn this on to disable that vanilla feature entirely.</BetterLetters_Settings_DisableFlashAlways_Desc>
   <BetterLetters_Settings_DisableFlashNever>Enable flash for ALL letters (Vanilla)</BetterLetters_Settings_DisableFlashNever>
   <BetterLetters_Settings_DisableFlashNever_Desc>All letters, pinned or otherwise, will flash just like they normally do in vanilla.</BetterLetters_Settings_DisableFlashNever_Desc>
+
+  <BetterLetters_Settings_LetterIconOverrideDefsListing>Loaded Letter Icon overrides</BetterLetters_Settings_LetterIconOverrideDefsListing>
+  <BetterLetters_Settings_LetterIconOverrideDef_Tooltip>Letter Icon override def "{0}"
+Triggered by:
+{1}</BetterLetters_Settings_LetterIconOverrideDef_Tooltip>
+  <BetterLetters_Settings_LetterIconOverrideDef_Tooltip_HasResolver>Dynamic (using {0} class)</BetterLetters_Settings_LetterIconOverrideDef_Tooltip_HasResolver>
 
   <BetterLetters_Settings_RaidAddDropPod>Add prefix to Drop Pod raids</BetterLetters_Settings_RaidAddDropPod>
   <BetterLetters_Settings_RaidAddDropPod_Desc>Any raids with a "Drop" arrival mode have their letter name changed from "Raid" to "Drop Pod Raid" so you can assess the threat at a glance.</BetterLetters_Settings_RaidAddDropPod_Desc>

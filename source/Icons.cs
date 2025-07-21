@@ -41,8 +41,9 @@ internal static class Icons
         ContentFinder<Texture2D>.Get("UI/FloatMenuIcons/Snooze");
 
     internal static readonly Texture2D SnoozeIcon = ContentFinder<Texture2D>.Get("UI/Icons/Snoozed");
-
     internal static readonly Texture2D SnoozeOutline = ContentFinder<Texture2D>.Get("UI/Icons/SnoozedOutline");
+
+    internal static readonly Texture2D MarkUnreadIcon = ContentFinder<Texture2D>.Get("UI/Icons/Unread");
 
     internal static readonly Texture2D Gear = ContentFinder<Texture2D>.Get("UI/Icons/Gear");
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BetterLetters.Patches;
 using RimWorld;
 using UnityEngine;
 using Verse.Sound;
@@ -136,13 +137,15 @@ internal static class CustomWidgets
         Text.Anchor = TextAnchor.UpperLeft;
 
         // Ticks column
-        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Ticks".Translate(), ref remainderTicks, ref _editBufferTicks);
+        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Ticks".Translate(), ref remainderTicks,
+            ref _editBufferTicks);
         // Hours column
         TimeEntryColumn(inputRect, ref curX, "BetterLetters_Hours".Translate(), ref hours, ref _editBufferHours);
         // Days column
         TimeEntryColumn(inputRect, ref curX, "BetterLetters_Days".Translate(), ref days, ref _editBufferDays);
         // Quadrums column
-        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Seasons".Translate(), ref quadrums, ref _editBufferQuadrums);
+        TimeEntryColumn(inputRect, ref curX, "BetterLetters_Seasons".Translate(), ref quadrums,
+            ref _editBufferQuadrums);
         // Years column
         TimeEntryColumn(inputRect, ref curX, "BetterLetters_Years".Translate(), ref years, ref _editBufferYears);
 
@@ -227,16 +230,14 @@ internal static class CustomWidgets
         value = Mathf.Clamp(value, min, max);
     }
 
-    internal static void SnoozeIconButton(Letter letter, Rect rect)
+    internal static void SnoozeIconButton(Letter letter, Rect rect, Action? onClickedAction = null)
     {
-        // ReSharper disable once RedundantArgumentDefaultValue
-        SnoozeIconButton(letter, rect, null, false);
+        SnoozeIconButton(letter, rect, null, onClickedAction);
     }
 
-    internal static void SnoozeIconButton(Letter letter, Rect rect, List<FloatMenuOption>? extraFloatMenuOptions, bool shadow = false)
+    internal static void SnoozeIconButton(Letter letter, Rect rect, List<FloatMenuOption>? extraFloatMenuOptions,
+        Action? onClickedAction = null)
     {
-        if (shadow)
-            Widgets.DrawShadowAround(rect);
         var snoozed = letter.IsSnoozed();
         var tex = snoozed ? Icons.SnoozeIcon : Icons.SnoozeOutline;
         if (Widgets.ButtonImage(rect, tex))
@@ -255,6 +256,8 @@ internal static class CustomWidgets
                     snoozed = snooze is not null;
                 }, extraFloatMenuOptions: extraFloatMenuOptions);
             }
+
+            onClickedAction?.Invoke();
         }
 
         if (Mouse.IsOver(rect))
@@ -270,15 +273,8 @@ internal static class CustomWidgets
         }
     }
 
-    internal static void PinIconButton(Letter letter, Rect rect)
+    internal static void PinIconButton(Letter letter, Rect rect, Action? onClickedAction = null)
     {
-        PinIconButton(letter, rect, false);
-    }
-
-    internal static void PinIconButton(Letter letter, Rect rect, bool shadow)
-    {
-        if (shadow)
-            Widgets.DrawShadowAround(rect);
         var pinned = letter.IsPinned();
         var tex = pinned ? Icons.PinIcon : Icons.PinOutline;
         if (Widgets.ButtonImage(rect, tex))
@@ -293,6 +289,8 @@ internal static class CustomWidgets
                 letter.Pin();
                 SoundDefOf.Tick_High!.PlayOneShotOnCamera();
             }
+
+            onClickedAction?.Invoke();
         }
 
         if (Mouse.IsOver(rect))
@@ -302,7 +300,23 @@ internal static class CustomWidgets
         }
     }
 
-    internal static void GearIconButton(Letter _, Rect rect)
+    internal static void MarkUnreadIconButton(Letter letter, Rect rect, Action? onClickedAction = null)
+    {
+        var tex = Icons.MarkUnreadIcon;
+        if (Widgets.ButtonImage(rect, tex))
+        {
+            SoundDefOf.Tick_High!.PlayOneShotOnCamera();
+
+            onClickedAction?.Invoke();
+        }
+
+        if (Mouse.IsOver(rect))
+        {
+            TooltipHandler.TipRegionByKey(rect, "BetterLetters_MarkUnread");
+        }
+    }
+
+    internal static void GearIconButton(Letter _, Rect rect, Action? onClickedAction = null)
     {
 #if (v1_1 || v1_2 || v1_3)
         // Mod settings window changed in RW 1.4+ and it's not really possible to open a specific one easily in 1.1-1.3
@@ -315,6 +329,8 @@ internal static class CustomWidgets
         {
             Settings.CurrentTab = Settings.SettingsTab.Main;
             Find.WindowStack!.Add(new Dialog_ModSettings(BetterLettersMod.Instance!));
+
+            onClickedAction?.Invoke();
         }
 
         if (Mouse.IsOver(rect))
